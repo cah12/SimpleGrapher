@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="generator" content="HelpNDoc Personal Edition 6.9.0.577">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="favicon.ico"/>
+
+  <title>Curve properties pane</title>
+  <meta name="description" content="" /> 
+  <meta name="keywords" content="">
+
+
+
+  
+
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Curve properties pane">
+  <meta name="twitter:description" content="">
+
+  <!-- Open Graph data -->
+  <meta property="og:title" content="Curve properties pane" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="Grapher" /> 
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
+      <script src="vendors/respond-1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+  <!-- JsTree styles -->
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
+
+  <!-- Hnd styles -->
+  <link href="css/layout.min.css" rel="stylesheet" />
+  <link href="css/effects.min.css" rel="stylesheet" />
+  <link href="css/theme-light-blue.min.css" rel="stylesheet" />
+  <link href="css/print.min.css" rel="stylesheet" media="print" />
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+
+  <!-- Content style -->
+  <link href="css/hnd.content.css" rel="stylesheet" />
+
+  
+
+
+
+</head>
+
+<body class="md-nav-expanded">
+
+
+
+  <div id="skip-link">
+    <a href="#main-content" class="element-invisible">Skip to main content</a>
+  </div>
+
+  <header class="headroom">
+    <button class="hnd-toggle btn btn-default">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
+    </button>
+    <h1>Grapher</h1>
+    
+  </header>
+
+  <nav class="md-nav-expanded">
+    <!-- Nav tabs -->
+    <ul class="tab-tabs nav nav-tabs" role="tablist">
+      <li id="nav-close"> 
+        <button class="hnd-toggle btn btn-default">
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </button>
+      </li>
+      
+	  
+        <li role="presentation" class="tab active">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-list"></i>
+                Contents
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-asterisk"></i>
+                Index
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-search"></i>
+                Search
+            </a>
+        </li>
+      
+    </ul>  <!-- /Nav tabs -->
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+	  
+      <div role="tabpanel" class="tab-pane active" id="contents">
+        <div id="toc" class="tree-container unselectable"
+            data-url="_toc.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /contents-->
+      
+      <div role="tabpanel" class="tab-pane" id="index">
+        <div id="keywords" class="tree-container unselectable"
+            data-url="_keywords.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /index-->
+      
+      <div role="tabpanel" class="tab-pane" id="search">
+        <div class="search-content">
+          <div class="search-input">
+            <form id="search-form">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="input-search" name="input-search" placeholder="Search..." />
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                      <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>  <!-- /search-input -->
+          <div class="search-result">
+            <div id="search-info"></div>
+            <div class="tree-container unselectable" id="search-tree"></div>
+          </div>  <!-- /search-result -->
+        </div>  <!-- /search-content -->
+      </div>  <!-- /search-->
+      
+    </div>  <!-- /Tab panes -->
+
+  </nav>
+
+  <div id="main">
+
+    <article>
+        <div id="topic-content" class="container-fluid" 
+		  data-hnd-id="Curvepropertiespane"
+		  data-hnd-context="6"
+		  data-hnd-title="Curve properties pane"
+		>
+            
+                <div class="navigation">
+                    <ol class="breadcrumb">
+                        <li><a href="OverviewofGrapherInterface.html">Overview of Grapher Interface</a></li>
+                    </ol>
+                    <div class="nav-arrows">
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="OverviewofGrapherInterface.html" title="Overview of Grapher Interface" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="Plotarea.html" title="Plot area" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="Plotpropertiespane.html" title="Plot properties pane" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                    </div>
+                </div> 
+            
+
+            <a id="main-content"></a>
+
+            <h2>Curve properties pane</h2>
+
+            <div class="main-content">
+                
+<p></p>
+<div class="rvps2"><table width="100%" border="0" cellpadding="1" cellspacing="2" style="border-width: 0px; border-spacing: 2px;">
+<tr valign="top">
+<td width="679" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts18">You display the "Curve properties pane" by checking </span><a class="rvts54" href="ToolBar.html#property">C-Prop</a><a class="rvts12" href="ToolBar.html#property">&nbsp;checkbox</a><span class="rvts18">&nbsp;on the </span><a class="rvts12" href="ToolBar.html">toolbar</a><span class="rvts18">.</span></p>
+<p class="rvps2"><span class="rvts18">The pane opens with the "Curve" field populated with the names of all curves known to the plot. From the "Curve" field, you select the curve whose properties you wish to modify. The properties available within the property pane depends o the type of curve selected. You can hover over a property (or property value) to display a tool-tip.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<div class="rvps2"><table width="100%" border="0" cellpadding="1" cellspacing="2" style="border-width: 0px; border-spacing: 2px;">
+<tr valign="top">
+<td width="359" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Rename</span><span class="rvts18">&nbsp;launches the "</span><span class="rvts23">curve rename" </span><span class="rvts18">dialog. You must enter a unique name.</span></li>
+</ul>
+</td>
+<td width="310" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/librename1.png"></p>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td colspan="2" width="669" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Remove</span><span class="rvts18">&nbsp;moves the curve, with all attributes, to the recycle bin.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="359" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><a name="tab-contents"></a><span class="rvts20">Fit</span><span class="rvts18">&nbsp;launches</span><a name="fit"></a><span class="rvts18">&nbsp;the "</span><span class="rvts23">Curve Fitter" </span><span class="rvts18">dialog.</span></li>
+</ul>
+<p class="rvps8"><span class="rvts18">Alternatively, you can right click a legend item and select "fit" to launch the dialog.</span></p>
+<p class="rvps8"><span class="rvts18">From the Fitter type drop-down menu, you can select one of six fitting types. If fit type "Weeding" is selected, you have the option of setting the "Tolerance" and the "Chunk size". The tolerance is the maximum distance, that is acceptable between the original curve and the smoothed curve. Increasing the tolerance will reduce the number of the resulting points. The chunk size limits the number of points passed to a run of the Douglas Peucker algorithm. The runtime of the Douglas Peucker algorithm increases non-linearly with the number of points. For a chunk size &gt; 0 the polygon is split into pieces passed to the algorithm one by one. Checking the "Retain original curve" checkbox allows for the retention of the original curve. The "fitted curve" is a new curve. This feature permits the comparison of various types to the original curve.</span></p>
+<p class="rvps8"><span class="rvts18">The "Generate points" checkbox is available for the Spline and Weeding fitters. Checking this checkbox ensures the Grapher generate points for the fitted curve. If you do not plan on doing points dependent operation (</span><a class="rvts12" href="ToolBar.html#Watch">Area watch</a><a class="rvts55" href="ToolBar.html#Watch">,&nbsp;</a><a class="rvts12" href="ToolBar.html#Watch">Volume watch</a><span class="rvts18">, etc.), you can uncheck the "Generate points" option to save on memory.</span></p>
+<p class="rvps8"><span class="rvts18">For the polynomial fit, you can set the order of the polynomial and the precision to which coefficients are calculated. Generally, if the fitted polynomial curve is different than expected, you have to increase the precision.</span></p>
+<p class="rvps8"><span class="rvts18">A fitted curve has some fitting information associated with it. Right click the&nbsp;</span><a class="rvts12" href="Plotarea.html#Legend">legend</a><span class="rvts18">&nbsp;item and select "fit info..." to view the fitting information in an Alert box.</span></p>
+<p class="rvps8"><span class="rvts18"><br/></span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Zone</span><span class="rvts18">&nbsp;launches the "</span><a class="rvts66" href="ToolBar.html#Zone">Zone Item</a><span class="rvts23">" </span><span class="rvts18">dialog. You can define and add a zone through this dialog.</span></li>
+</ul>
+<p class="rvps8"><span class="rvts18"><br/></span></p>
+</td>
+<td width="310" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libcurveFitDlg.png"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="359" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Legend Attributes</span><span class="rvts18">&nbsp;launches the "</span><span class="rvts23">Curve Legend Attribute" </span><span class="rvts18">dialog. Alternatively, you can right click a legend item and select "legend attribute" to launch the dialog. Use this dialog to set how you want the curve represented on the legend.</span></li>
+</ul>
+</td>
+<td width="310" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libcurveLegendAttributeDlg.png"></p>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="359" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><a name="tab-index"></a><span class="rvts20">Orientation&nbsp; </span><span class="rvts56">sets the orientation of the item. The&nbsp;</span><a class="rvts57" href="https://qwt.sourceforge.io/class_qwt_plot_series_item.html#a2717f491367632327a753eab8517506e">orientation</a><span class="rvts56">&nbsp;might be used in specific way by a plot item. For example, a </span><a class="rvts57" href="https://qwt.sourceforge.io/class_qwt_plot_curve.html">Curve</a><span class="rvts56">&nbsp;uses it to identify how to display the curve in</span><a class="rvts58" href="https://qwt.sourceforge.io/class_qwt_plot_curve.html#a15998aa80a11ba6ba80eebabaf773f70a18071408a0b9bfe58378c6d81e207b2c">&nbsp;</a><a class="rvts57" href="https://qwt.sourceforge.io/class_qwt_plot_curve.html#a15998aa80a11ba6ba80eebabaf773f70a18071408a0b9bfe58378c6d81e207b2c">Steps</a><span class="rvts56">&nbsp;or&nbsp;</span><a class="rvts57" href="https://qwt.sourceforge.io/class_qwt_plot_curve.html#a15998aa80a11ba6ba80eebabaf773f70a770b0908599507e5677b6e9ff9913f38">Sticks</a><span class="rvts56">&nbsp;style.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+</td>
+<td width="310" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/liborientation.png"></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="359" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><a name="tab-search"></a><span class="rvts20">Style</span><a name="Style"></a><span class="rvts18">&nbsp;s</span><span class="rvts59">ets the curve's drawing style.</span></li>
+</ul>
+<div class="rvps2"><table width="100%" border="0" cellpadding="1" cellspacing="2" style="border-width: 0px; border-spacing: 2px;">
+<tr valign="top">
+<td width="70" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts62">Lines</span></p>
+</td>
+<td width="212" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts59">Connect the points with straight lines. The lines might be interpolated depending on the 'Fitted' attribute. Curve fitting can be configured through the&nbsp;</span><span class="rvts18">"</span><a class="rvts42" href="Curvepropertiespane.html#Fit">Curve Fitter" </a><a class="rvts12" href="Curvepropertiespane.html#Fit">dialog</a><span class="rvts59">.</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="70" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts62">Sticks</span></p>
+</td>
+<td width="212" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts59">Draw vertical or horizontal sticks ( depending on the&nbsp;</span><a class="rvts63" href="Curvepropertiespane.html#Orientation">orientation</a><span class="rvts59">&nbsp;) from a </span><a class="rvts63" href="Curvepropertiespane.html#Baseline">baseline</a><span class="rvts59">.</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="70" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts62">Steps</span></p>
+</td>
+<td width="212" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts59">Connect the points with a step function. The step function is drawn from the left to the right or vice versa, depending on the Inverted attribute.</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="70" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts62">Dots</span></p>
+</td>
+<td width="212" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts59">Draw dots at the locations of the data points. Note: This is different from a dotted line obtain from </span><a class="rvts63" href="Curvepropertiespane.html#Pen">Pen</a><span class="rvts59">.</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="70" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts62">NoCurve</span></p>
+</td>
+<td width="212" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts59">Don't draw a curve. Note: This doesn't affect the </span><a class="rvts63" href="Curvepropertiespane.html#symbol">symbols</a><span class="rvts59">.</span></p>
+<p class="rvps2"><span class="rvts59"><br/></span></p>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td width="310" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts38"><br/></span></p>
+<p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libstyleProp.png"></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="359" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Axes</span><span class="rvts18">&nbsp;Sets the axes. </span><span class="rvts59">Plot items are drawn according to the coordinates of its Axes.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Swap axes</span><span class="rvts18">&nbsp;</span><span class="rvts59">&nbsp;If checked, swap the axes. x- axis is vertical and y-axis is horizontal.</span></li>
+</ul>
+</td>
+<td width="310" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts38"><br/></span></p>
+<p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libaxesProp.png"></p>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="359" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><a name="main-content"></a><span class="rvts20">Pen</span><a name="Pen"></a><span class="rvts18">&nbsp;</span><span class="rvts24">Build and assign a pen.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+</td>
+<td width="310" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libpenProp.png"></p>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="359" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Curve Symbol</span><a name="Symbol"></a><span class="rvts20">&nbsp;</span><span class="rvts56">Assign a symbol.The curve will take the ownership of the symbol, hence any previously assign symbol is removed &nbsp;by setting a new one. If&nbsp;symbol&nbsp;is</span><span class="rvts64">&nbsp;</span><span class="rvts62">None</span><span class="rvts56">&nbsp;no symbol is drawn.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+</td>
+<td width="310" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libsymbolProp.png"></p>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="359" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Fill</span><span class="rvts18">&nbsp;</span><span class="rvts39">&nbsp;</span><span class="rvts18">If "Fill Curve" is checked, </span><span class="rvts60">the area between the curve and the baseline is painted with the selected </span><span class="rvts65">Brush</span><span class="rvts60">.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+</td>
+<td width="310" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libfillProp.png"></p>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td colspan="2" width="669" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><a name="ORIENTATION"></a><span class="rvts20">Baseline</span><a name="Baseline"></a><span class="rvts18">&nbsp;</span><span class="rvts56">Sets the value of the baseline.The baseline is needed for filling the curve with a brush or the Sticks drawing style. The interpretation of the baseline depends on the&nbsp;</span><a class="rvts61" href="Curvepropertiespane.html#Orientation">orientation</a><span class="rvts56">. With </span><span class="rvts62">Vertical</span><span class="rvts56">&nbsp;orientation, the baseline is interpreted as a horizontal line at y =&nbsp;baseline value, with </span><span class="rvts62">Horizontal</span><span class="rvts56">&nbsp;orientation, it is interpreted as a vertical line at x =&nbsp;baseline value. The default value is 0.0.</span></li>
+</ul>
+</td>
+</tr>
+</table>
+</div>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+</td>
+<td width="341" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts38"><br/></span></p>
+<p class="rvps2"><img alt="" style="padding : 1px;" src="lib/curveSettingsDlg.png" usemap="#C5A50BEE15514FD9BAD3B3D9F290E51C"><map name="C5A50BEE15514FD9BAD3B3D9F290E51C"></map></p>
+</td>
+</tr>
+</table>
+</div>
+<p class="rvps2"><span class="rvts29"><br/></span></p>
+<p></p>
+<p class="rvps4" style="clear: both;"><span class="rvts16">Created with the Personal Edition of HelpNDoc: </span><a class="rvts17" href="https://www.helpndoc.com/help-authoring-tool">Free help authoring tool</a></p>
+
+            </div>
+            
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; &lt;Dates&gt; by &lt;Authors&gt;. All Rights Reserved.</div></div>
+        </div>  <!-- /#topic-content -->
+    </article>
+
+    <footer></footer>
+
+  </div>  <!-- /#main -->
+
+  <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
+  
+  <!-- Headroom -->
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
+
+  <!-- JsTree -->
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
+
+  <!-- HelpNDoc scripts -->
+  <script src="_translations.js"></script>
+  <script src="js/hndsd.min.js"></script>
+  <script src="js/hndse.min.js"></script>
+  <script src="js/app.min.js"></script>
+
+  <!-- Scripts -->
+  <script>
+    $(function() {
+      // Create the app
+      var app = new Hnd.App();
+      // Update translations
+      hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
+	  // Custom JS
+	  
+      // Boot the app
+      app.Boot();
+    });
+  </script>
+
+
+
+</body>
+
+</html>
+

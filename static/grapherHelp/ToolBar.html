@@ -1,0 +1,496 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="generator" content="HelpNDoc Personal Edition 6.9.0.577">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="favicon.ico"/>
+
+  <title>Tool Bar</title>
+  <meta name="description" content="" /> 
+  <meta name="keywords" content="">
+
+
+
+  
+
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Tool Bar">
+  <meta name="twitter:description" content="">
+
+  <!-- Open Graph data -->
+  <meta property="og:title" content="Tool Bar" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="Grapher" /> 
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
+      <script src="vendors/respond-1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+  <!-- JsTree styles -->
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
+
+  <!-- Hnd styles -->
+  <link href="css/layout.min.css" rel="stylesheet" />
+  <link href="css/effects.min.css" rel="stylesheet" />
+  <link href="css/theme-light-blue.min.css" rel="stylesheet" />
+  <link href="css/print.min.css" rel="stylesheet" media="print" />
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+
+  <!-- Content style -->
+  <link href="css/hnd.content.css" rel="stylesheet" />
+
+  
+
+
+
+</head>
+
+<body class="md-nav-expanded">
+
+
+
+  <div id="skip-link">
+    <a href="#main-content" class="element-invisible">Skip to main content</a>
+  </div>
+
+  <header class="headroom">
+    <button class="hnd-toggle btn btn-default">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
+    </button>
+    <h1>Grapher</h1>
+    
+  </header>
+
+  <nav class="md-nav-expanded">
+    <!-- Nav tabs -->
+    <ul class="tab-tabs nav nav-tabs" role="tablist">
+      <li id="nav-close"> 
+        <button class="hnd-toggle btn btn-default">
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </button>
+      </li>
+      
+	  
+        <li role="presentation" class="tab active">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-list"></i>
+                Contents
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-asterisk"></i>
+                Index
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-search"></i>
+                Search
+            </a>
+        </li>
+      
+    </ul>  <!-- /Nav tabs -->
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+	  
+      <div role="tabpanel" class="tab-pane active" id="contents">
+        <div id="toc" class="tree-container unselectable"
+            data-url="_toc.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /contents-->
+      
+      <div role="tabpanel" class="tab-pane" id="index">
+        <div id="keywords" class="tree-container unselectable"
+            data-url="_keywords.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /index-->
+      
+      <div role="tabpanel" class="tab-pane" id="search">
+        <div class="search-content">
+          <div class="search-input">
+            <form id="search-form">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="input-search" name="input-search" placeholder="Search..." />
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                      <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>  <!-- /search-input -->
+          <div class="search-result">
+            <div id="search-info"></div>
+            <div class="tree-container unselectable" id="search-tree"></div>
+          </div>  <!-- /search-result -->
+        </div>  <!-- /search-content -->
+      </div>  <!-- /search-->
+      
+    </div>  <!-- /Tab panes -->
+
+  </nav>
+
+  <div id="main">
+
+    <article>
+        <div id="topic-content" class="container-fluid" 
+		  data-hnd-id="ToolBar"
+		  data-hnd-context="32"
+		  data-hnd-title="Tool Bar"
+		>
+            
+                <div class="navigation">
+                    <ol class="breadcrumb">
+                        <li><a href="OverviewofGrapherInterface.html">Overview of Grapher Interface</a></li>
+                    </ol>
+                    <div class="nav-arrows">
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="OverviewofGrapherInterface.html" title="Overview of Grapher Interface" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="OverviewofGrapherInterface.html" title="Overview of Grapher Interface" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="SideBar.html" title="Side Bar" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                    </div>
+                </div> 
+            
+
+            <a id="main-content"></a>
+
+            <h2>Tool Bar</h2>
+
+            <div class="main-content">
+                
+<p></p>
+<p class="rvps2"><img alt="" style="padding : 1px;" src="lib/libtoolbar1.png" usemap="#66A7DEE9AD1547798549C997C586D0F0"><map name="66A7DEE9AD1547798549C997C586D0F0"></map></p>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+<p class="rvps2"><span class="rvts18">The Toolbar is located at the top of the window. It contains tool buttons and dropdown menus. Hovering over a button or menu item displays a tooltip.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<div class="rvps2"><table width="100%" border="0" cellpadding="1" cellspacing="2" style="border-width: 0px; border-spacing: 2px;">
+<tr valign="top">
+<td width="685" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts35">File</span></p>
+<p class="rvps2"><a name="tab-contents"></a><span class="rvts18">Displays a drop-down list of commands:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Dowload </span><span class="rvts18">Saves the plot to a file on your system hard drive.</span></li>
+<li class="rvps2"><span class="rvts20">Point entry </span><span class="rvts18">Launches the </span><a class="rvts12" href="PlottingThroughPointEntryDialog.html">dialog</a><span class="rvts18">&nbsp;used for point entry operations (adding / removing points to / from a curve).</span></li>
+<li class="rvps2"><span class="rvts20">Calculator </span><span class="rvts18">Launches the system calculator. You might be prompted to allow Grapher access. Pop-up must be enabled.</span></li>
+<li class="rvps2"><a name="tab-index"></a><span class="rvts20">Defines&nbsp;</span><span class="rvts18">Launches the dialog used for definitions.</span></li>
+</ul>
+<p class="rvps2"><img alt="" style="padding : 1px;" src="lib/libdefinesDlg1.png" usemap="#5DC7F9FACDFD458A9FDA7275236BA7EE"><map name="5DC7F9FACDFD458A9FDA7275236BA7EE"></map></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps2"><span class="rvts18">You enter a unique name in the name field. The value field can contain any combination of a constant, an expression that evaluates to a constant, or any expression that could be resolved by the Grapher. </span></p>
+<p class="rvps2"><span class="rvts18">Press </span><span class="rvts20">Add </span><span class="rvts18">to register the name as a definition. All definitions added through the define dialog are displayed in a table.</span></p>
+<p class="rvps2"><span class="rvts18">In the Defines dialog above, </span><span class="rvts35">"a = 4"</span><span class="rvts18">&nbsp;is the first constant defined. </span><span class="rvts35">"b=2a"</span><span class="rvts18">&nbsp;(i.e. b = 2x4=8) is the second constant defined.</span><span class="rvts35">&nbsp;"c=pi"</span><span class="rvts18">&nbsp;(i.e. c=22/7) is third constant defined. &nbsp;</span><span class="rvts35">"df=abc"</span><span class="rvts18">&nbsp;is the fourth constant defined. It is similar to the second definition and shows that a definition can be in terms of other definitions. </span><span class="rvts35">"SC=u^2+v^2"</span><span class="rvts18">&nbsp;is the fifth definition. Note the name is "SC" (with a uppercase C) and not "Sc" (with a lowercase). The Grapher will not allow the name "Sc" at this stage because "c" is used in a previous &nbsp;define name for definition "c=pi". The value of SC is u^2+v^2. Since u and v are undefined and are not constants known to the Grapher, if they are not independent variables, they are treated as unknowns.</span></p>
+<p class="rvps2"><span class="rvts18">You use the </span><span class="rvts20">Load</span><span class="rvts18">&nbsp;button to launch the file explorer and upload a definition file (i.e a CSV .def, .txt or EXCEL). If you are logged-in to </span><span class="rvts20">Mongo File System (MFS), </span><span class="rvts18">you have the option to upload from the the mongoDb cloud system provided by the Grapher.</span></p>
+<p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libdefinesFile.png"></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps2"><span class="rvts18">You can load a valid definition file &nbsp;before or after adding definitions through the </span><span class="rvts20">Add</span><span class="rvts18">&nbsp;button.</span></p>
+<p class="rvps2"><span class="rvts18">You select a defininition by clicking on it. You remove a definition by double clicking it or clicking the </span><span class="rvts20">Remove</span><span class="rvts18">&nbsp;button. Use the </span><span class="rvts20">Remove All</span><span class="rvts18">&nbsp;button to clear all definitions.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Marker </span><span class="rvts18">Launches the dialog used for defining, modifying and removing a marker. </span><span class="rvts21">A marker can be a horizontal line, a vertical line, a symbol, a label or any combination of them, which can be drawn around a center point inside a bounding rectangle.</span></li>
+</ul>
+<p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libmarkerDlg.png"></p>
+<p class="rvps7"><span class="rvts18">In the symbol section of the dialog, you assign a symbol to the marker. The symbol is drawn at the point specified by the </span><span class="rvts23">X-value</span><span class="rvts18">&nbsp;and </span><span class="rvts23">Y-value</span><span class="rvts18">&nbsp;in the general section of the dialog. You set the angle and size of the symbol through the "</span><span class="rvts23">Angle</span><span class="rvts18">" and "</span><span class="rvts23">Size</span><span class="rvts18">" fields respectively.</span></p>
+<p class="rvps7"><span class="rvts39">In the label section of the dialog</span><span class="rvts40">, </span><span class="rvts39">a label can be assigned to the marker. The&nbsp;</span><span class="rvts44">Alignment</span><span class="rvts43">&nbsp;field</span><span class="rvts39">&nbsp;specifies where the label is drawn. </span><span class="rvts18">The interpretation of the alignment depends on the marker's line style. The alignment refers to the center point of the marker, which means, for example, that the label would be printed left above the center point if the alignment was set to Left-Top. </span><span class="rvts21">When the label is not centered on the marker position, the spacing is the distance between the position and the label. You set the spacing through the Space field in the dialog.</span></p>
+<p class="rvps7"><span class="rvts18">You enter a unique name in the name field and a constant or an expression that evaluates to a constant in the </span><span class="rvts23">X-value</span><span class="rvts18">&nbsp;and </span><span class="rvts23">Y-value</span><span class="rvts18">&nbsp;fields. The X and Y values position the marker. They are &nbsp;associated with the marker axes. You change the marker axes through the </span><span class="rvts23">Horizontal</span><span class="rvts18">&nbsp;and </span><span class="rvts23">Vertical</span><span class="rvts18">&nbsp;axis fields.</span></p>
+<p class="rvps2"><span class="rvts18">Checking the </span><span class="rvts23">Show on legend</span><span class="rvts18">&nbsp;checkbox represent markers&nbsp;on the legend.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Zone</span><a name="Zone"></a><span class="rvts20">&nbsp;</span><span class="rvts18">Launches the dialog used for defining a zone. </span><span class="rvts24">A horizontal zone highlights an interval of the y axis that is unbounded in the x direction. A vertical zone hightlights an interval of the x axis that is unbounded in the y direction. It is filled with a brush and its border lines are optionally displayed with a pen.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts24"><br/></span></p>
+<p class="rvps2"><img alt="" style="padding : 1px;" src="lib/libzoneDlg1.png" usemap="#4723F2DDBBF54B639D6782C5DEEC27B5"><map name="4723F2DDBBF54B639D6782C5DEEC27B5"></map></p>
+<p class="rvps2"><span class="rvts35"><br/></span></p>
+<p class="rvps2"><span class="rvts20">Zone title </span><span class="rvts18">The automactically generated zone title may be change by the user. This title is diplayed on the legend and is unique.</span></p>
+<p class="rvps2"><span class="rvts20">Orientation </span><span class="rvts18">Sets the orientation of the zone. Zones are either vertical or horizontal.</span></p>
+<p class="rvps2"><span class="rvts20">Horizontal axis </span><span class="rvts18">Sets the horizontal axis associated with the zone.</span></p>
+<p class="rvps2"><span class="rvts20">Vertical axis </span><span class="rvts18">Sets the vertical axis associated with the zone.</span></p>
+<p class="rvps2"><span class="rvts20">Left and Right / Bottom and Top </span><span class="rvts18">When </span><span class="rvts23">Orientation</span><span class="rvts18">&nbsp;is vertical the </span><span class="rvts23">Left and Right</span><span class="rvts18">&nbsp;fields hold the lower and upper x limits. When </span><span class="rvts23">Orientation</span><span class="rvts18">&nbsp;is horizontal the </span><span class="rvts23">Bottom and &nbsp;Top</span><span class="rvts18">&nbsp;fields hold the lower and upper y limits.</span></p>
+<p class="rvps2"><span class="rvts20">Brush </span><span class="rvts18">Sets the color of the brush use to fill the zone.</span></p>
+<p class="rvps2"><span class="rvts20">Pen </span><span class="rvts18">Sets the color of the pen use to draw the border lines of the zone.</span></p>
+<p class="rvps2"><span class="rvts20">Represent zone item on the legend&nbsp;</span><span class="rvts23">&nbsp;</span><span class="rvts18">If checked, the zone item is represented on the legend.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Print</span><span class="rvts18">&nbsp;Prints the plot. The toolbar, property panes and sidebar are hidden during printing</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Reserved words</span><span class="rvts18">&nbsp;Display a list of reserved words (keywords) use by the Grapher.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Recycle bin</span><span class="rvts18">&nbsp;Shows the recycle bin. Plot items remove from the plot are held in the recycle bin where the consume memory. Emptying the recycle bin may improve performance.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+</td>
+<td width="334" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><img alt="" style="padding : 1px;" src="lib/libfileMenuItem12.png" usemap="#A97D3C88377240EFADB54AB24298560A"><map name="A97D3C88377240EFADB54AB24298560A"></map></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="685" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">C-Prop&nbsp;</span><span class="rvts18">Displays the </span><a class="rvts12" href="Curvepropertiespane.html">curve properties pane</a><span class="rvts18">.</span></li>
+<li class="rvps2"><span class="rvts20">P-Prop&nbsp;</span><span class="rvts18">Displays the </span><a class="rvts12" href="Plotpropertiespane.html">plot properties pane</a><span class="rvts18">.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+</td>
+<td width="334" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libpropertiesPane.png"></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="685" valign="top" style="padding: 1px;"><p class="rvps2"><a name="UploadFiles"></a><span class="rvts35">Upload Files</span></p>
+<p class="rvps2"><a name="tab-search"></a><span class="rvts18">Launches your system's file explorer. From the explorer, you select the table file (.txt, .xls) or plot file (.plt) uploaded to the Grapher. (see </span><a class="rvts12" href="PlottingFromDataFile.html">Plotting From Data File</a><span class="rvts18">)</span></p>
+</td>
+<td width="334" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="padding : 1px;" src="lib/libchooseFile12.png" usemap="#357A3FC7AF1043B4AD721DBD36FD584E"><map name="357A3FC7AF1043B4AD721DBD36FD584E"></map></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="685" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts35">Auto-Pan-Zoom</span></p>
+<p class="rvps2"><span class="rvts18">A radio button group that enables and disables specific modes. None or, at most, one of the modes can be enabled at any time. &nbsp;</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">Auto </span><span class="rvts18">This is the &nbsp;default mode. In this mode, the scales used are calculated by the Grapher. The scales allow the full extent of all curves to be visible. User actions (e.g. zooming, magnifying, setting a user defined scale) that change the scales will cause the Auto mode to be disabled.</span></li>
+<li class="rvps2"><span class="rvts20">Pan </span><span class="rvts18">When selected, all plot items (curves, symbols, zones, rulers, etc.) in the plot can be dragged to a new location. You hold down the left mouse button and drag the mouse to move plot items.</span></li>
+<li class="rvps2"><span class="rvts20">Zoom </span><span class="rvts18">When selected, a plot can be quickly zoomed. You hold down the left mouse button and drag to display a zooming rectangle. When the mouse button is released, the Grapher re-calculates the scales so that the contents of the zooming rectangle occupy the entire plot. The Grapher saves zoomed states on a zoom stack. You cycle through the zoom stack as follows: Use the Esc key to return to the base of the stack (i.e. the state before the first zoom). Use the shift + middle mouse-button to go one level up the stack. Use the middle mouse-button to go one level down the stack.</span></li>
+</ul>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+</td>
+<td width="334" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libzoomPanAuto.png"></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="685" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts35">View</span></p>
+<p class="rvps6"><span class="rvts18">Displays a drop-down list of commands:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps6"><span class="rvts20">Left axis&nbsp;</span><span class="rvts18">Enables / disables the left axis.</span></li>
+<li class="rvps6"><span class="rvts20">Bottom axis&nbsp;</span><span class="rvts18">Enables / disables the bottom axis.</span></li>
+<li class="rvps6"><span class="rvts20">Right axis&nbsp;</span><span class="rvts18">Enables / disables the right axis.</span></li>
+<li class="rvps6"><span class="rvts20">Top axis </span><span class="rvts18">Enables / disables the top axis.</span></li>
+<li class="rvps6"><span class="rvts20">Major gridlines&nbsp;</span><span class="rvts18">Enables / disables Major grid lines. </span><span class="rvts20">Note: </span><span class="rvts23">Minor gridlines cannot exist without Major gridlines. Thus, disabling Major gridlines automatically disables Minor gridlines.</span></li>
+<li class="rvps6"><span class="rvts20">Minor gridlines&nbsp;</span><span class="rvts18">Enables / disables Minor grid lines. </span><span class="rvts20">Note: </span><span class="rvts23">Minor gridlines cannot exist without Major gridlines. Thus, Minor gridlines option is only available if &nbsp;Major gridlines are enabled.</span></li>
+<li class="rvps6"><span class="rvts20">Title&nbsp;</span><span class="rvts18">Displays any defined title.</span></li>
+<li class="rvps6"><span class="rvts20">Footer&nbsp;</span><span class="rvts18">Displays any defined footer.</span></li>
+<li class="rvps6"><span class="rvts20">Legend&nbsp;</span><span class="rvts18">Displays / hide the legend. </span><span class="rvts20">Note:&nbsp;</span><span class="rvts23">&nbsp;The legend will not show if the plot contains no curves.</span></li>
+</ul>
+</td>
+<td width="334" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libview.png"></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="685" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts35"><br/></span></p>
+</td>
+<td width="334" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts38"><br/></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="685" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><a name="main-content"></a><span class="rvts20">S-Bar</span><a name="sideBar"></a><span class="rvts20">&nbsp;</span><span class="rvts18">Displays the </span><a class="rvts12" href="SideBar.html">sidebar</a><span class="rvts18">. </span><span class="rvts20">Note:&nbsp;</span><span class="rvts23">&nbsp;The sidebar will not show if the plot contains no visible curves.</span></li>
+</ul>
+</td>
+<td width="334" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libsideBarCheckbox1.png"></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="685" valign="top" style="padding: 1px;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps2"><span class="rvts20">P-Sel &nbsp;</span><span class="rvts18">Enables / disables point selection.</span></li>
+</ul>
+<div class="rvps2"><table width="100%" border="0" cellpadding="1" cellspacing="2" style="border-width: 0px; border-spacing: 2px;">
+<tr valign="top">
+<td valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libpoinSelOptions.png"></p>
+</td>
+</tr>
+</table>
+</div>
+<p class="rvps2"><span class="rvts41">&nbsp;</span><span class="rvts18">When </span><span class="rvts35">P-Sel</span><span class="rvts18">&nbsp;is enabled, you can click a selected point on a curve and perform the operation specified by the selection in "</span><span class="rvts35">When a point is selected</span><span class="rvts18">" in the </span><a class="rvts12" href="Plotpropertiespane.html">Plot properties</a><span class="rvts18">.</span></p>
+<p class="rvps6"><span class="rvts18">Additionally, you can drag and drop a selected point to a new position with the left mouse button. Drag the point outside the plot area to abort the drag-drop process.</span></p>
+<p class="rvps6"><span class="rvts20">Note: </span></p>
+<p class="rvps6"><span class="rvts23">Enabling Point selection turns off &nbsp;</span><span class="rvts18">"</span><span class="rvts45">Add/Remove Point" </span><span class="rvts46">and turns on mouse tracking.</span></p>
+<p class="rvps6"><span class="rvts23">Mouse tracking may affect the Grapher's performance. It should only be enabled when needed.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+</td>
+<td width="334" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libpoinSelectCheckbox.png"></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="685" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts35">+ and -</span></p>
+<p class="rvps2"><span class="rvts18">Zoom in and out. The keyboard short-cuts are Shift modifier plus the + key or the - key.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+</td>
+<td width="334" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libzoomInAndOut.png"></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="685" valign="top" style="padding: 1px;"><p class="rvps2"><a name="FILE"></a><span class="rvts35">Watch</span></p>
+<p class="rvps6"><a name="Watch"></a><span class="rvts18">Displays a drop-down list of commands:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps6"><span class="rvts20">Curve name&nbsp;</span><span class="rvts18">Enables / disables curve name watch.</span></li>
+<li class="rvps6"><span class="rvts20">Left ruler position&nbsp;</span><span class="rvts18">Enables / disables Left ruler position watch.</span></li>
+<li class="rvps6"><span class="rvts20">Right ruler position&nbsp;</span><span class="rvts18">Enables / disables Right ruler position watch.</span></li>
+<li class="rvps6"><span class="rvts20">Bottom ruler position&nbsp;</span><span class="rvts18">Enables / disables Bottom ruler position watch.</span></li>
+<li class="rvps6"><span class="rvts20">Top ruler position&nbsp;</span><span class="rvts18">Enables / disables Top ruler position watch.</span></li>
+<li class="rvps6"><span class="rvts20">Slope at left ruler&nbsp;</span><span class="rvts18">Enables / disables slope watch.</span></li>
+<li class="rvps6"><span class="rvts20">Area below the curve&nbsp;</span><span class="rvts18">Enables / disables area watch. Use </span><a class="rvts42" href="Plotpropertiespane.html#Watch">Watch Settings</a><span class="rvts18">&nbsp;in the </span><a class="rvts12" href="Plotpropertiespane.html">Plot Properties Pane</a><span class="rvts18">&nbsp;to configure </span><span class="rvts23">Area below the curve</span><span class="rvts18">&nbsp;watch. The default configuration is to shade the area and show the centroid.</span></li>
+<li class="rvps6"><span class="rvts20">Volume of revolution(X)&nbsp;</span><span class="rvts18">Enables / disables volume watch.</span></li>
+</ul>
+<p class="rvps6"><span class="rvts20">Note:&nbsp;</span><span class="rvts23">&nbsp;Slope, Area and Volume watches require the Grapher to perform calculations that can be time consuming . Only enable these features when needed and disable &nbsp;them immediately after.</span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<p class="rvps6"><span class="rvts35">Operation</span></p>
+<p class="rvps6"><span class="rvts18">Displays a menu of the various operations that could be performed on curves. When an operation is selected the cursor changee to the selecting cursor. This is an unfilled circle as shown in the image below.</span></p>
+<p class="rvps6"><span class="rvts35"><br/></span></p>
+<p class="rvps6"><img alt="" style="padding : 1px;" src="lib/curveSelector.png" usemap="#501538D4E7644342A3B8BC8CC145CBD9"><map name="501538D4E7644342A3B8BC8CC145CBD9"></map></p>
+<p class="rvps6"><span class="rvts18"><br/></span></p>
+<p class="rvps6"><span class="rvts18">Moving the selection cursor over a point in the curve causes the circle to be filled as shown in the image below.</span></p>
+<p class="rvps6"><span class="rvts18"><br/></span></p>
+<p class="rvps6"><img alt="" style="padding : 1px;" src="lib/curveSelector2.png" usemap="#AA90E685DA88411B9B2A4F3E60F5D4DE"><map name="AA90E685DA88411B9B2A4F3E60F5D4DE"></map></p>
+<p class="rvps6"><span class="rvts18"><br/></span></p>
+<p class="rvps6"><span class="rvts18">Clicking a curve with the grey filled cursor selects it.</span></p>
+<p class="rvps6"><span class="rvts18"><br/></span></p>
+<p class="rvps6"><span class="rvts18">With a curve or curves selected, clicking anywhere in the plot area will perform the operation selected. You can abort the operation by holding down shift and clicking anywhere in the plot area.</span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+<div class="rvps2"><table width="100%" border="0" cellpadding="1" cellspacing="2" style="border-width: 0px; border-spacing: 2px;">
+<tr valign="top">
+<td width="595" valign="top" style="padding: 1px;"><p class="rvps2"><a name="Mongo"></a><span class="rvts35">Mongo File System (MFS)</span></p>
+<p class="rvps2"><span class="rvts18">Allow registration for and login to a cloud base (MongoDB) filesystem. &nbsp;Once you are logged in, you have access to a windows-like explorer and a minimal notepad. This cloud storage facility is an alternative to the saving on your local filesystem.</span></p>
+</td>
+</tr>
+</table>
+</div>
+<p class="rvps6"><span class="rvts23"><br/></span></p>
+</td>
+<td width="334" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libwatch.png"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><img alt="" style="padding : 1px;" src="lib/operationCombine1.png" usemap="#EB9D893DD8A2441880134855A4B488BB"><map name="EB9D893DD8A2441880134855A4B488BB"></map></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><img alt="" style="padding : 1px;" src="lib/operationTransform1.png" usemap="#8B5B0CD4577B4DA0AFA93F44B43ACBB0"><map name="8B5B0CD4577B4DA0AFA93F44B43ACBB0"></map></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><img alt="" style="padding : 1px;" src="lib/operationPoint1.png" usemap="#73C223CF1AE14845AE33148F493B9347"><map name="73C223CF1AE14845AE33148F493B9347"></map></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><img alt="" style="padding : 1px;" src="lib/mongoFileSystem1.png" usemap="#B09933AA57CF49C385FCE2D10EB45741"><map name="B09933AA57CF49C385FCE2D10EB45741"></map></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="685" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts35">Help</span></p>
+<p class="rvps2"><span class="rvts18">Launches the help documentation you are currently reading.</span></p>
+</td>
+<td width="334" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="vertical-align: middle;" src="lib/libhelp.png"></p>
+</td>
+</tr>
+</table>
+</div>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps2"><span class="rvts29"><br/></span></p>
+<p></p>
+<p class="rvps4" style="clear: both;"><span class="rvts16">Created with the Personal Edition of HelpNDoc: </span><a class="rvts17" href="https://www.helpndoc.com/help-authoring-tool">Create HTML Help, DOC, PDF and print manuals from 1 single source</a></p>
+
+            </div>
+            
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; &lt;Dates&gt; by &lt;Authors&gt;. All Rights Reserved.</div></div>
+        </div>  <!-- /#topic-content -->
+    </article>
+
+    <footer></footer>
+
+  </div>  <!-- /#main -->
+
+  <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
+  
+  <!-- Headroom -->
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
+
+  <!-- JsTree -->
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
+
+  <!-- HelpNDoc scripts -->
+  <script src="_translations.js"></script>
+  <script src="js/hndsd.min.js"></script>
+  <script src="js/hndse.min.js"></script>
+  <script src="js/app.min.js"></script>
+
+  <!-- Scripts -->
+  <script>
+    $(function() {
+      // Create the app
+      var app = new Hnd.App();
+      // Update translations
+      hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
+	  // Custom JS
+	  
+      // Boot the app
+      app.Boot();
+    });
+  </script>
+
+
+
+</body>
+
+</html>
+

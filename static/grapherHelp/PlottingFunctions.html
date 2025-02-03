@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="generator" content="HelpNDoc Personal Edition 6.9.0.577">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="favicon.ico"/>
+
+  <title>Plotting Functions</title>
+  <meta name="description" content="" /> 
+  <meta name="keywords" content="">
+
+
+
+  
+
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Plotting Functions">
+  <meta name="twitter:description" content="">
+
+  <!-- Open Graph data -->
+  <meta property="og:title" content="Plotting Functions" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="Grapher" /> 
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
+      <script src="vendors/respond-1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+  <!-- JsTree styles -->
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
+
+  <!-- Hnd styles -->
+  <link href="css/layout.min.css" rel="stylesheet" />
+  <link href="css/effects.min.css" rel="stylesheet" />
+  <link href="css/theme-light-blue.min.css" rel="stylesheet" />
+  <link href="css/print.min.css" rel="stylesheet" media="print" />
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+
+  <!-- Content style -->
+  <link href="css/hnd.content.css" rel="stylesheet" />
+
+  
+
+
+
+</head>
+
+<body class="md-nav-expanded">
+
+
+
+  <div id="skip-link">
+    <a href="#main-content" class="element-invisible">Skip to main content</a>
+  </div>
+
+  <header class="headroom">
+    <button class="hnd-toggle btn btn-default">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
+    </button>
+    <h1>Grapher</h1>
+    
+  </header>
+
+  <nav class="md-nav-expanded">
+    <!-- Nav tabs -->
+    <ul class="tab-tabs nav nav-tabs" role="tablist">
+      <li id="nav-close"> 
+        <button class="hnd-toggle btn btn-default">
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </button>
+      </li>
+      
+	  
+        <li role="presentation" class="tab active">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-list"></i>
+                Contents
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-asterisk"></i>
+                Index
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-search"></i>
+                Search
+            </a>
+        </li>
+      
+    </ul>  <!-- /Nav tabs -->
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+	  
+      <div role="tabpanel" class="tab-pane active" id="contents">
+        <div id="toc" class="tree-container unselectable"
+            data-url="_toc.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /contents-->
+      
+      <div role="tabpanel" class="tab-pane" id="index">
+        <div id="keywords" class="tree-container unselectable"
+            data-url="_keywords.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /index-->
+      
+      <div role="tabpanel" class="tab-pane" id="search">
+        <div class="search-content">
+          <div class="search-input">
+            <form id="search-form">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="input-search" name="input-search" placeholder="Search..." />
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                      <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>  <!-- /search-input -->
+          <div class="search-result">
+            <div id="search-info"></div>
+            <div class="tree-container unselectable" id="search-tree"></div>
+          </div>  <!-- /search-result -->
+        </div>  <!-- /search-content -->
+      </div>  <!-- /search-->
+      
+    </div>  <!-- /Tab panes -->
+
+  </nav>
+
+  <div id="main">
+
+    <article>
+        <div id="topic-content" class="container-fluid" 
+		  data-hnd-id="PlottingFunctions"
+		  data-hnd-context="25"
+		  data-hnd-title="Plotting Functions"
+		>
+            
+                <div class="navigation">
+                    <ol class="breadcrumb">
+                        <li><a href="PlottingData.html">Plotting Data</a></li>
+                    </ol>
+                    <div class="nav-arrows">
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="PlottingData.html" title="Plotting Data" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="PlottingFromDataFile.html" title="Plotting From Data File" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="Plottingwiththemousepointer.html" title="Plotting with the mouse pointer" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                    </div>
+                </div> 
+            
+
+            <a id="main-content"></a>
+
+            <h2>Plotting Functions</h2>
+
+            <div class="main-content">
+                
+<p></p>
+<div class="rvps2"><table width="100%" border="0" cellpadding="1" cellspacing="2" style="border-width: 0px; border-spacing: 2px;">
+<tr valign="top">
+<td width="616" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts18">The Grapher allows plotting of 2D and 3D functions.</span></p>
+<p class="rvps2"><span class="rvts18">Click&nbsp;</span><span class="rvts23">Curve Settings</span><span class="rvts18">&nbsp;button&nbsp;to launch the&nbsp;</span><span class="rvts23">Curve Function</span><span class="rvts18">&nbsp;dialog. In the dialog, set the various properties and click&nbsp;"Ok". Next click the </span><span class="rvts23">Add Curve</span><span class="rvts18">&nbsp;button to add a curve to the plot.</span></p>
+<h1 class="rvps9"><span class="rvts0"><span class="rvts35">Two D Functions</span></span></h1>
+<p class="rvps2"><span class="rvts18">If the </span><span class="rvts23">Three D </span><span class="rvts18">checkbox in the Curve Function dialog is unchecked (Fig. 1), The Grapher tries to plot a Two D curve of the function.</span></p>
+<p class="rvps2"><span class="rvts18">A 2D function may contain as many as five unknown coefficients.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps2"><span class="rvts18">The "Function" field of the dialog, allows many different forms of inputs:</span></p>
+<p class="rvps10"><span class="rvts35">polynomials -</span></p>
+<p class="rvps11"><span class="rvts18">4x, </span></p>
+<p class="rvps11"><span class="rvts18">4x^2 4x^2+2x+8, ax^2+bx+c</span></p>
+<p class="rvps10"><span class="rvts35">trigs -</span></p>
+<p class="rvps11"><span class="rvts18">sin(x)</span></p>
+<p class="rvps11"><span class="rvts18">cos(x)</span></p>
+<p class="rvps11"><span class="rvts18">&nbsp;4*sin(x)</span></p>
+<p class="rvps11"><span class="rvts18">&nbsp;a*cos(x)</span></p>
+<p class="rvps11"><span class="rvts20">Notes:</span></p>
+<p class="rvps11"><span class="rvts23">For trigs, the product sign is required in some situations. If in doubt, always insert the product sign.</span></p>
+<p class="rvps11"><span class="rvts23">When a trig keyword is part of the function, the values in the </span><a class="rvts80" href="PlottingFunctions.html#functions">limit</a><span class="rvts23">&nbsp;fields are interpreted as radians. To force the dialog to interpret the </span><a class="rvts80" href="PlottingFunctions.html#functions">limits</a><span class="rvts23">&nbsp;as degrees, follow variables by the "deg" keyword. For example, sin(x deg) in the Function field will cause </span><a class="rvts80" href="PlottingFunctions.html#functions">limits</a><span class="rvts23">&nbsp;to be interpreted as degrees.</span></p>
+<p class="rvps10"><span class="rvts35">logs -</span></p>
+<p class="rvps11"><span class="rvts18">2.5*log10(x), log9(x), ...log2(x)</span></p>
+<p class="rvps11"><span class="rvts23">For logs, the product sign is required in some situations. If in doubt, always insert the product sign.</span></p>
+<p class="rvps11"><span class="rvts20">Notes:</span></p>
+<p class="rvps11"><span class="rvts18">Logs are evaluated according to base. Base 2 through 10 is allowed. log2 is for base 2, log3is for base 3, etc.</span></p>
+<p class="rvps11"><span class="rvts18">Use ln or log (without the number suffix) &nbsp;for natural logarithm.</span></p>
+<p class="rvps10"><span class="rvts35">constants -</span></p>
+<p class="rvps11"><span class="rvts18">e, pi</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps2"><span class="rvts20">Notes:</span></p>
+<p class="rvps2"><span class="rvts23">The "</span><a class="rvts80" href="PlottingFunctions.html#functions">Lower limit</a><span class="rvts23">" and "</span><a class="rvts80" href="PlottingFunctions.html#functions">Upper limit</a><span class="rvts23">" fields accept numbers or expressions that evaluates to numbers. The &nbsp;expressions may contain Grapher constants such as e and PI or </span><a class="rvts42" href="ToolBar.html#Defines">user defined constants.</a></p>
+<p class="rvps2"><span class="rvts23">If &nbsp;variables other than x (for 2D) or x and y (for 3D) &nbsp;or the Grapher is unable to determine variable(s), the "</span><a class="rvts80" href="PlottingFunctions.html#functions">Enter variable</a><span class="rvts23">" field is displayed. you must enter a valid variable. Valid variables are any alpha character other than 'e'. 'e' is a mathematical constant that is the base of the natural logarithm.</span></p>
+<p class="rvps2"><span class="rvts23">The "</span><a class="rvts80" href="PlottingFunctions.html#functions">Number of points</a><span class="rvts23">" field can hold a value 2 or greater. Too high a value leads to longer processing time. Too small a value leads to curves that are not very smooth. The default of 100 is adequate for most user cases. If periodic curves with many cycles are not drawn as expected, it is usually due to too small a value for "Number of points".</span></p>
+<p class="rvps2"><span class="rvts23">If the "</span><a class="rvts80" href="PlottingFunctions.html#functions">Unbounded range</a><span class="rvts23">" field is checked, the </span><a class="rvts80" href="PlottingFunctions.html#functions">limits</a><span class="rvts23">&nbsp;are disregarded. If the plot is panned, the curve is redrawn to the new </span><a class="rvts80" href="PlottingFunctions.html#functions">limits</a><span class="rvts23">&nbsp;created by panning. Theoretically, the </span><a class="rvts80" href="PlottingFunctions.html#functions">limits</a><span class="rvts23">&nbsp;are infinite. In the "</span><a class="rvts80" href="PlottingFunctions.html#functions">Unbounded range</a><span class="rvts23">" mode, curve points are computed on the fly but are not cached. Thus, point dependent operations are not possible in this mode. In particular, ruler operations and shading of </span><a class="rvts42" href="Plotpropertiespane.html#Watch">watch</a><span class="rvts23">&nbsp;area will not work.</span></p>
+<p class="rvps2"><span class="rvts23"><br/></span></p>
+<h1 class="rvps9"><span class="rvts0"><span class="rvts35">Three D Functions</span></span></h1>
+<p class="rvps2"><span class="rvts18">If the </span><span class="rvts23">Three D </span><span class="rvts18">checkbox in the Curve Function dialog is checked (Fig. 2), The Grapher tries to plot a Three D curve of the function. You set the </span><span class="rvts23">Type </span><span class="rvts18">field of the dialog to instruct Grapher to plot either a Spectrocurve or Spectrogram. Fig. 3 and Fig. 4 show a Spectrogram and Spectrocurve, respectively, of the function x^2+y^2.</span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+<p class="rvps2"><span class="rvts18"><br/></span></p>
+</td>
+<td width="604" valign="top" style="padding: 1px;"><p class="rvps2"><img alt="" style="padding : 1px;" src="lib/curveFunctionInputField.png" usemap="#E1B04656B4DC4C2390437314580938EA"><map name="E1B04656B4DC4C2390437314580938EA"></map></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><img alt="" style="padding : 1px;" src="lib/curveFunctionDlg.png" usemap="#2E12EF37912942ABA32427C7EE7E1128"><map name="2E12EF37912942ABA32427C7EE7E1128"></map></p>
+<p class="rvps2"><span class="rvts81">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Fig. 1</span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><img alt="" style="padding : 1px;" src="lib/curveFunctionDlg3D.png" usemap="#A5EE9F2D7629491286F70FA3C820FCA4"><map name="A5EE9F2D7629491286F70FA3C820FCA4"></map></p>
+<p class="rvps2"><span class="rvts81">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Fig. 2</span></p>
+<p class="rvps2"><img width="618" height="712" alt="" style="vertical-align: middle;" src="lib/libspectrogram1.png"></p>
+<p class="rvps2"><img width="590" height="594" alt="" style="vertical-align: middle;" src="lib/libspectrocurve.png"></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="616" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts18"><br/></span></p>
+</td>
+<td width="604" valign="top" style="padding: 1px;"><p class="rvps2"><span class="rvts6"><br/></span></p>
+</td>
+</tr>
+</table>
+</div>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+<p class="rvps2"><span class="rvts38"><br/></span></p>
+<p class="rvps2"><span class="rvts29"><br/></span></p>
+<p></p>
+<p class="rvps4" style="clear: both;"><span class="rvts16">Created with the Personal Edition of HelpNDoc: </span><a class="rvts17" href="https://www.helpndoc.com/create-epub-ebooks">Write EPub books for the iPad</a></p>
+
+            </div>
+            
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; &lt;Dates&gt; by &lt;Authors&gt;. All Rights Reserved.</div></div>
+        </div>  <!-- /#topic-content -->
+    </article>
+
+    <footer></footer>
+
+  </div>  <!-- /#main -->
+
+  <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
+  
+  <!-- Headroom -->
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
+
+  <!-- JsTree -->
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
+
+  <!-- HelpNDoc scripts -->
+  <script src="_translations.js"></script>
+  <script src="js/hndsd.min.js"></script>
+  <script src="js/hndse.min.js"></script>
+  <script src="js/app.min.js"></script>
+
+  <!-- Scripts -->
+  <script>
+    $(function() {
+      // Create the app
+      var app = new Hnd.App();
+      // Update translations
+      hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
+	  // Custom JS
+	  
+      // Boot the app
+      app.Boot();
+    });
+  </script>
+
+
+
+</body>
+
+</html>
+
