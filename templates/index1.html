@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../static/csolve.js"></script>
+  </head>
+  <body>
+    <input type="text" id="exp" placeholder="Enter a valid expression" />
+    <button id="solve">Solve</button><br />
+    <textarea
+      name=""
+      id="out"
+      placeholder="Result is displayed here"
+      style="width: 100%; height: 200px"
+    ></textarea>
+
+    <script>
+      $(document).ready(function () {
+        $("#solve").click(function () {
+          const input = $("#exp")[0].value;
+          if (input.indexOf("~") == -1 || input.length < 4) {
+            alert(
+              "Invalid input. Input must be 4 or more characters and contain a '~' separator."
+            );
+            return;
+          }
+          const arr = $("#exp")[0].value.replaceAll(" ", "").split("~");
+          if (arr.length != 2) {
+            alert(
+              "Invalid input. Input must be 4 or more characters and contain a '~' separator."
+            );
+            return;
+          }
+          // console.log(arr[0], arr[1]);
+          const exp = arr[0].replaceAll(" ", "");
+          const v = arr[1].replaceAll(" ", "");
+          //console.log(exp, v);
+          solve_for(exp, v);
+        });
+      });
+    </script>
+  </body>
+</html>
