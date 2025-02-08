@@ -3,8 +3,9 @@ from waitress import serve
 
 from sympy import *
 
+
 def solve_for(exp, c):
-    print(exp)
+    # print(exp)
     while exp.find("^") != -1:
         exp = exp.replace("^", "**")
 
@@ -17,18 +18,32 @@ def solve_for(exp, c):
     
     result = []
     try:
-        solutions = solve(Eq(parse_expr(arr[0]), parse_expr(arr[1])), var)        
+        if arr[1] == "0":
+            solutions = solve(parse_expr(arr[0]), var) 
+
+        elif arr[1] != "0":
+            solutions = solve(Eq(parse_expr(arr[0]), parse_expr(arr[1])), var)    
+        # print(solutions)    
         for solution in solutions:
-            _str = str(solution.evalf())
+            _str = str(solution)
             while _str.find("**") != -1:
                 _str = _str.replace("**", "^")
-            if _str.find("I") == -1:
+            if _str.find("Piecewise") == -1 and _str.find("I") == -1:                
                 result.append(_str)
+                #print(result)                
         
     except BaseException as error:
+        #print('An exception occurred: {}'.format(error))
         # result = 'An exception occurred: {}'.format(error)
         result = []
+    
+    # print(result)
 
+    result = list(set(result))
+    # print("")
+    # print("")
+    # print("")
+    # print(result)
     return result
 
 
@@ -54,3 +69,6 @@ def csolve():
 
 if __name__ == "__main__":
     serve(app, host="0.0.0.0", port=3500)
+
+
+
