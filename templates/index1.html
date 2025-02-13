@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
 
+    <script src="https://unpkg.com/mathjs@11.11.1/lib/browser/math.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="../static/csolve.js"></script>
@@ -26,7 +27,7 @@
 
     <script>
       $(document).ready(function () {
-        $("#solve").click(function () {
+        $("#solve").click(async function () {
           const input = $("#exp")[0].value;
           if (input.indexOf("~") == -1 || input.length < 4) {
             alert(
@@ -45,7 +46,13 @@
           const exp = arr[0].replaceAll(" ", "");
           const v = arr[1].replaceAll(" ", "");
           //console.log(exp, v);
-          solve_for(exp, v);
+          // solve_for(exp, v);
+          try {
+            let res = await solve_for(exp, v);
+            // console.log(res);
+          } catch (error) {
+            console.log(error);
+          }
         });
       });
     </script>

@@ -5,11 +5,12 @@ async function solve_for(exp, c) {
   //uncomment the code below to test in the in the small UI
   /* try {
     const _res = await axios.post("/csolve", { exp: exp, var: c });
-    res = _res.data.result;
-    if (!res.length) {
+    res = _res.data;
+    if (!res) {
       $("#out").html(`Unable to find a solution`);
     } else {
-      $("#out").html(`${c} = ${res.toString()}`);
+      console.log(res);
+      $("#out").html(JSON.stringify(res));
     }
   } catch (error) {
     console.log(error.toString());
@@ -21,6 +22,22 @@ async function solve_for(exp, c) {
   } catch (error) {
     console.error(error);
   }
-  //console.log(res.data.result);
+  // console.log(typeof res.data.result[0]);
   return res.data.result;
+}
+
+async function points(exp, lower, upper, indepVar) {
+  try {
+    res = await axios.post("/points", {
+      exp: exp,
+      lower: lower,
+      upper: upper,
+      var: indepVar,
+    });
+    // console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 }
