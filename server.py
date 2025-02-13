@@ -101,14 +101,28 @@ def discontinuities(_exp, lower, upper, var):
     try:
         fn = sp.parse_expr(_exp)
         n, d = fn.as_numer_denom()  
-        print(d)
+        # print(d)
         dis = sp.solveset(d, var, sp.Interval(lower, upper, left_open=True, right_open=True))
         ls = list(map(float, dis))
-        print(ls)
+        # print(ls)
         ls.sort() 
         return  ls      
     except:
         return []
+
+# def discontinuities(_exp, lower, upper, var):
+#     try:
+#         fn = sp.parse_expr(_exp)        
+#         dis = sp.N(sp.singularities(fn, var, sp.Interval(lower, upper, left_open=True, right_open=True)))
+#         print(dis)
+#         ls = list(map(float, dis))
+#         print(type(ls[0]))
+#         ls.sort() 
+#         print(ls)
+#         return  ls      
+#     except:
+#         print("error")
+#         return []
     
     
 
