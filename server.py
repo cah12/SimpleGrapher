@@ -36,7 +36,7 @@ def solve_for(exp, c):
         exp = exp.replace("^", "**")
 
     # print(exp)
-    var = sp.Symbol(c)
+    v = sp.Symbol(c)
     arr = exp.split('=')
     
     if len(arr) == 1:
@@ -45,10 +45,10 @@ def solve_for(exp, c):
     result = []
     try:
         if arr[1] == "0":
-            solutions = sp.solve(sp.parse_expr(arr[0]), var) 
+            solutions = sp.solve(sp.parse_expr(arr[0]), v, simplify=False) 
 
         elif arr[1] != "0":
-            solutions = sp.solve(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), var)    
+            solutions = sp.solve(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v, simplify=False)    
         # print(solutions)    
         for solution in solutions:
             _str = str(solution)
@@ -182,7 +182,7 @@ def points():
     
 
 if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=3500)
+    serve(app, host="0.0.0.0", port=3500, threads=100)
 
 
 
