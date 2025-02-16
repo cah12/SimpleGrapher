@@ -45,11 +45,11 @@ def solve_for(exp, c):
     result = []
     try:
         if arr[1] == "0":
-            solutions = sp.solve(sp.parse_expr(arr[0]), v, simplify=False) 
+            solutions = sp.solve(sp.parse_expr(arr[0]), v) 
 
         elif arr[1] != "0":
-            solutions = sp.solve(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v, simplify=False)    
-        # print(solutions)    
+            solutions = list(sp.solveset(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v))    
+        #print(solutions)    
         for solution in solutions:
             _str = str(solution)
             while _str.find("**") != -1:
@@ -65,7 +65,7 @@ def solve_for(exp, c):
     
     # print(result)
 
-    result = list(set(result)) 
+    # result = list(set(result)) 
     # print("")
     # print("")
     # print("")
