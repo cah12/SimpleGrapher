@@ -48,8 +48,8 @@
           //console.log(exp, v);
           // solve_for(exp, v);
           try {
-            let res = await solve_for(exp, v);
-            // console.log(res);
+            let res = await points("1/(x^2-4)-1/(x-1)+1/(x+1)", -10, 10, "x");
+            console.log(res);
           } catch (error) {
             console.log(error);
           }

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, make_response
 from waitress import serve
 
 import sympy as sp
+from sympy.calculus.util import continuous_domain
 
 # The Degree To Radian Code
 #--------------------------#
@@ -45,12 +46,30 @@ def solve_for(exp, c):
     result = []
     try:
         if arr[1] == "0":
-            solutions = sp.solve(sp.parse_expr(arr[0]), v) 
+            solutions = sp.solveset(sp.parse_expr(arr[0]), v) 
 
         elif arr[1] != "0":
             solutions = list(sp.solveset(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v))    
-        #print(solutions)    
+        
         for solution in solutions:
+            num, denom = solution.as_numer_denom()
+            # print(num)
+            # print(denom)
+            if num.is_polynomial():
+                # print(456)
+                num = sp.factor(num)  
+
+            if denom.is_polynomial():
+                # print(556)
+                denom = sp.factor(denom)             
+
+            # print(num)
+            # print(denom)
+            solution = (num)/(denom) 
+            # print(solution) 
+            solution = solution.simplify()
+            # print(solution)    
+            
             _str = str(solution)
             while _str.find("**") != -1:
                 _str = _str.replace("**", "^")
@@ -94,21 +113,35 @@ def inflection_points(expr, lower, upper, var):
         return list(map(float, dis))        
     except:
         return []  
+    
 
 
-
-def discontinuities(_exp, lower, upper, var):
+def discontinuities(_exp, lower, upper, _var):
     try:
+        right_bound = None
+        discont = []
+        domain = []
         fn = sp.parse_expr(_exp)
-        n, d = fn.as_numer_denom()  
-        # print(d)
-        dis = sp.solveset(d, var, sp.Interval(lower, upper, left_open=True, right_open=True))
-        ls = list(map(float, dis))
-        # print(ls)
-        ls.sort() 
-        return  ls      
+        u = continuous_domain(fn, sp.Symbol(_var), sp.Interval(lower, upper))
+        
+        
+        if isinstance(u,sp.Interval):
+            domain.append(list(map(float, u)))
+            # return {"discont":discont, "domain":domain}
+        
+        if isinstance(u,sp.Union):
+            for subset in u.args:            
+                d = list(map(float, subset.boundary))
+                domain.append(d)
+                if right_bound != None and right_bound==d[0]:
+                    discont.append(d[0])
+                right_bound = d[1]            
+            # return {"discont":discont, "domain":domain}         
+        
     except:
-        return []
+        pass
+    
+    return {"discont":discont, "domain":domain} 
 
 # def discontinuities(_exp, lower, upper, var):
 #     try:
@@ -163,19 +196,20 @@ def csolve():
 @app.route("/points", methods=['POST'])
 def points():
     data = request.get_json()    
-    exp = data["exp"]
-    var = data["var"]
+    _exp = data["exp"]
+    _var = data["var"]
     lower = data["lower"]
     upper = data["upper"]
 
-    while exp.find("^") != -1:
-        exp = exp.replace("^", "**")
+    while _exp.find("^") != -1:
+        _exp = _exp.replace("^", "**")
     
-    discont = discontinuities(exp, lower, upper, var) 
-    inflectn_points = inflection_points(exp, lower, upper, var) 
-    turn_points = turning_points(exp, lower, upper, var)     
+    discont_domain = discontinuities(_exp, lower, upper, _var) 
+    inflectn_points = inflection_points(_exp, lower, upper, _var) 
+    turn_points = turning_points(_exp, lower, upper, _var)     
     return jsonify({
-        "discontinuities": discont,
+        "discontinuities": discont_domain["discont"],
+        "domain": discont_domain["domain"],
         "inflection_points": inflectn_points,
         "turning_points": turn_points
         })      
