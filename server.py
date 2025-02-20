@@ -31,14 +31,14 @@ from sympy.calculus.util import continuous_domain
 
 
 
-def solve_for(exp, c):
-    # print(exp)
+def solve_for(exp, c):    
     while exp.find("^") != -1:
         exp = exp.replace("^", "**")
-
-    # print(exp)
+    
     v = sp.Symbol(c)
     arr = exp.split('=')
+
+    
     
     if len(arr) == 1:
         arr.append("0")  
@@ -49,46 +49,28 @@ def solve_for(exp, c):
             solutions = sp.solveset(sp.parse_expr(arr[0]), v) 
 
         elif arr[1] != "0":
-            solutions = list(sp.solveset(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v))    
-        
+            solutions = list(sp.solveset(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v)) 
+                   
         for solution in solutions:
             num, denom = solution.as_numer_denom()
-            # print(num)
-            # print(denom)
             if num.is_polynomial():
-                # print(456)
                 num = sp.factor(num)  
 
             if denom.is_polynomial():
-                # print(556)
                 denom = sp.factor(denom)             
 
-            # print(num)
-            # print(denom)
             solution = (num)/(denom) 
-            # print(solution) 
             solution = solution.simplify()
-            # print(solution)    
             
             _str = str(solution)
             while _str.find("**") != -1:
                 _str = _str.replace("**", "^")
             if _str.find("Piecewise") == -1 and _str.find("I") == -1:                
-                result.append(_str)
-                #print(result)                
+                result.append(_str)                               
         
     except BaseException as error:
-        #print('An exception occurred: {}'.format(error))
-        # result = 'An exception occurred: {}'.format(error)
-        result = []
+        result = []    
     
-    # print(result)
-
-    # result = list(set(result)) 
-    # print("")
-    # print("")
-    # print("")
-    # print(result)
     return result
 
 
@@ -116,58 +98,30 @@ def inflection_points(expr, lower, upper, var):
     
 
 
-def discontinuities(_exp, lower, upper, _var):
-    try:
-        right_bound = None
-        discont = []
-        domain = []
-        fn = sp.parse_expr(_exp)
-        u = continuous_domain(fn, sp.Symbol(_var), sp.Interval(lower, upper))
-        
-        
-        if isinstance(u,sp.Interval):
-            domain.append(list(map(float, u)))
-            # return {"discont":discont, "domain":domain}
-        
-        if isinstance(u,sp.Union):
-            for subset in u.args:            
-                d = list(map(float, subset.boundary))
-                domain.append(d)
-                if right_bound != None and right_bound==d[0]:
-                    discont.append(d[0])
-                right_bound = d[1]            
-            # return {"discont":discont, "domain":domain}         
-        
-    except:
-        pass
-    
-    return {"discont":discont, "domain":domain} 
+def discontinuities(exp_, lower, upper, _var):    
+    _exp=sp.parse_expr(exp_)    
+    num, denom = _exp.as_numer_denom()    
+    if num.is_polynomial():
+        num = sp.factor(num)  
 
-# def discontinuities(_exp, lower, upper, var):
-#     try:
-#         res = []
-#         fn = sp.parse_expr(_exp) 
-#         # print("hello")
-#         ts = list(sp.Add.make_args(fn))
-#         print(ts)
-#         for t in ts:
-#             n, dns = t.as_numer_denom() 
-#             dis = sp.solve(dns, var)
-            
-#             for d in dis:
-#                 _d = float(d)
-#                 if _d < upper and _d > lower:
-#                     try:
-#                         res.index(_d)
-#                     except:                    
-#                         res.append(float(d))            
-        
-#         return  res      
-#     except:
-#         print("error")
-#         return []
+    if denom.is_polynomial():
+        denom = sp.factor(denom)             
+
+    solution = (num)/(denom) 
+    solution = solution.factor()
+    num, denom = solution.as_numer_denom()
+    ds = sp.solveset(denom, sp.Symbol(_var), sp.Interval(lower, upper, left_open=True, right_open=True))
     
+
+    discount = []
+    for sol in list(ds):
+        discount.append(float(sol.evalf()))
+
+    discount.sort()
     
+    return discount 
+
+   
 
 app = Flask(__name__)
 @app.route("/")
@@ -190,7 +144,23 @@ def csolve():
 #     m = data["mode"]
 #     mode_deg_rad = m
     
-#     return jsonify({"mode": mode_deg_rad_})    
+#     return jsonify({"mode": mode_deg_rad_})   
+# 
+
+@app.route("/discontinuity", methods=['POST'])
+def discontinuity():
+    data = request.get_json()    
+    _exp = data["exp"]
+    _var = data["var"]
+    lower = data["lower"]
+    upper = data["upper"]
+
+    while _exp.find("^") != -1:
+        _exp = _exp.replace("^", "**")
+    
+    discont = discontinuities(_exp, lower, upper, _var) 
+
+    return jsonify({"discontinuities": discont})  
 
 
 @app.route("/points", methods=['POST'])
@@ -204,12 +174,11 @@ def points():
     while _exp.find("^") != -1:
         _exp = _exp.replace("^", "**")
     
-    discont_domain = discontinuities(_exp, lower, upper, _var) 
+    discont = discontinuities(_exp, lower, upper, _var) 
     inflectn_points = inflection_points(_exp, lower, upper, _var) 
     turn_points = turning_points(_exp, lower, upper, _var)     
     return jsonify({
-        "discontinuities": discont_domain["discont"],
-        "domain": discont_domain["domain"],
+        "discontinuities": discont,
         "inflection_points": inflectn_points,
         "turning_points": turn_points
         })      
