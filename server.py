@@ -7,26 +7,67 @@ from sympy.calculus.util import continuous_domain
 # The Degree To Radian Code
 #--------------------------#
 
-# deg_mode = "deg"
+mode_deg_rad = "deg"
 
-# def deg2rad(d):
-#     return sp.N(d*sp.pi/180)
+# def setMode(mode):
+#     mode_deg_rad = mode
 
-# _sin = sp.sin
-# def sin(d):
-#     if deg_mode == "deg":
-#         return _sin(deg2rad(d))
-#     return _sin(d)
+def deg2rad(d):
+    return sp.N(d*sp.pi/180)
 
-# sp.sin = sin
+original_sin = sp.sin
+def sin(d):
+    if mode_deg_rad == "deg":
+        # print("deg")
+        return original_sin(deg2rad(d))
+    # print("rad")
+    return original_sin(d)
+sp.sin = sin
 
-# _cos = sp.cos
-# def cos(d):
-#     if deg_mode == "deg":
-#         return _cos(deg2rad(d))
-#     return _cos(d)
+original_cos = sp.cos
+def cos(d):
+    if mode_deg_rad == "deg":
+        # print("deg")
+        return original_cos(deg2rad(d))
+    # print("rad")
+    return original_cos(d)
+sp.cos = cos
 
-# sp.cos = cos
+original_tan = sp.tan
+def tan(d):
+    if mode_deg_rad == "deg":
+        # print("deg")
+        return original_tan(deg2rad(d))
+    # print("rad")
+    return original_tan(d)
+sp.tan = tan
+
+original_sec = sp.sec
+def sec(d):
+    if mode_deg_rad == "deg":
+        # print("deg")
+        return original_sec(deg2rad(d))
+    # print("rad")
+    return original_sec(d)
+sp.sec = sec
+
+original_csc = sp.csc
+def csc(d):
+    if mode_deg_rad == "deg":
+        # print("deg")
+        return original_csc(deg2rad(d))
+    # print("rad")
+    return original_csc(d)
+sp.csc = csc
+
+original_cot = sp.cot
+def cot(d):
+    if mode_deg_rad == "deg":
+        # print("deg")
+        return original_cot(deg2rad(d))
+    # print("rad")
+    return original_cot(d)
+sp.cot = cot
 
 
 
@@ -138,14 +179,14 @@ def csolve():
     return jsonify({"result": result})    
 
 
-# @app.route("/mode", methods=['POST'])
-# def mode():
-#     data = request.get_json()  
-#     m = data["mode"]
-#     mode_deg_rad = m
-    
-#     return jsonify({"mode": mode_deg_rad_})   
-# 
+@app.route("/mode", methods=['POST'])
+def mode():
+    global mode_deg_rad
+    data = request.get_json()  
+    m = data["mode"]   
+    mode_deg_rad = m
+    return jsonify({"mode": m})   
+
 
 @app.route("/discontinuity", methods=['POST'])
 def discontinuity():

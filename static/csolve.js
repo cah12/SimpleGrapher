@@ -57,3 +57,16 @@ async function discontinuity(exp, lower, upper, indepVar) {
     return [];
   }
 }
+
+async function mode(_mode) {
+  try {
+    res = await axios.post("/mode", {
+      mode: _mode,
+    });
+    // console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
