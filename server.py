@@ -72,7 +72,8 @@ sp.cot = cot
 
 
 
-def solve_for(exp, c):    
+def solve_for(exp, c):
+    # print(exp)     
     while exp.find("^") != -1:
         exp = exp.replace("^", "**")
     
@@ -87,11 +88,17 @@ def solve_for(exp, c):
     result = []
     try:
         if arr[1] == "0":
-            solutions = sp.solveset(sp.parse_expr(arr[0]), v) 
-
+            solutions = sp.solveset(sp.parse_expr(arr[0]), v)        
         elif arr[1] != "0":
-            solutions = list(sp.solveset(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v)) 
-                   
+            # print(arr[0])
+            # print(arr[1])
+            # print(v)
+            s = sp.solveset(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v)
+            # print(s)
+            # print(type(s)==sp.ConditionSet)
+            solutions = list(s) 
+            # print(solutions)
+                  
         for solution in solutions:
             num, denom = solution.as_numer_denom()
             if num.is_polynomial():
@@ -110,6 +117,7 @@ def solve_for(exp, c):
                 result.append(_str)                               
         
     except BaseException as error:
+        print(error)
         result = []    
     
     return result
@@ -152,13 +160,16 @@ def discontinuities(exp_, lower, upper, _var):
     solution = solution.factor()
     num, denom = solution.as_numer_denom()
     ds = sp.solveset(denom, sp.Symbol(_var), sp.Interval(lower, upper, left_open=True, right_open=True))
-    
-
+    # print(ds)
+    # print(type(ds))
+    # print(type(ds)==sp.FiniteSet)
     discount = []
-    for sol in list(ds):
-        discount.append(float(sol.evalf()))
 
-    discount.sort()
+    if type(ds)==sp.FiniteSet:
+        for sol in list(ds):
+            discount.append(float(sol.evalf()))
+
+        discount.sort()
     
     return discount 
 
@@ -199,6 +210,7 @@ def discontinuity():
     while _exp.find("^") != -1:
         _exp = _exp.replace("^", "**")
     
+    # print(_exp)
     discont = discontinuities(_exp, lower, upper, _var) 
 
     return jsonify({"discontinuities": discont})  
