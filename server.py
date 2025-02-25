@@ -148,7 +148,7 @@ def inflection_points(expr, lower, upper, var):
 
 
 def discontinuities(exp_, lower, upper, _var):    
-    _exp=sp.parse_expr(exp_)    
+    _exp=sp.parse_expr(exp_) 
     num, denom = _exp.as_numer_denom()    
     if num.is_polynomial():
         num = sp.factor(num)  
@@ -167,9 +167,17 @@ def discontinuities(exp_, lower, upper, _var):
 
     if type(ds)==sp.FiniteSet:
         for sol in list(ds):
+            discount.append(float(sol.evalf()))        
+
+    if len(discount) == 0:
+        d= list(sp.singularities(_exp, sp.Symbol(_var)))
+        for sol in d:
             discount.append(float(sol.evalf()))
 
-        discount.sort()
+    discount.sort()   
+    # print(discount) 
+
+    return discount
     
     return discount 
 
