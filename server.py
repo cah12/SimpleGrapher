@@ -175,7 +175,7 @@ def discontinuities(exp_, lower, upper, _var):
     # print(_exp)     
 
     if len(discount) == 0:
-        d = sp.factor(_exp) 
+        # d = sp.factor(_exp) 
         d= list(sp.singularities(_exp, v))
         for sol in d:
             discount.append(float(sol.evalf()))
