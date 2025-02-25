@@ -147,7 +147,10 @@ def inflection_points(expr, lower, upper, var):
     
 
 
-def discontinuities(exp_, lower, upper, _var):    
+def discontinuities(exp_, lower, upper, _var):  
+    discount = []  
+    v = sp.Symbol(_var)
+
     _exp=sp.parse_expr(exp_) 
     num, denom = _exp.as_numer_denom()    
     if num.is_polynomial():
@@ -159,28 +162,29 @@ def discontinuities(exp_, lower, upper, _var):
     solution = (num)/(denom) 
     solution = solution.factor()
     num, denom = solution.as_numer_denom()
-    ds = sp.solveset(denom, sp.Symbol(_var), sp.Interval(lower, upper, left_open=True, right_open=True))
+    ds = sp.solveset(denom, v, sp.Interval(lower, upper, left_open=True, right_open=True))
     # print(ds)
     # print(type(ds))
     # print(type(ds)==sp.FiniteSet)
-    discount = []
+    
 
     if type(ds)==sp.FiniteSet:
         for sol in list(ds):
-            discount.append(float(sol.evalf()))        
+            discount.append(float(sol.evalf()))   
+
+    # print(_exp)     
 
     if len(discount) == 0:
-        d= list(sp.singularities(_exp, sp.Symbol(_var)))
+        d = sp.factor(_exp) 
+        d= list(sp.singularities(_exp, v))
         for sol in d:
             discount.append(float(sol.evalf()))
 
+    discount = list(set(discount))
     discount.sort()   
-    # print(discount) 
-
+    
     return discount
     
-    return discount 
-
    
 
 app = Flask(__name__)
