@@ -199,6 +199,7 @@ def csolve():
     exp = data["exp"]
     var = data["var"]
     result = solve_for(exp, var) 
+    # print("solve")
     return jsonify({"result": result})    
 
 
@@ -222,7 +223,7 @@ def discontinuity():
     while _exp.find("^") != -1:
         _exp = _exp.replace("^", "**")
     
-    # print(_exp)
+    # print("discontinuity")
     discont = discontinuities(_exp, lower, upper, _var) 
 
     return jsonify({"discontinuities": discont})  
