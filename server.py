@@ -46,27 +46,27 @@ original_sec = sp.sec
 def sec(d):
     if mode_deg_rad == "deg":
         # print("deg")
-        return original_sec(deg2rad(d))
+        return 1/original_cos(deg2rad(d))
     # print("rad")
-    return original_sec(d)
+    return 1/original_cos(d)
 sp.sec = sec
 
 original_csc = sp.csc
 def csc(d):
     if mode_deg_rad == "deg":
         # print("deg")
-        return original_csc(deg2rad(d))
+        return 1/original_sin(deg2rad(d))
     # print("rad")
-    return original_csc(d)
+    return 1/original_sin(d)
 sp.csc = csc
 
 original_cot = sp.cot
 def cot(d):
     if mode_deg_rad == "deg":
         # print("deg")
-        return original_cot(deg2rad(d))
+        return 1/original_tan(deg2rad(d))
     # print("rad")
-    return original_cot(d)
+    return 1/original_tan(d)
 sp.cot = cot
 
 
