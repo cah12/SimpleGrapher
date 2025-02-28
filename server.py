@@ -159,7 +159,7 @@ def discontinuities(exp_, lower, upper, _var):
     if denom.is_polynomial():
         denom = sp.factor(denom)             
 
-    solution = (num)/(denom) 
+    solution = ((num)/(denom)) 
     solution = solution.factor()
     num, denom = solution.as_numer_denom()
     ds = sp.solveset(denom, v, sp.Interval(lower, upper, left_open=True, right_open=True))
@@ -172,15 +172,15 @@ def discontinuities(exp_, lower, upper, _var):
         for sol in list(ds):
             discount.append(float(sol.evalf()))   
 
-    # print(_exp)     
-
+    # print(_exp) 
+    
     if len(discount) == 0:
         # d = sp.factor(_exp) 
         d= list(sp.singularities(_exp, v))
         for sol in d:
             discount.append(float(sol.evalf()))
 
-    discount = list(set(discount))
+    # discount = list(set(discount))
     discount.sort()   
     
     return discount    
