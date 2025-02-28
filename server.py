@@ -151,7 +151,7 @@ def discontinuities(exp_, lower, upper, _var):
     discount = []  
     v = sp.Symbol(_var)
 
-    _exp = sp.simplify(exp_, rational=False)
+    _exp = sp.simplify(exp_, rational=True)
     # _exp=sp.parse_expr(exp_) 
     # 
     num, denom = _exp.as_numer_denom()    
