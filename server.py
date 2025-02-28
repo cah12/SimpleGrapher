@@ -183,8 +183,7 @@ def discontinuities(exp_, lower, upper, _var):
     discount = list(set(discount))
     discount.sort()   
     
-    return discount
-    
+    return discount    
    
 
 app = Flask(__name__)
@@ -225,6 +224,7 @@ def discontinuity():
     
     # print("discontinuity")
     discont = discontinuities(_exp, lower, upper, _var) 
+    print(discont)
 
     return jsonify({"discontinuities": discont})  
 
