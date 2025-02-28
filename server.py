@@ -6,7 +6,8 @@ from sympy.calculus.util import continuous_domain
 
 # The Degree To Radian Code
 #--------------------------#
-
+####################################################
+###########################################################
 mode_deg_rad = "deg"
 
 # def setMode(mode):
@@ -148,7 +149,7 @@ def inflection_points(expr, lower, upper, var):
 
 
 def discontinuities(exp_, lower, upper, _var):  
-    discount = []  
+    # discount = []  
     v = sp.Symbol(_var)
 
     _exp=sp.parse_expr(exp_) 
@@ -163,26 +164,45 @@ def discontinuities(exp_, lower, upper, _var):
     solution = ((num)/(denom)) 
     solution = solution.factor()
     num, denom = solution.as_numer_denom()
-    ds = sp.solveset(denom, v, sp.Interval(lower, upper, left_open=True, right_open=True))
+    ds = sp.solve(denom)#, v, sp.Interval(lower, upper, left_open=True, right_open=True))
+
+    ds.sort() 
+
+    discount = list(ds)
+    if len(ds) > 1:        
+        val = None
+        diff = ds[1]-ds[0]
+        cur = ds[0]-diff
+        while cur>lower:
+            discount.append(cur)
+            cur -= diff
+
+        cur = ds[1]+diff
+        while cur<upper:
+            discount.append(cur)
+            cur += diff
+    
+
+
     # print(ds)
     # print(type(ds))
     # print(type(ds)==sp.FiniteSet)
     
 
-    if type(ds)==sp.FiniteSet:
-        for sol in list(ds):
-            discount.append(float(sol.evalf()))   
+    # if type(ds)==sp.FiniteSet:
+    #     for sol in list(ds):
+    #         discount.append(float(sol.evalf()))   
 
     # print(_exp) 
     
-    if len(discount) == 0:
-        # d = sp.factor(_exp) 
-        d= list(sp.singularities(_exp, v))
-        for sol in d:
-            discount.append(float(sol.evalf()))
+    # if len(discount) == 0:
+    #     d= list(sp.singularities(_exp, v))
+    #     for sol in d:
+    #         discount.append(float(sol.evalf()))
 
     # discount = list(set(discount))
     discount.sort()   
+    discount = list(map(float, discount))
     
     return discount    
    
