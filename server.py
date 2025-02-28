@@ -152,6 +152,7 @@ def discontinuities(exp_, lower, upper, _var):
     v = sp.Symbol(_var)
 
     _exp=sp.parse_expr(exp_) 
+    _exp = _exp.simplify(rational=False)
     num, denom = _exp.as_numer_denom()    
     if num.is_polynomial():
         num = sp.factor(num)  
