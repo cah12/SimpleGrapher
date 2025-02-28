@@ -13,60 +13,60 @@ mode_deg_rad = "deg"
 #     mode_deg_rad = mode
 
 def deg2rad(d):
-    return sp.N(d*sp.pi/180)
+    return d*sp.pi/180
 
 original_sin = sp.sin
 def sin(d):
     if mode_deg_rad == "deg":
         # print("deg")
-        return sp.N(original_sin(deg2rad(d)))
+        return original_sin(deg2rad(d))
     # print("rad")
-    return sp.N(original_sin(d))
+    return original_sin(d)
 sp.sin = sin
 
 original_cos = sp.cos
 def cos(d):
     if mode_deg_rad == "deg":
         # print("deg")
-        return sp.N(original_cos(deg2rad(d)))
+        return original_cos(deg2rad(d))
     # print("rad")
-    return sp.N(original_cos(d))
+    return original_cos(d)
 sp.cos = cos
 
 original_tan = sp.tan
 def tan(d):
     if mode_deg_rad == "deg":
         # print("deg")
-        return sp.N(original_tan(deg2rad(d)))
+        return original_tan(deg2rad(d))
     # print("rad")
-    return sp.N(original_tan(d))
+    return original_tan(d)
 sp.tan = tan
 
 original_sec = sp.sec
 def sec(d):
     if mode_deg_rad == "deg":
         # print("deg")
-        return sp.N(1/original_cos(deg2rad(d)))
+        return 1/original_cos(deg2rad(d))
     # print("rad")
-    return sp.N(1/original_cos(d))
+    return 1/original_cos(d)
 sp.sec = sec
 
 original_csc = sp.csc
 def csc(d):
     if mode_deg_rad == "deg":
         # print("deg")
-        return sp.N(1/original_sin(deg2rad(d)))
+        return 1/original_sin(deg2rad(d))
     # print("rad")
-    return sp.N(1/original_sin(d))
+    return 1/original_sin(d)
 sp.csc = csc
 
 original_cot = sp.cot
 def cot(d):
     if mode_deg_rad == "deg":
         # print("deg")
-        return sp.N(1/original_tan(deg2rad(d)))
+        return 1/original_tan(deg2rad(d))
     # print("rad")
-    return sp.N(1/original_tan(d))
+    return 1/original_tan(d)
 sp.cot = cot
 
 
