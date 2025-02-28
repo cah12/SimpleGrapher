@@ -251,7 +251,7 @@ def points():
     
 
 if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=3500, threads=100)
+    serve(app, host="0.0.0.0", port=3500)
 
 
 
