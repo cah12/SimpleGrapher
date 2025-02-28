@@ -13,7 +13,7 @@ mode_deg_rad = "deg"
 #     mode_deg_rad = mode
 
 def deg2rad(d):
-    return d*sp.pi/180
+    return sp.N(d*sp.pi/180)
 
 original_sin = sp.sin
 def sin(d):
@@ -224,7 +224,7 @@ def discontinuity():
     
     # print("discontinuity")
     discont = discontinuities(_exp, lower, upper, _var) 
-    print(discont)
+    # print(discont)
 
     return jsonify({"discontinuities": discont})  
 
