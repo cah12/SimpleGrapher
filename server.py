@@ -163,6 +163,14 @@ def discontinuities(exp_, lower, upper, _var):
                 discount.append(v)
             except:
                 pass
+
+        if len(discount):
+            arr = []
+            for s in discount:
+                if s < upper and s > lower:
+                    arr.append(s)
+            discount = arr
+
             
 
     
