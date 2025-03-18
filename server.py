@@ -148,13 +148,22 @@ def discontinuities(exp_, lower, upper, _var):
 
     if type(ds)==sp.FiniteSet:
         for sol in list(ds):
-            discount.append(float(sol.evalf())) 
+            try:
+                v = float(sol.evalf())
+                discount.append(v)
+            except:
+                pass
   
     
     if len(discount) == 0:
         d= list(sp.singularities(_exp, v))
         for sol in d:
-            discount.append(float(sol.evalf()))
+            try:
+                v = float(sol.evalf())
+                discount.append(v)
+            except:
+                pass
+            
 
     
     discount.sort()   
