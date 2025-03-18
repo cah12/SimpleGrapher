@@ -156,20 +156,23 @@ def discontinuities(exp_, lower, upper, _var):
   
     
     if len(discount) == 0:
-        d= list(sp.singularities(_exp, v))
-        for sol in d:
-            try:
-                v = float(sol.evalf())
-                discount.append(v)
-            except:
-                pass
+        try:
+            d= list(sp.singularities(_exp, v))
+            for sol in d:
+                try:
+                    v = float(sol.evalf())
+                    discount.append(v)
+                except:
+                    pass
 
-        if len(discount):
-            arr = []
-            for s in discount:
-                if s < upper and s > lower:
-                    arr.append(s)
-            discount = arr
+            if len(discount):
+                arr = []
+                for s in discount:
+                    if s < upper and s > lower:
+                        arr.append(s)
+                discount = arr
+        except:
+            pass
 
             
 
