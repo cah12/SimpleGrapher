@@ -216,6 +216,9 @@ def discontinuity():
     lower = data["lower"]
     upper = data["upper"]
 
+    if _exp == None:
+        return []
+
     while _exp.find("^") != -1:
         _exp = _exp.replace("^", "**")
     
