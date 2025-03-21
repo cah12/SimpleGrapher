@@ -77,7 +77,7 @@ def solve_for(exp, c):
             solutions = sp.solveset(sp.parse_expr(arr[0]), v)        
         else:
             s = sp.solveset(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v)
-            if str(s).find("I") != -1:
+            if len(list(s))==1 and str(s).find("I") != -1:
                 solutions = []
             else:
                 solutions = list(s)            
