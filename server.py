@@ -77,10 +77,7 @@ def solve_for(exp, c):
             solutions = sp.solveset(sp.parse_expr(arr[0]), v)        
         else:
             s = sp.solveset(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v)
-            if len(list(s))==1 and str(s).find("I") != -1:
-                solutions = []
-            else:
-                solutions = list(s)            
+            solutions = list(s)            
                   
         for solution in solutions:
             num, denom = solution.as_numer_denom()
