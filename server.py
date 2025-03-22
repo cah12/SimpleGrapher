@@ -98,8 +98,13 @@ def solve_for(exp, c):
         
     except BaseException as error:
         print(error)
-        result = []    
+        return []    
     
+    
+    if len(result) > 2:
+        result = [result[0]]
+    
+
     return result
 
 
