@@ -95,8 +95,13 @@ def solve_for(exp, c):
             s = sp.solveset(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v)
             solutions = list(s)            
 
-        if len(solutions) > 2:  
-            solutions = [solutions[0], solutions[1]] 
+        l = len(solutions)
+
+        if l > 2:  
+            if l % 2 == 0:
+                solutions = [solutions[0], solutions[1]] 
+            else:
+                solutions = [solutions[0]] 
 
         for solution in solutions:
             num, denom = solution.as_numer_denom()
