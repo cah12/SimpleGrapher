@@ -57,16 +57,32 @@ def cot(d):
 sp.cot = cot
 
 
+def pyExpToJsExp(s):
+    while s.find("**") != -1:
+        s = s.replace("**", "^")
+    return s
 
+
+def jsExpToPyExp(s):
+    while s.find("^") != -1:
+        s = s.replace("^", "**")
+    return s
 
 def solve_for(exp, c):
-    while exp.find("^") != -1:
-        exp = exp.replace("^", "**")
+    # while exp.find("^") != -1:
+    #     exp = exp.replace("^", "**")
+
+    exp = jsExpToPyExp(exp)
     
     v = sp.Symbol(c)
     arr = exp.split('=')
 
-    
+    if len(arr) == 2:
+        if arr[0] == c:
+            return[pyExpToJsExp(arr[1])]
+        if arr[1] == c:
+            return[pyExpToJsExp(arr[0])]
+
     
     if len(arr) == 1:
         arr.append("0")  
@@ -78,32 +94,32 @@ def solve_for(exp, c):
         else:
             s = sp.solveset(sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v)
             solutions = list(s)            
-                  
+
+        if len(solutions) > 2:  
+            solutions = [solutions[0], solutions[1]] 
+
         for solution in solutions:
             num, denom = solution.as_numer_denom()
-            if num.is_polynomial():
-                num = sp.factor(num)  
+            if denom != 1:                
+                if num.is_polynomial():
+                    num = sp.factor(num)  
 
-            if denom.is_polynomial():
-                denom = sp.factor(denom)             
+                if denom.is_polynomial():
+                    denom = sp.factor(denom)             
 
-            solution = (num)/(denom) 
-            solution = solution.simplify()
+                solution = (num)/(denom) 
+                solution = solution.simplify()
             
             _str = str(solution)
-            while _str.find("**") != -1:
-                _str = _str.replace("**", "^")
+            # while _str.find("**") != -1:
+            #     _str = _str.replace("**", "^")
+            _str = pyExpToJsExp(_str)
             if _str.find("Piecewise") == -1 and _str.find("I") == -1:                
                 result.append(_str)                               
         
     except BaseException as error:
         print(error)
-        return []    
-    
-    
-    if len(result) > 2:
-        result = [result[0]]
-    
+        return []     
 
     return result
 
@@ -138,7 +154,11 @@ def discontinuities(exp_, lower, upper, _var):
 
     _exp=sp.parse_expr(exp_) 
     
-    num, denom = _exp.as_numer_denom()    
+    num, denom = _exp.as_numer_denom()  
+
+    if denom == 1:
+        return []  
+    
     if num.is_polynomial():
         num = sp.factor(num)  
 
@@ -224,8 +244,10 @@ def discontinuity():
     if _exp == None:
         return []
 
-    while _exp.find("^") != -1:
-        _exp = _exp.replace("^", "**")
+    # while _exp.find("^") != -1:
+    #     _exp = _exp.replace("^", "**")
+
+    _exp = jsExpToPyExp(_exp)
     
     # print("discontinuity")
     discont = discontinuities(_exp, lower, upper, _var) 
@@ -242,8 +264,10 @@ def points():
     lower = data["lower"]
     upper = data["upper"]
 
-    while _exp.find("^") != -1:
-        _exp = _exp.replace("^", "**")
+    # while _exp.find("^") != -1:
+    #     _exp = _exp.replace("^", "**")
+
+    _exp = jsExpToPyExp(_exp)
     
     discont = discontinuities(_exp, lower, upper, _var) 
     inflectn_points = inflection_points(_exp, lower, upper, _var) 
