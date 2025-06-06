@@ -5,17 +5,22 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/nerdamer.core.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/nerdamer.core.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Algebra.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Calculus.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Solve.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Solve.js"></script> -->
 
-    <!-- <script src="lib/nerdamer/nerdamer.core.js"></script>
-    <script src="lib/nerdamer/Algebra.js"></script>
-    <script src="lib/nerdamer/Calculus.js"></script>
-    <script src="lib/nerdamer/Solve.js"></script> -->
+    <!-- <script src="https://www.unpkg.com/mathjslab"></script> -->
 
     <!-- <script src="lib/nerdamer/all.min.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.all.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.min.js"></script>
+    <!-- LOAD ADD-ONS. These files contain extended functions. See documentation -->
+    <!-- again assuming you've saved the files in root -->
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Calculus.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Solve.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Extra.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.12/jquery.mousewheel.min.js"></script>
@@ -39,9 +44,9 @@
     <!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
-    <script src="../static/lib/conrec.js"></script>
+    <script src="lib/conrec.js"></script>
 
-    <link href="../static/css/layout-min.css" rel="stylesheet" />
+    <link href="css/layout.css" rel="stylesheet" />
 
     <!-- Filesystem CDNs Start-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
@@ -70,7 +75,7 @@
     <!-- <script src="fileSystem.js"></script> -->
 
     <script src="https://unpkg.com/mongo-db-filesystem-ui/js/fileSystem-min.js"></script>
-    <!-- Filesystem CDNs End  -->
+    <!-- Filesystem CDNs End-->
 
     <!-- <script src="https://unpkg.com/mathlive@0.84.0/dist/mathlive.js"></script> -->
     <!-- <script type="module" src="https://unpkg.com/mathlive?module"></script> -->
@@ -79,11 +84,21 @@
       src="https://unpkg.com/mathlive@0.96.2?module"
     ></script>
 
-    <script src="../static/csolve.js"></script>
+    <!-- <script src="lib/algebra-0.2.6.min.js"></script> -->
 
-    <script data-main="../static/app" src="../static/lib/require.js"></script>
+    <script data-main="app" src="lib/require.js"></script>
 
-    <link rel="icon" href="../static/images/favicon.ico" type="image/x-icon" />
+    <script src="threejs/three.js"></script>
+    <script src="threejs/orbitControls.js"></script>
+    <script src="threejs/fontLoader.js"></script>
+    <script src="threejs/textGeometry.js"></script>
+    <!-- <script src="threejs/helvetiker_bold.typeface.json"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/three@0.176.0/build/three.module.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/three@0.176.0/examples/jsm/geometries/TextGeometry.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/three@0.176.0/examples/jsm/loaders/FontLoader.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.176.0/examples/fonts/helvetiker_bold.typeface.json"></script>
+
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
   </head>
 
   <body>
