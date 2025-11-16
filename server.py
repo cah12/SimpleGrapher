@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, make_response
 from waitress import serve
 
 import sympy as sp
+import numpy as np
 
 # The Degree To Radian Code
 #--------------------------#
@@ -210,7 +211,30 @@ def discontinuities(exp_, lower, upper, _var):
     discount.sort()   
     discount = list(map(float, discount))
     
-    return discount    
+    return discount   
+ 
+#Checks if two sympy expressions are approximately equal by evaluating them numerically.
+def approx_equal(expr1, expr2, tol=1e-9):    
+    # Identify all free symbols in both expressions
+    free_symbols = set(expr1.free_symbols) | set(expr2.free_symbols)
+    
+    # If there are symbols, substitute some random numerical values
+    if free_symbols:
+        # Generate random values for the symbols
+        # A simple approach for demonstration; a more robust solution might use
+        # a range of values or multiple test cases.
+        values = {symbol: np.random.uniform(-10, 10) for symbol in free_symbols}
+        
+        # Evaluate expressions numerically
+        num_expr1 = float(expr1.subs(values).evalf())
+        num_expr2 = float(expr2.subs(values).evalf())
+    else:
+        # If no free symbols, just evaluate the expressions
+        num_expr1 = float(expr1.evalf())
+        num_expr2 = float(expr2.evalf())
+        
+    # Use numpy.allclose for a robust floating-point comparison
+    return np.allclose(num_expr1, num_expr2, atol=tol)
    
 
 app = Flask(__name__)
