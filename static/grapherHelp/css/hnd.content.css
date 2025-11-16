@@ -220,20 +220,27 @@ span.rvts33
  font-family: '@yu gothic ui';
  color: #000000;
 }
-span.rvts34
+a.rvts34, span.rvts34
+{
+ font-size: 12pt;
+ font-family: '@yu gothic ui';
+ color: #000000;
+ text-decoration: underline;
+}
+span.rvts35
 {
  font-size: 12pt;
  font-family: 'Verdana', 'Geneva', sans-serif;
  color: #333333;
 }
-span.rvts35
+span.rvts36
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
  font-weight: bold;
  color: #000000;
 }
-a.rvts36, span.rvts36
+a.rvts37, span.rvts37
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
@@ -242,38 +249,38 @@ a.rvts36, span.rvts36
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts36:hover { color: #22527b; }
-span.rvts37
+a.rvts37:hover { color: #22527b; }
+span.rvts38
 {
  font-size: 11pt;
  color: ;
  background-color: #ffffff;
 }
-span.rvts38
+span.rvts39
 {
  color: #000000;
 }
-span.rvts39
+span.rvts40
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
  color: #190000;
 }
-span.rvts40
+span.rvts41
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
  font-weight: bold;
  color: #190000;
 }
-span.rvts41
+span.rvts42
 {
  font-size: 12pt;
  font-style: italic;
  color: #000000;
  background-color: #f9fbdd;
 }
-a.rvts42, span.rvts42
+a.rvts43, span.rvts43
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
@@ -281,48 +288,48 @@ a.rvts42, span.rvts42
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts42:hover { color: #22527b; }
-span.rvts43
-{
- font-size: 12pt;
- font-family: '@yu gothic ui';
- color: #190000;
-}
+a.rvts43:hover { color: #22527b; }
 span.rvts44
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
- font-style: italic;
  color: #190000;
 }
 span.rvts45
 {
  font-size: 12pt;
+ font-family: '@yu gothic ui';
+ font-style: italic;
+ color: #190000;
+}
+span.rvts46
+{
+ font-size: 12pt;
  color: #333333;
  background-color: #f9fbdd;
 }
-span.rvts46
+span.rvts47
 {
  font-size: 12pt;
  font-style: italic;
  color: #333333;
  background-color: #f9fbdd;
 }
-a.rvts47, span.rvts47
+a.rvts48, span.rvts48
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
  color: #0000ff;
  text-decoration: underline;
 }
-span.rvts48
+span.rvts49
 {
  font-size: 12pt;
  font-family: 'Verdana', 'Geneva', sans-serif;
  color: #333333;
  background-color: #ffffd0;
 }
-span.rvts49
+span.rvts50
 {
  font-size: 12pt;
  font-family: '@Yu Gothic UI';
@@ -330,14 +337,14 @@ span.rvts49
  color: #333333;
  background-color: #f9f9f9;
 }
-span.rvts50
+span.rvts51
 {
  font-size: 12pt;
  font-style: italic;
  color: #202124;
  background-color: #ffffff;
 }
-span.rvts51
+span.rvts52
 {
  font-size: 12pt;
  font-family: '@Yu Gothic UI';
@@ -345,14 +352,14 @@ span.rvts51
  color: #190000;
  background-color: #f9f9f9;
 }
-span.rvts52
+span.rvts53
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
  font-style: italic;
  color: #190000;
 }
-span.rvts53
+span.rvts54
 {
  font-size: 12pt;
  font-family: '@Yu Gothic UI';
@@ -360,7 +367,7 @@ span.rvts53
  color: #190000;
  background-color: #d3d3d3;
 }
-a.rvts54, span.rvts54
+a.rvts55, span.rvts55
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
@@ -369,82 +376,82 @@ a.rvts54, span.rvts54
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts54:hover { color: #22527b; }
-a.rvts55, span.rvts55
+a.rvts55:hover { color: #22527b; }
+a.rvts56, span.rvts56
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
  color: #337ab7;
  text-decoration: underline;
 }
-a.rvts55:hover { color: #22527b; }
-span.rvts56
+a.rvts56:hover { color: #22527b; }
+span.rvts57
 {
  font-size: 12pt;
  color: #000000;
 }
-a.rvts57, span.rvts57
+a.rvts58, span.rvts58
 {
  font-size: 12pt;
  color: #337ab7;
  text-decoration: none;
 }
-a.rvts57:hover { color: #22527b; text-decoration: underline; }
-a.rvts58, span.rvts58
+a.rvts58:hover { color: #22527b; text-decoration: underline; }
+a.rvts59, span.rvts59
 {
  font-size: 12pt;
  font-weight: bold;
  color: #4665a2;
  text-decoration: none;
 }
-a.rvts58:hover { color: #22527b; text-decoration: underline; }
-span.rvts59
+a.rvts59:hover { color: #22527b; text-decoration: underline; }
+span.rvts60
 {
  font-size: 12pt;
  color: #000000;
  background-color: #ffffff;
 }
-span.rvts60
+span.rvts61
 {
  font-size: 12pt;
  color: #190000;
  background-color: #ffffff;
 }
-a.rvts61, span.rvts61
+a.rvts62, span.rvts62
 {
  font-size: 12pt;
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts61:hover { color: #22527b; }
-span.rvts62
+a.rvts62:hover { color: #22527b; }
+span.rvts63
 {
  font-size: 12pt;
  font-style: italic;
  color: #000000;
 }
-a.rvts63, span.rvts63
+a.rvts64, span.rvts64
 {
  font-size: 12pt;
  color: #0000ff;
  background-color: #ffffff;
  text-decoration: underline;
 }
-a.rvts63:hover { color: #22527b; }
-span.rvts64
+a.rvts64:hover { color: #22527b; }
+span.rvts65
 {
  font-size: 12pt;
  font-family: 'Arial Black', 'Gadget', sans-serif;
  color: #000000;
 }
-span.rvts65
+span.rvts66
 {
  font-size: 12pt;
  font-style: italic;
  color: #190000;
  background-color: #ffffff;
 }
-a.rvts66, span.rvts66
+a.rvts67, span.rvts67
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
@@ -452,7 +459,7 @@ a.rvts66, span.rvts66
  color: #000000;
  text-decoration: underline;
 }
-a.rvts67, span.rvts67
+a.rvts68, span.rvts68
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
@@ -460,28 +467,28 @@ a.rvts67, span.rvts67
  background-color: #ffffff;
  text-decoration: underline;
 }
-a.rvts67:hover { color: #22527b; }
-span.rvts68
+a.rvts68:hover { color: #22527b; }
+span.rvts69
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
  color: #333333;
  background-color: #ffffff;
 }
-span.rvts69
+span.rvts70
 {
  font-size: 12pt;
  font-style: italic;
  color: #000000;
  background-color: #f9f9f9;
 }
-span.rvts70
+span.rvts71
 {
  font-size: 12pt;
  color: #000000;
  background-color: #f9f9f9;
 }
-a.rvts71, span.rvts71
+a.rvts72, span.rvts72
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
@@ -489,33 +496,25 @@ a.rvts71, span.rvts71
  color: #0000ff;
  text-decoration: underline;
 }
-span.rvts72
+span.rvts73
 {
  font-size: 12pt;
  font-family: 'yu gothic ui';
  color: #000000;
 }
-a.rvts73, span.rvts73
+a.rvts74, span.rvts74
 {
  font-size: 12pt;
  font-family: 'yu gothic ui';
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts73:hover { color: #22527b; }
-a.rvts74, span.rvts74
-{
- font-size: 12pt;
- font-family: 'yu gothic ui';
- color: #190000;
- text-decoration: none;
-}
-a.rvts74:hover { color: #22527b; text-decoration: underline; }
+a.rvts74:hover { color: #22527b; }
 a.rvts75, span.rvts75
 {
  font-size: 12pt;
  font-family: 'yu gothic ui';
- color: #3f3f3f;
+ color: #190000;
  text-decoration: none;
 }
 a.rvts75:hover { color: #22527b; text-decoration: underline; }
@@ -523,19 +522,27 @@ a.rvts76, span.rvts76
 {
  font-size: 12pt;
  font-family: 'yu gothic ui';
+ color: #3f3f3f;
+ text-decoration: none;
+}
+a.rvts76:hover { color: #22527b; text-decoration: underline; }
+a.rvts77, span.rvts77
+{
+ font-size: 12pt;
+ font-family: 'yu gothic ui';
  color: #0000ff;
  text-decoration: none;
 }
-a.rvts76:hover { color: #22527b; }
-a.rvts77, span.rvts77
+a.rvts77:hover { color: #22527b; }
+a.rvts78, span.rvts78
 {
  font-size: 12pt;
  font-family: 'yu gothic ui';
  color: #0000ff;
  text-decoration: underline;
 }
-a.rvts77:hover { color: #22527b; }
-a.rvts78, span.rvts78
+a.rvts78:hover { color: #22527b; }
+a.rvts79, span.rvts79
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
@@ -544,11 +551,11 @@ a.rvts78, span.rvts78
  color: #0000ff;
  text-decoration: underline;
 }
-span.rvts79
+span.rvts80
 {
  color: ;
 }
-a.rvts80, span.rvts80
+a.rvts81, span.rvts81
 {
  font-size: 12pt;
  font-family: '@yu gothic ui';
@@ -556,8 +563,8 @@ a.rvts80, span.rvts80
  color: #000000;
  text-decoration: none;
 }
-a.rvts80:hover { color: #22527b; }
-span.rvts81
+a.rvts81:hover { color: #22527b; }
+span.rvts82
 {
  font-weight: bold;
 }
