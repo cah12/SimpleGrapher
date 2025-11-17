@@ -305,6 +305,14 @@ def find_discontinuities_in_range(
     try:
         numer, denom = fraction(expr)
         if denom != 1:
+            if numer.is_polynomial():
+                numer = sp.factor(numer)
+
+            if denom.is_polynomial():
+                denom = sp.factor(denom)
+
+            solution = sp.factor(numer/denom)
+            numer, denom = solution.as_numer_denom()
             # Solve for where denominator equals zero
             zeros = solve(denom, var)
             for zero in zeros:
