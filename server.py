@@ -414,7 +414,7 @@ def analyze_discontinuity_type(
 
         # Removable discontinuity (limits equal but function undefined)
         if left_limit == right_limit and left_limit.is_finite:
-            return ['removable', left_limit]
+            return ['removable', float(left_limit.evalf())]
 
         # Jump discontinuity
         if left_limit != right_limit and left_limit.is_finite and right_limit.is_finite:
@@ -464,8 +464,9 @@ def find_discontinuities_detailed(
         disc_type = analyze_discontinuity_type(expr, disc, var)
         if isinstance(disc_type, list):
             detailed_results.append([disc, disc_type[0], disc_type[1]])
-        else:
-            detailed_results.append([disc, disc_type])
+
+        detailed_results.append([disc, disc_type])
+        # print(detailed_results)
 
     return detailed_results
 
