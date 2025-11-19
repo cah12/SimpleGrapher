@@ -301,7 +301,7 @@ def find_discontinuities_in_range(
 
     discontinuities = set()
 
-    # 1. Find discontinuities from division by zero
+    """ # 1. Find discontinuities from division by zero
     try:
         numer, denom = fraction(expr)
         if denom != 1:
@@ -313,6 +313,18 @@ def find_discontinuities_in_range(
 
             solution = sp.factor(numer/denom)
             numer, denom = solution.as_numer_denom()
+            # Solve for where denominator equals zero
+            zeros = solve(denom, var)
+            for zero in zeros:
+                if zero.is_real:
+                    discontinuities.add(zero)
+    except:
+        pass """
+
+    # 1. Find discontinuities from division by zero
+    try:
+        numer, denom = fraction(expr)
+        if denom != 1:
             # Solve for where denominator equals zero
             zeros = solve(denom, var)
             for zero in zeros:
@@ -450,7 +462,7 @@ def find_discontinuities_detailed(
     detailed_results = []
     for disc in discontinuities:
         disc_type = analyze_discontinuity_type(expr, disc, var)
-        detailed_results.append((disc, disc_type))
+        detailed_results.append([disc, disc_type])
 
     return detailed_results
 
@@ -501,7 +513,7 @@ def discontinuity():
 
     # print("discontinuity")
     # discont = discontinuities(_exp, lower, upper, _var)
-    discont = find_discontinuities_in_range(
+    discont = find_discontinuities_detailed(
         _exp,
         lower, upper,
         _var
