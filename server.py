@@ -464,9 +464,9 @@ def find_discontinuities_detailed(
         disc_type = analyze_discontinuity_type(expr, disc, var)
         if isinstance(disc_type, list):
             detailed_results.append([disc, disc_type[0], disc_type[1]])
-
-        detailed_results.append([disc, disc_type])
-        # print(detailed_results)
+        else:
+            detailed_results.append([disc, disc_type])
+        print(detailed_results)
 
     return detailed_results
 
