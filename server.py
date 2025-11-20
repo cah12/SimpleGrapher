@@ -1,6 +1,5 @@
 from ast import expr
 from flask import Flask, render_template, request, jsonify, make_response
-from numpy import var
 from waitress import serve
 
 import sympy as sp
