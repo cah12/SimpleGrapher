@@ -420,7 +420,11 @@ def analyze_discontinuity_type(
         right_limit = sp.limit(expr, x_sym, x_val, '+')
 
         # Infinite discontinuity
-        if left_limit == oo or left_limit == -oo or right_limit == oo or right_limit == -oo:
+        # if left_limit == oo or left_limit == -oo or right_limit == oo or right_limit == -oo:
+        #     return 'infinite'
+
+        # Infinite discontinuity
+        if left_limit > 2e+15 or left_limit < -2e+15 or right_limit > 2e+15 or right_limit < -2e+15:
             return 'infinite'
 
         # Removable discontinuity (limits equal but function undefined)
