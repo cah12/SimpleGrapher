@@ -4,6 +4,7 @@ from waitress import serve
 
 import sympy as sp
 from sympy import symbols, solve, fraction, oo, S
+from sympy.functions.elementary.trigonometric import TrigonometricFunction
 from typing import List, Union, Tuple
 
 
@@ -419,13 +420,14 @@ def analyze_discontinuity_type(
         left_limit = sp.limit(expr, x_sym, x_val, '-')
         right_limit = sp.limit(expr, x_sym, x_val, '+')
 
-        # Infinite discontinuity
-        # if left_limit == oo or left_limit == -oo or right_limit == oo or right_limit == -oo:
-        #     return 'infinite'
-
-        # Infinite discontinuity
-        if left_limit > 2e+15 or left_limit < -2e+15 or right_limit > 2e+15 or right_limit < -2e+15:
-            return 'infinite'
+        if (expr.has(TrigonometricFunction)):
+            # Infinite discontinuity
+            if left_limit > 2e+15 or left_limit < -2e+15 or right_limit > 2e+15 or right_limit < -2e+15:
+                return 'infinite'
+        else:
+            # Infinite discontinuity
+            if left_limit == oo or left_limit == -oo or right_limit == oo or right_limit == -oo:
+                return 'infinite'
 
         # Removable discontinuity (limits equal but function undefined)
         if left_limit == right_limit and left_limit.is_finite:
