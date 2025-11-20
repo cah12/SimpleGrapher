@@ -331,7 +331,9 @@ def find_discontinuities_in_range(
         numer, denom = fraction(expr)
         if denom != 1:
             # Solve for where denominator equals zero
-            zeros = solve(denom, var)
+            zeros = sp.solveset(denom, var, sp.Interval(
+                x_min, x_max, left_open=True, right_open=True))
+            # zeros = solve(denom, var)
             for zero in zeros:
                 if zero.is_real:
                     discontinuities.add(zero)
@@ -342,7 +344,9 @@ def find_discontinuities_in_range(
     for log_expr in expr.atoms(sp.log):
         arg = log_expr.args[0]
         # Log is undefined when argument <= 0
-        critical_points = solve(arg, var)
+        critical_points = sp.solveset(arg, var, sp.Interval(
+            x_min, x_max, left_open=True, right_open=True))
+        # critical_points = solve(arg, var)
         for point in critical_points:
             if point.is_real:
                 discontinuities.add(point)
@@ -353,7 +357,9 @@ def find_discontinuities_in_range(
         # Check if exponent is a fraction with even denominator
         if exp.is_Rational and exp.q % 2 == 0 and exp.p > 0:
             # Even root is undefined for negative values
-            critical_points = solve(base, var)
+            critical_points = sp.solveset(base, var, sp.Interval(
+                x_min, x_max, left_open=True, right_open=True))
+            # critical_points = solve(base, var)
             for point in critical_points:
                 if point.is_real:
                     discontinuities.add(point)
