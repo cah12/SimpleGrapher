@@ -1,4 +1,6 @@
+from ast import expr
 from flask import Flask, render_template, request, jsonify, make_response
+from numpy import var
 from waitress import serve
 
 import sympy as sp
@@ -286,9 +288,13 @@ def find_discontinuities_in_range(
     >>> find_discontinuities_in_range("(x+1)/(x**2 - 4)", -10, 10)
     [-2.0, 2.0]
     """
-    # Convert string to sympy expression if needed
+    """ # Convert string to sympy expression if needed
     if isinstance(expr, str):
         expr = sp.sympify(expr)
+
+    # Access the individual terms using the .args attribute
+    terms = expr.args
+    print(f"Individual terms: {terms}") """
 
     # Determine the variable
     if var is None:
@@ -457,16 +463,30 @@ def find_discontinuities_detailed(
     >>> find_discontinuities_detailed("1/(x-2)", 0, 5)
     [(2.0, 'infinite')]
     """
-    discontinuities = find_discontinuities_in_range(expr, x_min, x_max, var)
+    # Convert string to sympy expression if needed
+    if isinstance(expr, str):
+        expr = sp.sympify(expr)
+
+    # Get the terms
+    terms = sp.Add.make_args(expr)
+
+    # print("Expression:", expr)
+    # print("Terms:", terms)
+
+    # discontinuities = find_discontinuities_in_range(expr, x_min, x_max, var)
 
     detailed_results = []
-    for disc in discontinuities:
-        disc_type = analyze_discontinuity_type(expr, disc, var)
-        if isinstance(disc_type, list):
-            detailed_results.append([disc, disc_type[0], disc_type[1]])
-        else:
-            detailed_results.append([disc, disc_type])
-        print(detailed_results)
+    for term in terms:
+        discontinuities = find_discontinuities_in_range(
+            term, x_min, x_max, var)
+        for disc in discontinuities:
+            disc_type = analyze_discontinuity_type(expr, disc, var)
+            if isinstance(disc_type, list):
+                detailed_results.append([disc, disc_type[0], disc_type[1]])
+            else:
+                detailed_results.append([disc, disc_type])
+
+    # print("Discontinuities:", detailed_results)
 
     return detailed_results
 
