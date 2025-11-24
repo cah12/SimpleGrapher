@@ -442,6 +442,16 @@ def analyze_discontinuity_type(
 
     return 'unknown'
 
+# Unique list of elements from a given list
+
+
+def unique_elements(input_list):
+    unique_list = []
+    for element in input_list:
+        if element not in unique_list:
+            unique_list.append(element)
+    return unique_list
+
 
 def find_discontinuities_detailed(
     expr: Union[str, sp.Expr],
@@ -498,6 +508,8 @@ def find_discontinuities_detailed(
                 detailed_results.append([disc, disc_type])
 
     # print("Discontinuities:", detailed_results)
+
+    detailed_results = unique_elements(detailed_results)
 
     return detailed_results
 
