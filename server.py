@@ -422,7 +422,7 @@ def analyze_discontinuity_type(
 
         if (expr.has(TrigonometricFunction)):
             # Infinite discontinuity
-            if left_limit > 2e+15 or left_limit < -2e+15 or right_limit > 2e+15 or right_limit < -2e+15:
+            if left_limit > 2e+14 or left_limit < -2e+14 or right_limit > 2e+14 or right_limit < -2e+14:
                 return 'infinite'
         else:
             # Infinite discontinuity
