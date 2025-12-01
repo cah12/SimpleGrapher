@@ -13,6 +13,7 @@ from typing import List, Union, Tuple
 ####################################################
 ###########################################################
 mode_deg_rad = "deg"
+sympified = False
 
 
 def deg2rad(d):
@@ -27,8 +28,6 @@ def sin(d):
         return original_sin(deg2rad(d))
     return original_sin(d)
 
-
-sp.sin = sin
 
 original_cos = sp.cos
 
@@ -84,6 +83,23 @@ def cot(d):
 
 
 sp.cot = cot
+
+
+def overwriteRestore(overwrite):
+    if overwrite == True:
+        sp.sin = sin
+        sp.cos = cos
+        sp.tan = tan
+        sp.sec = sec
+        sp.csc = csc
+        sp.cot = cot
+    else:
+        sp.sin = original_sin
+        sp.cos = original_cos
+        sp.tan = original_tan
+        sp.sec = original_sec
+        sp.csc = original_csc
+        sp.cot = original_cot
 
 
 def pyExpToJsExp(s):
@@ -486,7 +502,11 @@ def find_discontinuities_detailed(
     """
     # Convert string to sympy expression if needed
     if isinstance(expr, str):
-        expr = sp.sympify(expr)
+        # sympify with evaluate=False to avoid side effects of sympy does not work
+        # with trig functions that are overwrite.
+        overwriteRestore(False)
+        expr = sp.sympify(expr, evaluate=False)
+        overwriteRestore(True)
 
     # Get the terms
     terms = sp.Add.make_args(expr)
