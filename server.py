@@ -382,17 +382,17 @@ def find_discontinuities_in_range(
                     discontinuities.add(point)
 
     # 4. Filter discontinuities within the specified range [x_min, x_max]
-    filtered_discontinuities = []
-    for disc in discontinuities:
-        try:
-            val = float(disc.evalf())
-            # Check if within range (inclusive)
-            if x_min <= val <= x_max and abs(val) != float('inf'):
-                filtered_discontinuities.append(val)
-        except:
-            continue
+    # filtered_discontinuities = []
+    # for disc in discontinuities:
+    #     try:
+    #         #val = float(disc.evalf())
+    #         # Check if within range (inclusive)
+    #         #if x_min <= val <= x_max and abs(val) != float('inf'):
+    #             #filtered_discontinuities.append(val)
+    #     except:
+    #         continue
 
-    return sorted(filtered_discontinuities)
+    return discontinuities
 
 
 def analyze_discontinuity_type(
@@ -518,6 +518,12 @@ def find_discontinuities_detailed(
 
     detailed_results = []
     for term in terms:
+        s = str(term)
+        if s[0] == '-':
+            s = s[1:]
+        overwriteRestore(False)
+        term = sp.sympify(s, evaluate=False)
+        overwriteRestore(True)
         discontinuities = find_discontinuities_in_range(
             term, x_min, x_max, var)
         for disc in discontinuities:
@@ -529,7 +535,7 @@ def find_discontinuities_detailed(
 
     # print("Discontinuities:", detailed_results)
 
-    detailed_results = unique_elements(detailed_results)
+    detailed_results = sorted(unique_elements(detailed_results))
 
     return detailed_results
 
@@ -586,6 +592,11 @@ def discontinuity():
         _var
     )
     # print(discont)
+
+    for disc in discont:
+        disc[0] = float(disc[0])
+        if len(disc) == 3:
+            disc[2] = float(disc[2])
 
     return jsonify({"discontinuities": discont})
 
