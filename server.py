@@ -447,7 +447,10 @@ def analyze_discontinuity_type(
 
         # Removable discontinuity (limits equal but function undefined)
         if left_limit == right_limit and left_limit.is_finite:
-            return ['removable', float(left_limit.evalf())]
+            v = float(left_limit.evalf())
+            if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
+                v = v * sp.pi / 180
+            return ['removable', v]
 
         # Jump discontinuity
         if left_limit != right_limit and left_limit.is_finite and right_limit.is_finite:
