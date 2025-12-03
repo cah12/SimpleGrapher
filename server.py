@@ -527,6 +527,18 @@ def find_discontinuities_detailed(
         overwriteRestore(False)
         term = sp.sympify(s, evaluate=False)
         overwriteRestore(True)
+
+        for pow_expr in term.atoms(sp.Pow):
+            base, exp = pow_expr.args
+            discontinuities = find_discontinuities_in_range(
+                base, x_min, x_max, var)
+            for disc in discontinuities:
+                disc_type = analyze_discontinuity_type(expr, disc, var)
+                if isinstance(disc_type, list):
+                    detailed_results.append([disc, disc_type[0], disc_type[1]])
+                else:
+                    detailed_results.append([disc, disc_type])
+
         discontinuities = find_discontinuities_in_range(
             term, x_min, x_max, var)
         for disc in discontinuities:
