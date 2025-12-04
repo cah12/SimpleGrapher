@@ -199,28 +199,29 @@ def inflection_points(expr, lower, upper, var):
         return []
 
 
-""" def discontinuities(exp_, lower, upper, _var):  
-    discount = []  
+""" def discontinuities(exp_, lower, upper, _var):
+    discount = []
     v = sp.Symbol(_var)
 
-    _exp=sp.parse_expr(exp_) 
-    
-    num, denom = _exp.as_numer_denom()  
+    _exp=sp.parse_expr(exp_)
+
+    num, denom = _exp.as_numer_denom()
 
     if denom == 1:
-        return []  
-    
+        return []
+
     if num.is_polynomial():
-        num = sp.factor(num)  
+        num = sp.factor(num)
 
     if denom.is_polynomial():
-        denom = sp.factor(denom)             
+        denom = sp.factor(denom)
 
-    
+
     solution = sp.factor(num/denom)
     num, denom = solution.as_numer_denom()
-    ds = sp.solveset(denom, v, sp.Interval(lower, upper, left_open=True, right_open=True))   
-    
+    ds = sp.solveset(denom, v, sp.Interval(
+        lower, upper, left_open=True, right_open=True))
+
 
     if type(ds)==sp.FiniteSet:
         for sol in list(ds):
@@ -229,8 +230,8 @@ def inflection_points(expr, lower, upper, var):
                 discount.append(v)
             except:
                 pass
-  
-    
+
+
     if len(discount) == 0:
         try:
             d= list(sp.singularities(_exp, v))
@@ -250,12 +251,12 @@ def inflection_points(expr, lower, upper, var):
         except:
             pass
 
-            
 
-    
-    discount.sort()   
+
+
+    discount.sort()
     discount = list(map(float, discount))
-    
+
     return discount    """
 
 
@@ -350,6 +351,7 @@ def find_discontinuities_in_range(
             # Solve for where denominator equals zero
             zeros = sp.solveset(denom, var, sp.Interval(
                 x_min, x_max, left_open=True, right_open=True))
+
             # zeros = solve(denom, var)
             for zero in zeros:
                 if zero.is_real:
@@ -392,6 +394,12 @@ def find_discontinuities_in_range(
     #     except:
     #         continue
 
+    if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
+        _discontinuities = []
+        for i, disc in enumerate(discontinuities):
+            _discontinuities.append(disc * 180 / sp.pi)
+        discontinuities = _discontinuities
+
     return discontinuities
 
 
@@ -430,6 +438,9 @@ def analyze_discontinuity_type(
 
     x_sym = symbols('x')
     expr = expr.subs(var, x_sym)
+
+    if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
+        x_val = x_val * sp.pi / 180
 
     # Calculate left and right limits
     try:
@@ -472,6 +483,26 @@ def unique_elements(input_list):
     return unique_list
 
 
+def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0):
+    # print(expression.func.__name__)
+    if (expression.has(TrigonometricFunction) and mode_deg_rad == "deg"):
+        x_min = x_min * sp.pi / 180
+        x_max = x_max * sp.pi / 180
+    if expression.func.__name__ == "Mul" or expression.func.__name__ == "Pow" or expression.func.__name__ == "log":
+        discontinuities = find_discontinuities_in_range(
+            expression, x_min, x_max, var)
+        for disc in discontinuities:
+            disc_type = analyze_discontinuity_type(expression, disc, var)
+            if isinstance(disc_type, list):
+                detailed_results.append([disc, disc_type[0], disc_type[1]])
+            else:
+                detailed_results.append([disc, disc_type])
+
+    for arg in expression.args:
+        pre_order_traversal(arg, detailed_results,
+                            x_min, x_max, var, level + 1)
+
+
 def find_discontinuities_detailed(
     expr: Union[str, sp.Expr],
     x_min: float,
@@ -511,48 +542,34 @@ def find_discontinuities_detailed(
         expr = sp.sympify(expr, evaluate=False)
         overwriteRestore(True)
 
-    # Get the terms
-    terms = sp.Add.make_args(expr)
-
-    # print("Expression:", expr)
-    # print("Terms:", terms)
-
-    # discontinuities = find_discontinuities_in_range(expr, x_min, x_max, var)
-
     detailed_results = []
-    for term in terms:
-        s = str(term)
-        if s[0] == '-':
-            s = s[1:]
-        overwriteRestore(False)
-        term = sp.sympify(s, evaluate=False)
-        overwriteRestore(True)
 
-        for pow_expr in term.atoms(sp.Pow):
-            base, exp = pow_expr.args
-            discontinuities = find_discontinuities_in_range(
-                base, x_min, x_max, var)
-            for disc in discontinuities:
-                disc_type = analyze_discontinuity_type(expr, disc, var)
-                if isinstance(disc_type, list):
-                    detailed_results.append([disc, disc_type[0], disc_type[1]])
-                else:
-                    detailed_results.append([disc, disc_type])
+    pre_order_traversal(expr, detailed_results, x_min, x_max, var)
 
-        discontinuities = find_discontinuities_in_range(
-            term, x_min, x_max, var)
-        for disc in discontinuities:
-            disc_type = analyze_discontinuity_type(expr, disc, var)
-            if isinstance(disc_type, list):
-                detailed_results.append([disc, disc_type[0], disc_type[1]])
-            else:
-                detailed_results.append([disc, disc_type])
-
-    # print("Discontinuities:", detailed_results)
-
+    # print(f"Discontinuities: {detailed_results}")
     detailed_results = sorted(unique_elements(detailed_results))
+    if len(detailed_results) < 2:
+        return detailed_results
 
-    return detailed_results
+    detailed_results.reverse()
+    results = []
+    i = 0
+    for disc in detailed_results:
+        if i == 0:
+            results.append(disc)
+            i += 1
+            continue
+        if disc[0] == detailed_results[i-1][0]:
+            if disc[1] == "jump" or disc[1] == "removable":
+                results.append(disc)
+        elif detailed_results[i-1][1] == "jump" or detailed_results[i-1][1] == "removable":
+            results.append(disc)
+        else:
+            results.append(disc)
+        i += 1
+
+    results.reverse()
+    return results
 
 
 app = Flask(__name__)
