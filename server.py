@@ -14,6 +14,7 @@ from typing import List, Union, Tuple
 ###########################################################
 mode_deg_rad = "deg"
 sympified = False
+full_expr = ""
 
 
 def deg2rad(d):
@@ -367,6 +368,20 @@ def analyze_discontinuity_type(
 
         # Removable discontinuity (limits equal but function undefined)
         if left_limit == right_limit and left_limit.is_finite:
+            if (mode_deg_rad == "deg" and left_limit.has(TrigonometricFunction)):
+                vv = left_limit.args[0]*sp.pi/180
+                if left_limit.func.__name__ == "sin":
+                    return ['removable', sp.sin(vv)]
+                elif left_limit.func.__name__ == "cos":
+                    return ['removable', sp.cos(vv)]
+                elif left_limit.func.__name__ == "tan":
+                    return ['removable', sp.tan(vv)]
+                elif left_limit.func.__name__ == "sec":
+                    return ['removable', sp.sec(vv)]
+                elif left_limit.func.__name__ == "csc":
+                    return ['removable', sp.csc(vv)]
+                elif left_limit.func.__name__ == "cot":
+                    return ['removable', sp.cot(vv)]
             v = left_limit.evalf()
             return ['removable', v]
 
@@ -395,7 +410,9 @@ def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0
         discontinuities = find_discontinuities_in_range(
             expression, x_min, x_max, var)
         for disc in discontinuities:
-            disc_type = analyze_discontinuity_type(expression, disc, var)
+            disc_type = analyze_discontinuity_type(full_expr, disc, var)
+            if disc_type == 'unknown':
+                continue
             if isinstance(disc_type, list):
                 detailed_results.append([disc, disc_type[0], disc_type[1]])
             else:
@@ -444,6 +461,9 @@ def find_discontinuities_detailed(
 
         expr = sp.sympify(expr, evaluate=False)
 
+    global full_expr
+    full_expr = expr
+
     if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
         x_min = x_min * sp.pi / 180
         x_max = x_max * sp.pi / 180
@@ -477,9 +497,9 @@ def find_discontinuities_detailed(
 
     for i, disc in enumerate(detailed_results):
         if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
-            if disc[1] == "removable":
-                v = sp.sympify(disc[2])
-                detailed_results[i][2] = float(v*sp.pi/180)
+            # if disc[1] == "removable":
+            #     v = sp.sympify(disc[2])
+            #     detailed_results[i][2] = float(v*sp.pi/180)
             detailed_results[i][0] = float(disc[0]*180/sp.pi)
 
     return detailed_results
