@@ -382,6 +382,9 @@ def analyze_discontinuity_type(
                     return ['removable', sp.csc(vv)]
                 elif left_limit.func.__name__ == "cot":
                     return ['removable', sp.cot(vv)]
+
+            elif (mode_deg_rad == "deg"):
+                return ['removable', left_limit*sp.pi/180]
             v = left_limit.evalf()
             return ['removable', v]
 
