@@ -14,7 +14,7 @@ from typing import List, Union, Tuple
 ###########################################################
 mode_deg_rad = "deg"
 sympified = False
-# full_expr = ""
+full_expr = ""
 
 
 def deg2rad(d):
@@ -410,7 +410,7 @@ def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0
         discontinuities = find_discontinuities_in_range(
             expression, x_min, x_max, var)
         for disc in discontinuities:
-            disc_type = analyze_discontinuity_type(expression, disc, var)
+            disc_type = analyze_discontinuity_type(full_expr, disc, var)
             if disc_type == 'unknown':
                 continue
             if isinstance(disc_type, list):
@@ -466,8 +466,8 @@ def find_discontinuities_detailed(
 
         expr = sp.sympify(expr, evaluate=False)
 
-    # global full_expr
-    # full_expr = expr
+    global full_expr
+    full_expr = expr
 
     if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
         x_min = x_min * sp.pi / 180
