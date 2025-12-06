@@ -349,13 +349,13 @@ def analyze_discontinuity_type(
     elif isinstance(var, str):
         var = symbols(var)
 
-    x_sym = symbols('x')
+    # x_sym = symbols('x')
     # expr = expr.subs(var, x_sym)
 
     # Calculate left and right limits
     try:
-        left_limit = sp.limit(expr, x_sym, x_val, '-')
-        right_limit = sp.limit(expr, x_sym, x_val, '+')
+        left_limit = sp.limit(expr, var, x_val, '-')
+        right_limit = sp.limit(expr, var, x_val, '+')
 
         if (expr.has(TrigonometricFunction)):
             # Infinite discontinuity
