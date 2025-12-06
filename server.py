@@ -349,7 +349,7 @@ def analyze_discontinuity_type(
     elif isinstance(var, str):
         var = symbols(var)
 
-    # x_sym = symbols('x')
+    x_sym = symbols('x')
     # expr = expr.subs(var, x_sym)
 
     # Calculate left and right limits
@@ -410,7 +410,7 @@ def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0
         discontinuities = find_discontinuities_in_range(
             expression, x_min, x_max, var)
         for disc in discontinuities:
-            disc_type = analyze_discontinuity_type(expr, disc, var)
+            disc_type = analyze_discontinuity_type(expression, disc, var)
             if disc_type == 'unknown':
                 continue
             if isinstance(disc_type, list):
@@ -454,6 +454,11 @@ def find_discontinuities_detailed(
     >>> find_discontinuities_detailed("1/(x-2)", 0, 5)
     [(2.0, 'infinite')]
     """
+
+    # Convert string to sympy expression if needed
+    if isinstance(var, str):
+        var = symbols(var)
+
     # Convert string to sympy expression if needed
     if isinstance(expr, str):
         # sympify with evaluate=False to avoid side effects of sympy does not work
