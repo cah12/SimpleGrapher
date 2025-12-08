@@ -14,11 +14,92 @@ from typing import List, Union, Tuple
 ###########################################################
 mode_deg_rad = "deg"
 sympified = False
-full_expr = ""
 
 
 def deg2rad(d):
     return sp.N(d*sp.pi/180)
+
+
+original_sin = sp.sin
+
+
+def sin(d):
+    if mode_deg_rad == "deg":
+        return original_sin(deg2rad(d))
+    return original_sin(d)
+
+
+original_cos = sp.cos
+
+
+def cos(d):
+    if mode_deg_rad == "deg":
+        return original_cos(deg2rad(d))
+    return original_cos(d)
+
+
+sp.cos = cos
+
+original_tan = sp.tan
+
+
+def tan(d):
+    if mode_deg_rad == "deg":
+        return original_tan(deg2rad(d))
+    return original_tan(d)
+
+
+sp.tan = tan
+
+original_sec = sp.sec
+
+
+def sec(d):
+    if mode_deg_rad == "deg":
+        return 1/original_cos(deg2rad(d))
+    return 1/original_cos(d)
+
+
+sp.sec = sec
+
+original_csc = sp.csc
+
+
+def csc(d):
+    if mode_deg_rad == "deg":
+        return 1/original_sin(deg2rad(d))
+    return 1/original_sin(d)
+
+
+sp.csc = csc
+
+original_cot = sp.cot
+
+
+def cot(d):
+    if mode_deg_rad == "deg":
+        return 1/original_tan(deg2rad(d))
+    return 1/original_tan(d)
+
+
+sp.cot = cot
+
+
+def overwriteRestore(overwrite):
+    if overwrite == True:
+        sp.sin = sin
+        sp.cos = cos
+        sp.tan = tan
+        sp.sec = sec
+        sp.csc = csc
+        sp.cot = cot
+    else:
+        sp.sin = original_sin
+        sp.cos = original_cos
+        sp.tan = original_tan
+        sp.sec = original_sec
+        sp.csc = original_csc
+        sp.cot = original_cot
 
 
 def pyExpToJsExp(s):
@@ -298,10 +379,9 @@ def find_discontinuities_in_range(
             critical_points = sp.solveset(base, var, sp.Interval(
                 x_min, x_max, left_open=True, right_open=True))
             # critical_points = solve(base, var)
-            if isinstance(critical_points, sp.FiniteSet):
-                for point in critical_points:
-                    if point.is_real:
-                        discontinuities.add(point)
+            for point in critical_points:
+                if point.is_real:
+                    discontinuities.add(point)
 
     # 4. Filter discontinuities within the specified range [x_min, x_max]
     # filtered_discontinuities = []
@@ -313,6 +393,12 @@ def find_discontinuities_in_range(
     #             #filtered_discontinuities.append(val)
     #     except:
     #         continue
+
+    if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
+        _discontinuities = []
+        for i, disc in enumerate(discontinuities):
+            _discontinuities.append(disc * 180 / sp.pi)
+        discontinuities = _discontinuities
 
     return discontinuities
 
@@ -350,45 +436,31 @@ def analyze_discontinuity_type(
     elif isinstance(var, str):
         var = symbols(var)
 
-    # x_sym = symbols('x')
-    # expr = expr.subs(var, x_sym)
+    x_sym = symbols('x')
+    expr = expr.subs(var, x_sym)
+
+    if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
+        x_val = x_val * sp.pi / 180
 
     # Calculate left and right limits
     try:
-        if x_val.is_real == False:
-            return 'unknown'
-        left_limit = sp.limit(expr, var, x_val, '-')
-        right_limit = sp.limit(expr, var, x_val, '+')
+        left_limit = sp.limit(expr, x_sym, x_val, '-')
+        right_limit = sp.limit(expr, x_sym, x_val, '+')
 
-        # if (expr.has(TrigonometricFunction)):
-        #     # Infinite discontinuity
-        #     if left_limit > 2e+14 or left_limit < -2e+14 or right_limit > 2e+14 or right_limit < -2e+14:
-        #         return 'infinite'
-        # else:
-        # Infinite discontinuity
-        if left_limit == oo or left_limit == -oo or right_limit == oo or right_limit == -oo:
-            return 'infinite'
+        if (expr.has(TrigonometricFunction)):
+            # Infinite discontinuity
+            if left_limit > 2e+14 or left_limit < -2e+14 or right_limit > 2e+14 or right_limit < -2e+14:
+                return 'infinite'
+        else:
+            # Infinite discontinuity
+            if left_limit == oo or left_limit == -oo or right_limit == oo or right_limit == -oo:
+                return 'infinite'
 
         # Removable discontinuity (limits equal but function undefined)
         if left_limit == right_limit and left_limit.is_finite:
-            if (mode_deg_rad == "deg" and left_limit.has(TrigonometricFunction)):
-                vv = left_limit.args[0]*sp.pi/180
-                if left_limit.func.__name__ == "sin":
-                    return ['removable', sp.sin(vv)]
-                elif left_limit.func.__name__ == "cos":
-                    return ['removable', sp.cos(vv)]
-                elif left_limit.func.__name__ == "tan":
-                    return ['removable', sp.tan(vv)]
-                elif left_limit.func.__name__ == "sec":
-                    return ['removable', sp.sec(vv)]
-                elif left_limit.func.__name__ == "csc":
-                    return ['removable', sp.csc(vv)]
-                elif left_limit.func.__name__ == "cot":
-                    return ['removable', sp.cot(vv)]
-
-            elif (mode_deg_rad == "deg"):
-                return ['removable', left_limit*sp.pi/180]
-            v = left_limit.evalf()
+            v = float(left_limit.evalf())
+            if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
+                v = v * sp.pi / 180
             return ['removable', v]
 
         # Jump discontinuity
@@ -412,13 +484,15 @@ def unique_elements(input_list):
 
 
 def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0):
+    # print(expression.func.__name__)
+    if (expression.has(TrigonometricFunction) and mode_deg_rad == "deg"):
+        x_min = x_min * sp.pi / 180
+        x_max = x_max * sp.pi / 180
     if expression.func.__name__ == "Mul" or expression.func.__name__ == "Pow" or expression.func.__name__ == "log":
         discontinuities = find_discontinuities_in_range(
             expression, x_min, x_max, var)
         for disc in discontinuities:
-            disc_type = analyze_discontinuity_type(full_expr, disc, var)
-            if disc_type == 'unknown':
-                continue
+            disc_type = analyze_discontinuity_type(expression, disc, var)
             if isinstance(disc_type, list):
                 detailed_results.append([disc, disc_type[0], disc_type[1]])
             else:
@@ -460,24 +534,13 @@ def find_discontinuities_detailed(
     >>> find_discontinuities_detailed("1/(x-2)", 0, 5)
     [(2.0, 'infinite')]
     """
-
-    # Convert string to sympy expression if needed
-    if isinstance(var, str):
-        var = symbols(var)
-
     # Convert string to sympy expression if needed
     if isinstance(expr, str):
         # sympify with evaluate=False to avoid side effects of sympy does not work
         # with trig functions that are overwrite.
-
+        overwriteRestore(False)
         expr = sp.sympify(expr, evaluate=False)
-
-    global full_expr
-    full_expr = expr
-
-    if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
-        x_min = x_min * sp.pi / 180
-        x_max = x_max * sp.pi / 180
+        overwriteRestore(True)
 
     detailed_results = []
 
@@ -485,35 +548,28 @@ def find_discontinuities_detailed(
 
     # print(f"Discontinuities: {detailed_results}")
     detailed_results = sorted(unique_elements(detailed_results))
-    if len(detailed_results) > 1:
-        detailed_results.reverse()
-        results = []
-        i = 0
-        for disc in detailed_results:
-            if i == 0:
-                results.append(disc)
-                i += 1
-                continue
-            if disc[0] == detailed_results[i-1][0]:
-                if disc[1] == "jump" or disc[1] == "removable":
-                    results.append(disc)
-            elif detailed_results[i-1][1] == "jump" or detailed_results[i-1][1] == "removable":
-                results.append(disc)
-            else:
-                results.append(disc)
+    if len(detailed_results) < 2:
+        return detailed_results
+
+    detailed_results.reverse()
+    results = []
+    i = 0
+    for disc in detailed_results:
+        if i == 0:
+            results.append(disc)
             i += 1
+            continue
+        if disc[0] == detailed_results[i-1][0]:
+            if disc[1] == "jump" or disc[1] == "removable":
+                results.append(disc)
+        elif detailed_results[i-1][1] == "jump" or detailed_results[i-1][1] == "removable":
+            results.append(disc)
+        else:
+            results.append(disc)
+        i += 1
 
-        results.reverse()
-        detailed_results = results
-
-    for i, disc in enumerate(detailed_results):
-        if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
-            # if disc[1] == "removable":
-            #     v = sp.sympify(disc[2])
-            #     detailed_results[i][2] = float(v*sp.pi/180)
-            detailed_results[i][0] = float(disc[0]*180/sp.pi)
-
-    return detailed_results
+    results.reverse()
+    return results
 
 
 app = Flask(__name__)
