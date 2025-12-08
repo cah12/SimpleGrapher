@@ -295,6 +295,8 @@ def find_discontinuities_in_range(
         # Check if exponent is a fraction with even denominator
         if exp.is_Rational and exp.q % 2 == 0 and exp.p > 0:
             # Even root is undefined for negative values
+            if len(base.args) > 1:
+                continue
             critical_points = sp.solveset(base, var, sp.Interval(
                 x_min, x_max, left_open=True, right_open=True))
             # critical_points = solve(base, var)
