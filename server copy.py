@@ -118,68 +118,65 @@ def inflection_points(expr, lower, upper, var):
         return []
 
 
-def handlePeriodic(discontinuitiesArr, lower, upper):
-    if not isinstance(discontinuitiesArr, list) or len(discontinuitiesArr) < 2:
-        return discontinuitiesArr
-    result = []
-    d = 2*sp.pi
-    for discont in discontinuitiesArr:
-        if not discont.is_real:
-            continue
-        a1 = discont
-        result.append(a1)
-        a1 = a1 - d
-        while a1 > lower:
-            result.append(a1)
-            a1 = a1 - d
+""" def discontinuities(exp_, lower, upper, _var):
+    discount = []
+    v = sp.Symbol(_var)
 
-        a1 = discont
-        a1 = a1 + d
-        while a1 < upper:
-            result.append(a1)
-            a1 = a1 + d
+    _exp=sp.parse_expr(exp_)
 
-    result.sort()
-    return result
+    num, denom = _exp.as_numer_denom()
+
+    if denom == 1:
+        return []
+
+    if num.is_polynomial():
+        num = sp.factor(num)
+
+    if denom.is_polynomial():
+        denom = sp.factor(denom)
 
 
-""" static handlePeriodic(discontinuitiesArr, lower, upper) {
-    if (!Array.isArray(discontinuitiesArr) | | discontinuitiesArr.length < 2) {
-        return discontinuitiesArr
-    }
-    let d = discontinuitiesArr[1][0] - discontinuitiesArr[0][0]
-    let a1 = discontinuitiesArr[0][0]
+    solution = sp.factor(num/denom)
+    num, denom = solution.as_numer_denom()
+    ds = sp.solveset(denom, v, sp.Interval(
+        lower, upper, left_open=True, right_open=True))
 
-    if (d != 0) {
 
-        let n = 0
-        while (a1 > lower & & n < 5000) {
-            a1 = a1 - n * d
-            n++
-        }
-        n = 0
-        while (a1 < lower & & n < 5000) {
-            a1 = a1 + n * d
-            n++
-        }
+    if type(ds)==sp.FiniteSet:
+        for sol in list(ds):
+            try:
+                v = float(sol.evalf())
+                discount.append(v)
+            except:
+                pass
 
-        a1 = a1 - 3 * d
-        n = 0
-        discontinuitiesArr.length = 0
 
-        while (n < 5000) {
-            discontinuitiesArr.push([a1 + n * d, "infinite"])
-            if (discontinuitiesArr[n][0] > upper) {
-                break
-            }
-            n++
-        }
-        discontinuitiesArr.push([a1 + (n + 1) * d, "infinite"])
-        discontinuitiesArr.push([a1 + (n + 2) * d, "infinite"])
-        discontinuitiesArr.push([a1 + (n + 3) * d, "infinite"])
-    }
-    return discontinuitiesArr
-} """
+    if len(discount) == 0:
+        try:
+            d= list(sp.singularities(_exp, v))
+            for sol in d:
+                try:
+                    v = float(sol.evalf())
+                    discount.append(v)
+                except:
+                    pass
+
+            if len(discount):
+                arr = []
+                for s in discount:
+                    if s < upper and s > lower:
+                        arr.append(s)
+                discount = arr
+        except:
+            pass
+
+
+
+
+    discount.sort()
+    discount = list(map(float, discount))
+
+    return discount    """
 
 
 def find_discontinuities_in_range(
@@ -298,13 +295,15 @@ def find_discontinuities_in_range(
         # Check if exponent is a fraction with even denominator
         if exp.is_Rational and exp.q % 2 == 0 and exp.p > 0:
             # Even root is undefined for negative values
-
-            critical_points = solve(base, var)
-            if (expr.has(TrigonometricFunction)):
-                critical_points = handlePeriodic(critical_points, x_min, x_max)
-            for point in critical_points:
-                if point.is_real:
-                    discontinuities.add(point)
+            # if len(base.args) > 1:
+            #     continue
+            critical_points = sp.solveset(base, var, sp.Interval(
+                x_min, x_max, left_open=True, right_open=True))
+            # critical_points = solve(base, var)
+            if isinstance(critical_points, sp.FiniteSet):
+                for point in critical_points:
+                    if point.is_real:
+                        discontinuities.add(point)
 
     # 4. Filter discontinuities within the specified range [x_min, x_max]
     # filtered_discontinuities = []
