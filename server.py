@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, jsonify, make_response
 from waitress import serve
 
 import sympy as sp
-from sympy import symbols, solve, fraction, oo, S
+from sympy import symbols, solve, fraction, oo, S, preorder_traversal
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
 from typing import List, Union, Tuple
 
@@ -295,8 +295,8 @@ def find_discontinuities_in_range(
         # Check if exponent is a fraction with even denominator
         if exp.is_Rational and exp.q % 2 == 0 and exp.p > 0:
             # Even root is undefined for negative values
-            if len(base.args) > 1:
-                continue
+            # if len(base.args) > 1:
+            #     continue
             critical_points = sp.solveset(base, var, sp.Interval(
                 x_min, x_max, left_open=True, right_open=True))
             # critical_points = solve(base, var)
@@ -413,22 +413,36 @@ def unique_elements(input_list):
     return unique_list
 
 
-def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0):
-    if expression.func.__name__ == "Mul" or expression.func.__name__ == "Pow" or expression.func.__name__ == "log":
-        discontinuities = find_discontinuities_in_range(
-            expression, x_min, x_max, var)
-        for disc in discontinuities:
-            disc_type = analyze_discontinuity_type(full_expr, disc, var)
-            if disc_type == 'unknown':
-                continue
-            if isinstance(disc_type, list):
-                detailed_results.append([disc, disc_type[0], disc_type[1]])
-            else:
-                detailed_results.append([disc, disc_type])
+# def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0):
+#     if expression.func.__name__ == "Mul" or expression.func.__name__ == "Pow" or expression.func.__name__ == "log":
+#         discontinuities = find_discontinuities_in_range(
+#             expression, x_min, x_max, var)
+#         for disc in discontinuities:
+#             disc_type = analyze_discontinuity_type(full_expr, disc, var)
+#             if disc_type == 'unknown':
+#                 continue
+#             if isinstance(disc_type, list):
+#                 detailed_results.append([disc, disc_type[0], disc_type[1]])
+#             else:
+#                 detailed_results.append([disc, disc_type])
 
-    for arg in expression.args:
-        pre_order_traversal(arg, detailed_results,
-                            x_min, x_max, var, level + 1)
+#     for arg in expression.args:
+#         pre_order_traversal(arg, detailed_results,
+#                             x_min, x_max, var, level + 1)
+
+def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0):
+    for subtree in preorder_traversal(expression):
+        if subtree.func.__name__ == "Mul" or subtree.func.__name__ == "Pow" or subtree.func.__name__ == "log":
+            discontinuities = find_discontinuities_in_range(
+                subtree, x_min, x_max, var)
+            for disc in discontinuities:
+                disc_type = analyze_discontinuity_type(full_expr, disc, var)
+                if disc_type == 'unknown':
+                    continue
+                if isinstance(disc_type, list):
+                    detailed_results.append([disc, disc_type[0], disc_type[1]])
+                else:
+                    detailed_results.append([disc, disc_type])
 
 
 def find_discontinuities_detailed(
