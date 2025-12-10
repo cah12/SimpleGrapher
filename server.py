@@ -122,8 +122,12 @@ def handlePeriodic(discontinuitiesArr, lower, upper):
     if not isinstance(discontinuitiesArr, list) or len(discontinuitiesArr) < 2:
         return discontinuitiesArr
     result = []
+
     d = 2*sp.pi
+
     for discont in discontinuitiesArr:
+        if analyze_discontinuity_type(full_expr, discont) == "unknown":
+            continue
         if not discont.is_real:
             continue
         a1 = discont
@@ -140,6 +144,7 @@ def handlePeriodic(discontinuitiesArr, lower, upper):
             a1 = a1 + d
 
     result.sort()
+    result = unique_elements(result)
     return result
 
 
@@ -298,13 +303,19 @@ def find_discontinuities_in_range(
         # Check if exponent is a fraction with even denominator
         if exp.is_Rational and exp.q % 2 == 0 and exp.p > 0:
             # Even root is undefined for negative values
-
-            critical_points = solve(base, var)
-            if (expr.has(TrigonometricFunction)):
-                critical_points = handlePeriodic(critical_points, x_min, x_max)
-            for point in critical_points:
-                if point.is_real:
-                    discontinuities.add(point)
+            try:
+                # critical_points = sp.solve(base, var)
+                critical_points = sp.solveset(base, var, sp.Interval(
+                    x_min, x_max, left_open=True, right_open=True))
+                # if (expr.has(TrigonometricFunction)):
+                #     critical_points = handlePeriodic(
+                #         critical_points, x_min, x_max)
+                if isinstance(critical_points, sp.FiniteSet):
+                    for point in critical_points:
+                        if point.is_real:
+                            discontinuities.add(point)
+            except:
+                pass
 
     # 4. Filter discontinuities within the specified range [x_min, x_max]
     # filtered_discontinuities = []
@@ -529,6 +540,24 @@ def find_discontinuities_detailed(
             #     v = sp.sympify(disc[2])
             #     detailed_results[i][2] = float(v*sp.pi/180)
             detailed_results[i][0] = float(disc[0]*180/sp.pi)
+
+    """ if (expr.has(TrigonometricFunction) and len(detailed_results) > 1):
+        cont = False
+        for i, disc in enumerate(detailed_results, 1):
+            if cont:
+                cont = False
+                continue
+            if i > len(detailed_results)-1:
+                break
+            if disc[1] == "removable":
+                if not detailed_results[i][1] == "removable":
+                    detailed_results[i-1][1] = "unknown"
+                cont = True
+                i += 1
+
+        for disc in detailed_results:
+            if disc[1] == "unknown":
+                detailed_results.remove(disc) """
 
     return detailed_results
 
