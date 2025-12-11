@@ -8,149 +8,20 @@ from sympy.functions.elementary.trigonometric import TrigonometricFunction
 from sympy.core.function import _mexpand as flat
 from typing import List, Union, Tuple
 
+from degree_radian import trig_substitutions, set_mode
+from discontinuity_finder import find_discontinuities
+
 
 # The Degree To Radian Code
 # --------------------------#
 ####################################################
 ###########################################################
-mode_deg_rad = "deg"
+
 sympified = False
 full_expr = ""
 
 """ expr = expr.subs(sp.sin, sin_mode)
     expr = expr.subs(sp.cos, cos_mode) """
-
-
-class sin_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        # Optional: define evaluation logic, e.g. for specific numerical inputs
-        if mode_deg_rad == "deg":
-            arg = arg * sp.pi / 180
-        return sp.sin(arg)
-        # otherwise return as a symbolic MySin
-        pass
-
-
-class cos_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        if mode_deg_rad == "deg":
-            arg = arg * sp.pi / 180
-        return sp.cos(arg)
-        pass
-
-
-class tan_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        if mode_deg_rad == "deg":
-            arg = arg * sp.pi / 180
-        return sp.tan(arg)
-        pass
-
-
-class cot_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        if mode_deg_rad == "deg":
-            arg = arg * sp.pi / 180
-        return sp.cot(arg)
-        pass
-
-
-class sec_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        if mode_deg_rad == "deg":
-            arg = arg * sp.pi / 180
-        return sp.sec(arg)
-        pass
-
-
-class csc_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        if mode_deg_rad == "deg":
-            arg = arg * sp.pi / 180
-        return sp.csc(arg)
-        pass
-
-
-class asin_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        v = sp.asin(arg)
-        if mode_deg_rad == "deg":
-            v = v * 180 / sp.pi
-        return v
-        pass
-
-
-class acos_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        v = sp.acos(arg)
-        if mode_deg_rad == "deg":
-            v = v * 180 / sp.pi
-        return v
-        pass
-
-
-class atan_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        v = sp.atan(arg)
-        if mode_deg_rad == "deg":
-            v = v * 180 / sp.pi
-        return v
-        pass
-
-
-class acot_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        v = sp.acot(arg)
-        if mode_deg_rad == "deg":
-            v = v * 180 / sp.pi
-        return v
-        pass
-
-
-class asec_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        v = sp.asec(arg)
-        if mode_deg_rad == "deg":
-            v = v * 180 / sp.pi
-        return v
-        pass
-
-
-class acsc_mode(sp.Function):
-    @classmethod
-    def eval(cls, arg):
-        v = sp.acsc(arg)
-        if mode_deg_rad == "deg":
-            v = v * 180 / sp.pi
-        return v
-        pass
-
-
-def trig_substitutions(expr):
-    expr = expr.subs(sin, sin_mode)
-    expr = expr.subs(sp.cos, cos_mode)
-    expr = expr.subs(sp.tan, tan_mode)
-    expr = expr.subs(sp.cot, cot_mode)
-    expr = expr.subs(sp.sec, sec_mode)
-    expr = expr.subs(sp.csc, csc_mode)
-    expr = expr.subs(sp.asin, asin_mode)
-    expr = expr.subs(sp.acos, acos_mode)
-    expr = expr.subs(sp.atan, atan_mode)
-    expr = expr.subs(sp.acot, acot_mode)
-    expr = expr.subs(sp.asec, asec_mode)
-    expr = expr.subs(sp.acsc, acsc_mode)
-    return expr
 
 
 def pyExpToJsExp(s):
@@ -516,25 +387,7 @@ def analyze_discontinuity_type(
 
         # Removable discontinuity (limits equal but function undefined)
         if left_limit == right_limit and left_limit.is_finite:
-            """ if (mode_deg_rad == "deg" and left_limit.has(TrigonometricFunction)):
-                vv = left_limit.args[0]*sp.pi/180
-                if left_limit.func.__name__ == "sin":
-                    return ['removable', sp.sin(vv)]
-                elif left_limit.func.__name__ == "cos":
-                    return ['removable', sp.cos(vv)]
-                elif left_limit.func.__name__ == "tan":
-                    return ['removable', sp.tan(vv)]
-                elif left_limit.func.__name__ == "sec":
-                    return ['removable', sp.sec(vv)]
-                elif left_limit.func.__name__ == "csc":
-                    return ['removable', sp.csc(vv)]
-                elif left_limit.func.__name__ == "cot":
-                    return ['removable', sp.cot(vv)]
-
-            elif (mode_deg_rad == "deg"):
-                return ['removable', left_limit*sp.pi/180] """
-            v = left_limit.evalf()
-            return ['removable', v]
+            return ['removable', left_limit]
 
         # Jump discontinuity
         if left_limit != right_limit and left_limit.is_finite and right_limit.is_finite:
@@ -555,23 +408,6 @@ def unique_elements(input_list):
             unique_list.append(element)
     return unique_list
 
-
-# def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0):
-#     if expression.func.__name__ == "Mul" or expression.func.__name__ == "Pow" or expression.func.__name__ == "log":
-#         discontinuities = find_discontinuities_in_range(
-#             expression, x_min, x_max, var)
-#         for disc in discontinuities:
-#             disc_type = analyze_discontinuity_type(full_expr, disc, var)
-#             if disc_type == 'unknown':
-#                 continue
-#             if isinstance(disc_type, list):
-#                 detailed_results.append([disc, disc_type[0], disc_type[1]])
-#             else:
-#                 detailed_results.append([disc, disc_type])
-
-#     for arg in expression.args:
-#         pre_order_traversal(arg, detailed_results,
-#                             x_min, x_max, var, level + 1)
 
 def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0):
     for subtree in preorder_traversal(expression):
@@ -631,8 +467,7 @@ def find_discontinuities_detailed(
 
         expr = sp.sympify(expr, evaluate=False)
 
-    if mode_deg_rad == "deg":
-        expr = trig_substitutions(expr)
+    expr = trig_substitutions(expr)
     expr = flat(expr)
 
     global full_expr
@@ -721,7 +556,8 @@ def mode():
     global mode_deg_rad
     data = request.get_json()
     m = data["mode"]
-    mode_deg_rad = m
+    # mode_deg_rad = m
+    set_mode(m)
     return jsonify({"mode": m})
 
 
@@ -741,7 +577,9 @@ def discontinuity():
 
     _exp = jsExpToPyExp(_exp)
 
-    # print("discontinuity")
+    # disc = find_discontinuities(_exp, _var, lower, upper)
+
+    # print(disc)
     # discont = discontinuities(_exp, lower, upper, _var)
     discont = find_discontinuities_detailed(
         _exp,
