@@ -577,9 +577,9 @@ def discontinuity():
 
     _exp = jsExpToPyExp(_exp)
 
-    # disc = find_discontinuities(_exp, _var, lower, upper)
+    disc = find_discontinuities(_exp, _var, lower, upper)
 
-    # print(disc)
+    print(disc)
     # discont = discontinuities(_exp, lower, upper, _var)
     discont = find_discontinuities_detailed(
         _exp,

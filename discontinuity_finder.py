@@ -82,6 +82,9 @@ def find_discontinuities(
     if isinstance(expr, str):
         expr = sp.sympify(expr)
 
+    if isinstance(var, str):
+        var = sp.Symbol(var)
+
     # Convert limits to floats for comparison
     lower = float(lower_limit)
     upper = float(upper_limit)
@@ -141,6 +144,8 @@ def _find_pole_points(
                 point = float(sing)
                 if lower <= point <= upper:
                     poles.add(point)
+                else:
+                    break
     except Exception:
         # If singularities fails, try to find them manually
         try:
