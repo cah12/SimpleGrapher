@@ -80,7 +80,7 @@ def find_discontinuities(
     """
 
     if isinstance(expr, str):
-        expr = sp.sympify(expr)
+        expr = sp.sympify(expr, evaluate=False)
 
     if isinstance(var, str):
         var = sp.Symbol(var)
