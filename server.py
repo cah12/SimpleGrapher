@@ -465,7 +465,8 @@ def find_discontinuities_detailed(
         # sympify with evaluate=False to avoid side effects of sympy does not work
         # with trig functions that are overwrite.
 
-        expr = sp.sympify(expr, evaluate=False)
+        with sp.evaluate(False):
+            expr = sp.sympify(expr)
 
     expr = trig_substitutions(expr)
 
@@ -478,13 +479,21 @@ def find_discontinuities_detailed(
 
     """ New approach using find_discontinuities """
     detailed_results = find_discontinuities(expr, var, x_min, x_max)
+    # for i, disc in enumerate(detailed_results):
+    #     disc = list(disc.values())
+    #     temp = disc[2]
+    #     disc[2] = disc[4]
+    #     disc[3] = disc[4]
+    #     disc[3] = temp
+    #     detailed_results[i] = disc
     for i, disc in enumerate(detailed_results):
         disc = list(disc.values())
-        temp = disc[2]
-        disc[2] = disc[4]
-        disc[3] = disc[4]
-        disc[3] = temp
-        detailed_results[i] = disc
+        temp = []
+        temp.append(disc[0])
+        temp.append(disc[1])
+        if disc[1] == "removable":
+            temp.append(disc[4])
+        detailed_results[i] = temp
     # print(detailed_results)
 
     # detailed_results = []

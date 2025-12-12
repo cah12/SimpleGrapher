@@ -372,17 +372,37 @@ def _classify_discontinuity(
         is_defined = False
 
     # Classify the discontinuity
-    if left_lim == oo or left_lim == -oo or right_lim == oo or right_lim == -oo or left_lim >= 1e+15 or left_lim <= -1e+15 or right_lim >= 1e+15 or right_lim <= -1e+15:
+    if left_lim == oo or left_lim == -oo or right_lim == oo or right_lim == -oo:
         # Infinite discontinuity
         return {
             "point": point,
             "type": "infinite",
-            "left_limit": None if left_lim in (oo, -oo) else float(left_lim) if left_lim.is_number else left_lim,
-            "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim,
+            """ "left_limit": None if left_lim in (oo, -oo) else float(left_lim) if left_lim.is_number else left_lim,
+            "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim, """
             "limit": None
         }
 
-    elif left_lim == right_lim and not is_defined:
+    elif left_lim.is_real and left_lim >= 1e+15 or left_lim.is_real and left_lim <= -1e+15 or right_lim.is_real and right_lim >= 1e+15 or right_lim.is_real and right_lim <= -1e+15:
+        # Infinite discontinuity
+        return {
+            "point": point,
+            "type": "infinite",
+            """ "left_limit": None if left_lim in (oo, -oo) else float(left_lim) if left_lim.is_number else left_lim,
+            "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim, """
+            "limit": None
+        }
+    # elif left_lim.is_complex or right_lim.is_complex:
+    #     # Infinite discontinuity
+    #     return {
+    #         "point": point,
+    #         "type": "infinite",
+    #         """ "left_limit": None if left_lim in (oo, -oo) else float(left_lim) if left_lim.is_number else left_lim,
+    #         "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim, """
+    #         "limit": None
+    #     }
+
+    # elif left_lim == right_lim and not is_defined:
+    elif left_lim == right_lim and left_lim.is_finite:
         # Removable discontinuity
         if left_lim.is_number:
             limit_value = float(left_lim)
@@ -399,14 +419,14 @@ def _classify_discontinuity(
 
     elif left_lim != right_lim and left_lim not in (oo, -oo) and right_lim not in (oo, -oo):
         # Jump discontinuity
-        left_val = float(left_lim) if left_lim.is_number else left_lim
-        right_val = float(right_lim) if right_lim.is_number else right_lim
+        # left_val = float(left_lim) if left_lim.is_number else left_lim
+        # right_val = float(right_lim) if right_lim.is_number else right_lim
 
         return {
             "point": point,
             "type": "jump",
-            "left_limit": left_val,
-            "right_limit": right_val,
+            """ "left_limit": left_val,
+            "right_limit": right_val, """
             "limit": None
         }
 
@@ -415,8 +435,8 @@ def _classify_discontinuity(
         return {
             "point": point,
             "type": "unknown",
-            "left_limit": float(left_lim) if left_lim.is_number else None,
-            "right_limit": float(right_lim) if right_lim.is_number else None,
+            """ "left_limit": float(left_lim) if left_lim.is_number else None,
+            "right_limit": float(right_lim) if right_lim.is_number else None, """
             "limit": None
         }
 
