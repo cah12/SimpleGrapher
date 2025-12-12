@@ -476,9 +476,19 @@ def find_discontinuities_detailed(
         x_min = x_min * sp.pi / 180
         x_max = x_max * sp.pi / 180 """
 
-    detailed_results = []
+    """ New approach using find_discontinuities """
+    detailed_results = find_discontinuities(expr, var, x_min, x_max)
+    for i, disc in enumerate(detailed_results):
+        disc = list(disc.values())
+        temp = disc[2]
+        disc[2] = disc[4]
+        disc[3] = disc[4]
+        disc[3] = temp
+        detailed_results[i] = disc
+    print(detailed_results)
 
-    pre_order_traversal(expr, detailed_results, x_min, x_max, var)
+    # detailed_results = []
+    # pre_order_traversal(expr, detailed_results, x_min, x_max, var)
 
     # print(f"Discontinuities: {detailed_results}")
     detailed_results = sorted(unique_elements(detailed_results))
@@ -589,8 +599,13 @@ def discontinuity():
 
     for disc in discont:
         disc[0] = float(disc[0])
-        if len(disc) == 3:
+        if disc[2] != None:
             disc[2] = float(disc[2])
+
+    # for disc in discont:
+    #     disc[0] = float(disc[0])
+    #     if len(disc) == 3:
+    #         disc[2] = float(disc[2])
 
     return jsonify({"discontinuities": discont})
 
