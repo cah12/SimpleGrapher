@@ -485,7 +485,7 @@ def find_discontinuities_detailed(
         disc[3] = disc[4]
         disc[3] = temp
         detailed_results[i] = disc
-    print(detailed_results)
+    # print(detailed_results)
 
     # detailed_results = []
     # pre_order_traversal(expr, detailed_results, x_min, x_max, var)
@@ -597,15 +597,15 @@ def discontinuity():
     )
     # print(discont)
 
-    for disc in discont:
-        disc[0] = float(disc[0])
-        if disc[2] != None:
-            disc[2] = float(disc[2])
-
     # for disc in discont:
     #     disc[0] = float(disc[0])
-    #     if len(disc) == 3:
+    #     if disc[2] != None:
     #         disc[2] = float(disc[2])
+
+    for disc in discont:
+        disc[0] = float(disc[0])
+        if len(disc) >= 3 and disc[2] != None:
+            disc[2] = float(disc[2])
 
     return jsonify({"discontinuities": discont})
 

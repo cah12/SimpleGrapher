@@ -137,15 +137,16 @@ def _find_pole_points(
     try:
         # Get singularities of the expression
         sings = singularities(expr, var)
-
+        n = 0
         for sing in sings:
             # Check if it's a real number within range
             if sing.is_real:
                 point = float(sing)
                 if lower <= point <= upper:
                     poles.add(point)
-                else:
-                    break
+            if n > 100:
+                break
+            n += 1
     except Exception:
         # If singularities fails, try to find them manually
         try:
@@ -351,7 +352,15 @@ def _classify_discontinuity(
 
     # Evaluate left and right limits
     left_lim = limit(expr, var, point, '-')
+    if isinstance(left_lim, sp.Limit):
+        left_lim = left_lim.doit()
+        if left_lim == sp.zoo:
+            left_lim = sp.oo
     right_lim = limit(expr, var, point, '+')
+    if isinstance(right_lim, sp.Limit):
+        right_lim = right_lim.doit()
+        if right_lim == sp.zoo:
+            right_lim = sp.oo
 
     # Try to evaluate the function at the point
     try:
@@ -363,7 +372,7 @@ def _classify_discontinuity(
         is_defined = False
 
     # Classify the discontinuity
-    if left_lim == oo or left_lim == -oo or right_lim == oo or right_lim == -oo:
+    if left_lim == oo or left_lim == -oo or right_lim == oo or right_lim == -oo or left_lim >= 1e+15 or left_lim <= -1e+15 or right_lim >= 1e+15 or right_lim <= -1e+15:
         # Infinite discontinuity
         return {
             "point": point,

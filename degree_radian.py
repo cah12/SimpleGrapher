@@ -122,18 +122,20 @@ class acsc_mode(sp.Function):
 def trig_substitutions(expr):
     if mode_deg_rad == "rad":
         return expr
-    expr = expr.subs(sp.sin, sin_mode)
-    expr = expr.subs(sp.cos, cos_mode)
-    expr = expr.subs(sp.tan, tan_mode)
-    expr = expr.subs(sp.cot, cot_mode)
-    expr = expr.subs(sp.sec, sec_mode)
-    expr = expr.subs(sp.csc, csc_mode)
-    expr = expr.subs(sp.asin, asin_mode)
-    expr = expr.subs(sp.acos, acos_mode)
-    expr = expr.subs(sp.atan, atan_mode)
-    expr = expr.subs(sp.acot, acot_mode)
-    expr = expr.subs(sp.asec, asec_mode)
-    expr = expr.subs(sp.acsc, acsc_mode)
+    with sp.evaluate(False):
+        expr = expr.subs(sp.sin, sin_mode)
+        expr = expr.subs(sp.cos, cos_mode)
+        expr = expr.subs(sp.tan, tan_mode)
+        expr = expr.subs(sp.cot, cot_mode)
+        expr = expr.subs(sp.sec, sec_mode)
+        expr = expr.subs(sp.csc, csc_mode)
+        expr = expr.subs(sp.asin, asin_mode)
+        expr = expr.subs(sp.acos, acos_mode)
+        expr = expr.subs(sp.atan, atan_mode)
+        expr = expr.subs(sp.acot, acot_mode)
+        expr = expr.subs(sp.asec, asec_mode)
+        expr = expr.subs(sp.acsc, acsc_mode)
+
     return expr
 
 
