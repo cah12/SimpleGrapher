@@ -500,8 +500,8 @@ def find_discontinuities_detailed(
     # pre_order_traversal(expr, detailed_results, x_min, x_max, var)
 
     # print(f"Discontinuities: {detailed_results}")
-    detailed_results = sorted(unique_elements(detailed_results))
-    if len(detailed_results) > 1:
+    # detailed_results = sorted(detailed_results)
+    """ if len(detailed_results) > 1:
         detailed_results.reverse()
         results = []
         i = 0
@@ -520,14 +520,14 @@ def find_discontinuities_detailed(
             i += 1
 
         results.reverse()
-        detailed_results = results
+        detailed_results = results """
 
     # for i, disc in enumerate(detailed_results):
-        # if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
-        # if disc[1] == "removable":
-        #     v = sp.sympify(disc[2])
-        #     detailed_results[i][2] = float(v*sp.pi/180)
-        # detailed_results[i][0] = float(disc[0]*180/sp.pi)
+    # if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
+    # if disc[1] == "removable":
+    #     v = sp.sympify(disc[2])
+    #     detailed_results[i][2] = float(v*sp.pi/180)
+    # detailed_results[i][0] = float(disc[0]*180/sp.pi)
 
     """ if (expr.has(TrigonometricFunction) and len(detailed_results) > 1):
         cont = False

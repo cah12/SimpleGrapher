@@ -391,20 +391,21 @@ def _classify_discontinuity(
             "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim, """
             "limit": None
         }
-    # elif left_lim.is_complex or right_lim.is_complex:
-    #     # Infinite discontinuity
-    #     return {
-    #         "point": point,
-    #         "type": "infinite",
-    #         """ "left_limit": None if left_lim in (oo, -oo) else float(left_lim) if left_lim.is_number else left_lim,
-    #         "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim, """
-    #         "limit": None
-    #     }
+    elif left_lim.is_complex and left_lim.is_zero == False or right_lim.is_complex and right_lim.is_zero == False:
+        return {
+            "point": point,
+            "type": "infinite",
+            """ "left_limit": None if left_lim in (oo, -oo) else float(left_lim) if left_lim.is_number else left_lim,
+            "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim, """
+            "limit": None
+        }
 
     # elif left_lim == right_lim and not is_defined:
     elif left_lim == right_lim and left_lim.is_finite:
         # Removable discontinuity
-        if left_lim.is_number:
+        if left_lim.is_complex:
+            limit_value = 0.0
+        elif left_lim.is_number:
             limit_value = float(left_lim)
         else:
             limit_value = None
