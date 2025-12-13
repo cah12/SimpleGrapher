@@ -3,10 +3,11 @@ Module for finding discontinuities in SymPy expressions.
 """
 
 import sympy as sp
-from sympy import symbols, limit, oo, re, im, diff, solve, simplify
+from sympy import symbols, limit, oo, zoo, re, im, diff, solve, simplify
 # from sympy.analysis.singularities import singularities
 from sympy.calculus.singularities import singularities
 from typing import List, Tuple, Dict, Optional
+from sympy.functions.elementary.trigonometric import TrigonometricFunction
 
 #  This code defines a function
 # find_discontinuities
@@ -186,6 +187,32 @@ radical_discontinuities
 Finally, it returns the set of points where the logarithmic terms are undefined within the given range. """
 
 
+# def handle_periodic(discontinuitiesArr, lower, upper):
+#     if not isinstance(discontinuitiesArr, list) or len(discontinuitiesArr) < 2:
+#         return discontinuitiesArr
+#     result = []
+
+#     d = 2*sp.pi
+
+#     for discont in discontinuitiesArr:
+#         if not discont.is_real:
+#             continue
+#         a1 = discont
+#         result.append(a1)
+#         a1 = a1 - d
+#         while a1 > lower:
+#             result.append(a1)
+#             a1 = a1 - d
+
+#         a1 = discont
+#         a1 = a1 + d
+#         while a1 < upper:
+#             result.append(a1)
+#             a1 = a1 + d
+
+#     return result
+
+
 def _find_radical_discontinuities(
     expr: sp.Expr,
     var: sp.Symbol,
@@ -208,7 +235,9 @@ def _find_radical_discontinuities(
             # Even root
             if denom % 2 == 0:
                 # Find where the radicand is negative
-                radicand_zeros = solve(base, var)
+                # radicand_zeros = solve(base, var)
+                radicand_zeros = sp.solveset(base, var, sp.Interval(
+                    lower, upper))
                 for zero in radicand_zeros:
                     if zero.is_real:
                         point = float(zero)
@@ -354,20 +383,25 @@ def _classify_discontinuity(
     left_lim = limit(expr, var, point, '-')
     if isinstance(left_lim, sp.Limit):
         left_lim = left_lim.doit()
-        if left_lim == sp.zoo:
-            left_lim = sp.oo
+        if left_lim == zoo:
+            left_lim = oo
     right_lim = limit(expr, var, point, '+')
     if isinstance(right_lim, sp.Limit):
         right_lim = right_lim.doit()
-        if right_lim == sp.zoo:
-            right_lim = sp.oo
+        if right_lim == zoo:
+            right_lim = oo
+
+    # if left_lim.is_Mul and left_lim.args[1] == sp.I and left_lim.args[0] < 1e-1:
+    #     left_lim = 0*sp.I
+    # if right_lim.is_Mul and right_lim.args[1] == sp.I and right_lim.args[0] < 1e-1:
+    #     right_lim = 0*sp.I
 
     # Try to evaluate the function at the point
     try:
         point_value = expr.subs(var, point)
         # Check if it's defined and finite
-        is_defined = not (point_value.has(sp.zoo) or point_value.has(sp.oo) or
-                          point_value.has(-sp.oo) or point_value is sp.nan)
+        is_defined = not (point_value.has(zoo) or point_value.has(oo) or
+                          point_value.has(-oo) or point_value is sp.nan)
     except Exception:
         is_defined = False
 
@@ -382,7 +416,7 @@ def _classify_discontinuity(
             "limit": None
         }
 
-    elif left_lim.is_real and left_lim >= 1e+15 or left_lim.is_real and left_lim <= -1e+15 or right_lim.is_real and right_lim >= 1e+15 or right_lim.is_real and right_lim <= -1e+15:
+    elif left_lim.is_real and left_lim >= 1e+8 or left_lim.is_real and left_lim <= -1e+8 or right_lim.is_real and right_lim >= 1e+8 or right_lim.is_real and right_lim <= -1e+8:
         # Infinite discontinuity
         return {
             "point": point,
@@ -391,7 +425,7 @@ def _classify_discontinuity(
             "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim, """
             "limit": None
         }
-    elif left_lim.is_complex and left_lim.is_zero == False or right_lim.is_complex and right_lim.is_zero == False:
+    elif left_lim.is_real == False and left_lim.is_zero == False or right_lim.is_real == False and right_lim.is_zero == False:
         return {
             "point": point,
             "type": "infinite",
@@ -403,7 +437,7 @@ def _classify_discontinuity(
     # elif left_lim == right_lim and not is_defined:
     elif left_lim == right_lim and left_lim.is_finite:
         # Removable discontinuity
-        if left_lim.is_complex:
+        if left_lim.is_real == False:
             limit_value = 0.0
         elif left_lim.is_number:
             limit_value = float(left_lim)
@@ -442,6 +476,21 @@ def _classify_discontinuity(
         }
 
     return None
+
+
+""" This code snippet defines a function 
+_classify_discontinuity
+ that takes an expression (expr), a symbol (var), and a point (point) as input. It classifies a discontinuity at the given point based on the behavior of the expression.
+
+The function first evaluates the left and right limits of the expression at the given point using the limit function from the SymPy library. It then tries to evaluate the expression at the point and checks if it is defined and finite.
+
+Based on the values of the left and right limits, the function classifies the discontinuity into different types:
+
+If either the left or right limit is infinite, it is an infinite discontinuity.
+If the left and right limits are equal and the expression is not defined at the point, it is a removable discontinuity.
+If the left and right limits are different and neither is infinite, it is a jump discontinuity.
+If the left and right limits are different or the expression is not equal to the point value, it is an unknown or other type of discontinuity.
+The function returns a dictionary containing the classification details, including the point, type of discontinuity, left limit, right limit, and the limit value (if applicable). If no discontinuity is found, it returns None. """
 
 
 # Example usage and testing
