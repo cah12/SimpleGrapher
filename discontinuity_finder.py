@@ -137,7 +137,13 @@ def _find_pole_points(
 
     try:
         # Get singularities of the expression
-        sings = singularities(simplify(expr), var)
+        # _expr = simplify(expr).evalf()
+        # if not _expr.is_real:
+        #     expr = _expr
+        sings = singularities(expr, var)
+        if isinstance(sings, sp.ConditionSet):
+            # singularities(expr, var)
+            sings = singularities(simplify(expr), var)
         n = 0
         for sing in sings:
             # Check if it's a real number within range
