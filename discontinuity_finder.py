@@ -137,7 +137,7 @@ def _find_pole_points(
 
     try:
         # Get singularities of the expression
-        sings = singularities(expr, var)
+        sings = singularities(simplify(expr), var)
         n = 0
         for sing in sings:
             # Check if it's a real number within range
@@ -153,7 +153,7 @@ def _find_pole_points(
         try:
             # For rational functions, find zeros of denominator
             numer, denom = sp.fraction(expr)
-            denom_zeros = solve(denom, var)
+            denom_zeros = solve(simplify(denom), var)  # solve(denom, var)
 
             for zero in denom_zeros:
                 if zero.is_real:
