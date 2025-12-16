@@ -46,9 +46,9 @@ def solve_for(exp, c):
     arr = exp.split('=')
 
     if len(arr) == 2:
-        if arr[0] == c:
+        if arr[0] == c and c not in arr[1]:
             return [pyExpToJsExp(arr[1])]
-        if arr[1] == c:
+        if arr[1] == c and c not in arr[0]:
             return [pyExpToJsExp(arr[0])]
 
     if len(arr) == 1:
@@ -56,11 +56,18 @@ def solve_for(exp, c):
 
     result = []
     try:
+        solutions = None
+        arr0 = None
+        arr1 = None
+        with sp.evaluate(False):
+            arr0 = sp.sympify(arr[0])
         if arr[1] == "0":
-            solutions = sp.solveset(sp.parse_expr(arr[0]), v)
+            solutions = sp.solveset(arr0, v)
         else:
+            with sp.evaluate(False):
+                arr1 = sp.sympify(arr[1])
             s = sp.solveset(
-                sp.Eq(sp.parse_expr(arr[0]), sp.parse_expr(arr[1])), v)
+                sp.Eq(arr0, arr1), v)
             solutions = list(s)
 
         l = len(solutions)
