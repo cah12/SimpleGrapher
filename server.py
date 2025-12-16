@@ -59,13 +59,13 @@ def solve_for(exp, c):
         solutions = None
         arr0 = None
         arr1 = None
-        with sp.evaluate(False):
-            arr0 = sp.sympify(arr[0])
+        # with sp.evaluate(False):
+        arr0 = sp.sympify(arr[0])
         if arr[1] == "0":
             solutions = sp.solveset(arr0, v)
         else:
-            with sp.evaluate(False):
-                arr1 = sp.sympify(arr[1])
+            # with sp.evaluate(False):
+            arr1 = sp.sympify(arr[1])
             s = sp.solveset(
                 sp.Eq(arr0, arr1), v)
             solutions = list(s)
