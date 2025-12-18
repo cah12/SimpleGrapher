@@ -143,17 +143,18 @@ def turning_points(expression, dependent_variable, lower_limit, upper_limit):
     # 4. Use the second derivative test
     points = []
     num = 0
-    for point in critical_points:
-        if num > 200:
-            break
-        if point < lower_limit or point > upper_limit:
-            num += 1
-            continue
-        max_x = point
-        max_y = parsed_expression.subs(var, max_x)
-        points.append([float(max_x), float(max_y)])
+    if not isinstance(critical_points, sp.Complement):
+        for point in critical_points:
+            if num > 200:
+                break
+            if point < lower_limit or point > upper_limit:
+                num += 1
+                continue
+            max_x = point
+            max_y = parsed_expression.subs(var, max_x)
+            points.append([float(max_x), float(max_y)])
 
-        num += 1
+            num += 1
 
     return points
 
