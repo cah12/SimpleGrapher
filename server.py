@@ -108,7 +108,7 @@ def inflection_points(expr, lower, upper, var):
     return []
 
 
-def turning_points(expr, lower, upper, var):
+def turning_points2(expr, lower, upper, var):
     try:
         d = sp.diff(sp.parse_expr(expr), sp.Symbol(var))
         dis = sp.solveset(d, var, sp.Interval(
@@ -116,6 +116,46 @@ def turning_points(expr, lower, upper, var):
         return list(map(float, dis))
     except:
         return []
+
+
+def turning_points(expression, dependent_variable, lower_limit, upper_limit):
+    var = sp.Symbol(dependent_variable)
+
+    parsed_expression = sp.parse_expr(expression)
+
+    # 1. Calculate the first derivative
+    f_prime = sp.diff(parsed_expression, var)
+    # print(f"First derivative: {f_prime}")
+
+    if isinstance(f_prime, sp.Number):
+        return []
+
+    # 2. Solve for critical points (where f_prime = 0)
+    # solveset is generally preferred over solve
+    critical_points = sp.solveset(f_prime, var, sp.Interval(
+        lower_limit, upper_limit, left_open=True, right_open=True))
+    # print(f"Critical points: {critical_points}")
+
+    # 3. Calculate the second derivative
+    f_double_prime = sp.diff(f_prime, var)
+    # print(f"Second derivative: {f_double_prime}")
+
+    # 4. Use the second derivative test
+    points = []
+    num = 0
+    for point in critical_points:
+        if num > 200:
+            break
+        if point < lower_limit or point > upper_limit:
+            num += 1
+            continue
+        max_x = point
+        max_y = parsed_expression.subs(var, max_x)
+        points.append([float(max_x), float(max_y)])
+
+        num += 1
+
+    return points
 
 
 def inflection_points(expr, lower, upper, var):
@@ -611,6 +651,7 @@ def discontinuity():
         lower, upper,
         _var
     )
+    tps = turning_points(_exp, _var, lower, upper)
     # print(discont)
 
     # for disc in discont:
@@ -623,7 +664,25 @@ def discontinuity():
         if len(disc) >= 3 and disc[2] != None:
             disc[2] = float(disc[2])
 
-    return jsonify({"discontinuities": discont})
+    return jsonify({"discontinuities": discont, "turningPoints": tps})
+
+# turning_points(expression, dependent_variable, lower_limit, upper_limit):
+
+
+@app.route("/turningPoints", methods=['POST'])
+def turningPoints():
+    data = request.get_json()
+    _exp = data["exp"]
+    _var = data["var"]
+    lower = data["lower"]
+    upper = data["upper"]
+
+    _exp = jsExpToPyExp(_exp)
+
+    turn_points = turning_points(_exp, lower, upper, _var)
+    return jsonify({
+        "turning_points": turn_points
+    })
 
 
 @app.route("/points", methods=['POST'])

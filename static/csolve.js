@@ -42,6 +42,22 @@ async function points(exp, lower, upper, indepVar) {
   }
 }
 
+async function turningPoints(exp, lower, upper, indepVar) {
+  try {
+    res = await axios.post("/turningPoints", {
+      exp: exp,
+      lower: lower,
+      upper: upper,
+      var: indepVar,
+    });
+    // console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 async function discontinuity(exp, lower, upper, indepVar) {
   try {
     res = await axios.post("/discontinuity", {
