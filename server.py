@@ -7,6 +7,7 @@ from sympy import symbols, solve, fraction, oo, S, preorder_traversal, sin, cos,
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
 from sympy.core.function import _mexpand as flat
 from typing import List, Union, Tuple
+from sympy.utilities.iterables import iterable
 
 from degree_radian import trig_substitutions, set_mode
 from discontinuity_finder import find_discontinuities
@@ -121,26 +122,16 @@ def turning_points2(expr, lower, upper, var):
 def turning_points(expression, dependent_variable, lower_limit, upper_limit):
     var = sp.Symbol(dependent_variable)
 
-    parsed_expression = sp.parse_expr(expression)
+    parsed_expression = sp.sympify(expression)
 
-    # 1. Calculate the first derivative
     f_prime = sp.diff(parsed_expression, var)
-    # print(f"First derivative: {f_prime}")
 
     if isinstance(f_prime, sp.Number):
         return []
 
-    # 2. Solve for critical points (where f_prime = 0)
-    # solveset is generally preferred over solve
     critical_points = sp.solveset(f_prime, var, sp.Interval(
         lower_limit, upper_limit, left_open=True, right_open=True))
-    # print(f"Critical points: {critical_points}")
 
-    # 3. Calculate the second derivative
-    f_double_prime = sp.diff(f_prime, var)
-    # print(f"Second derivative: {f_double_prime}")
-
-    # 4. Use the second derivative test
     points = []
     num = 0
     if not isinstance(critical_points, sp.Complement):
