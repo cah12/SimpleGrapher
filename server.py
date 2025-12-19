@@ -124,7 +124,14 @@ def turning_points(expression, dependent_variable, lower_limit, upper_limit):
 
     parsed_expression = sp.sympify(expression)
 
+    # parsed_expression = trig_substitutions(parsed_expression)
+    # if get_mode() == "deg":
+    #     lower_limit = lower_limit * sp.pi / 180
+    #     upper_limit = upper_limit * sp.pi / 180
+
     f_prime = sp.diff(parsed_expression, var)
+    f_prime = trig_substitutions(f_prime)
+    parsed_expression = trig_substitutions(parsed_expression)
 
     if isinstance(f_prime, sp.Number):
         return []
@@ -143,6 +150,8 @@ def turning_points(expression, dependent_variable, lower_limit, upper_limit):
                 continue
             max_x = point
             max_y = parsed_expression.subs(var, max_x)
+            # if get_mode() == "deg":
+            #     max_x = max_x * 180 / sp.pi
             points.append([float(max_x), float(max_y)])
 
             num += 1
