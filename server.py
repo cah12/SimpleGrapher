@@ -7,9 +7,9 @@ from sympy import symbols, solve, fraction, oo, S, preorder_traversal, sin, cos,
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
 from sympy.core.function import _mexpand as flat
 from typing import List, Union, Tuple
-from sympy.utilities.iterables import iterable
+from sympy.calculus.util import periodicity
 
-from degree_radian import trig_substitutions, set_mode
+from degree_radian import trig_substitutions, set_mode, get_mode
 from discontinuity_finder import find_discontinuities
 
 
@@ -656,7 +656,13 @@ def discontinuity():
         if len(disc) >= 3 and disc[2] != None:
             disc[2] = float(disc[2])
 
-    return jsonify({"discontinuities": discont, "turningPoints": tps})
+    period = periodicity(sp.sympify(_exp), sp.Symbol(_var))
+    if period != None:
+        if get_mode() == "deg":
+            period = period * 180 / sp.pi
+        period = float(period)
+
+    return jsonify({"discontinuities": discont, "turningPoints": tps, "period": period})
 
 # turning_points(expression, dependent_variable, lower_limit, upper_limit):
 
