@@ -149,10 +149,10 @@ def turning_points(expression, dependent_variable, lower_limit, upper_limit):
                 num += 1
                 continue
             max_x = point
-            max_y = parsed_expression.subs(var, max_x)
-            # if get_mode() == "deg":
-            #     max_x = max_x * 180 / sp.pi
-            points.append([float(max_x), float(max_y)])
+            if max_x.is_real:
+                max_y = parsed_expression.subs(var, max_x)
+            if max_y.is_real:
+                points.append([float(max_x), float(max_y)])
 
             num += 1
 

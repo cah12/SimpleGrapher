@@ -109,7 +109,7 @@ def find_discontinuities(
     for point in sorted(candidate_points):
         if lower <= point <= upper:
             classification = _classify_discontinuity(expr, var, point)
-            if classification:
+            if not classification == "unknown":
                 discontinuities.append(classification)
 
     return discontinuities
@@ -387,11 +387,17 @@ def _classify_discontinuity(
 
     # Evaluate left and right limits
     left_lim = limit(expr, var, point, '-')
+    right_lim = limit(expr, var, point, '+')
+    if left_lim.is_imaginary:
+        left_lim = left_lim.args[0]
+    if right_lim.is_imaginary:
+        right_lim = right_lim.args[0]
+
     if isinstance(left_lim, sp.Limit):
         left_lim = left_lim.doit()
         if left_lim == zoo:
             left_lim = oo
-    right_lim = limit(expr, var, point, '+')
+
     if isinstance(right_lim, sp.Limit):
         right_lim = right_lim.doit()
         if right_lim == zoo:
@@ -406,8 +412,8 @@ def _classify_discontinuity(
     try:
         point_value = expr.subs(var, point)
         # Check if it's defined and finite
-        is_defined = not (point_value.has(zoo) or point_value.has(oo) or
-                          point_value.has(-oo) or point_value is sp.nan)
+        is_defined = not (point_value.has(sp.zoo) or point_value.has(sp.oo) or
+                          point_value.has(-sp.oo) or point_value is sp.nan)
     except Exception:
         is_defined = False
 
@@ -422,7 +428,7 @@ def _classify_discontinuity(
             "limit": None
         }
 
-    elif left_lim.is_real and left_lim >= 1e+8 or left_lim.is_real and left_lim <= -1e+8 or right_lim.is_real and right_lim >= 1e+8 or right_lim.is_real and right_lim <= -1e+8:
+    elif expr.has(TrigonometricFunction) and left_lim.is_real and left_lim >= 1e+7 or left_lim.is_real and left_lim <= -1e+7 or right_lim.is_real and right_lim >= 1e+7 or right_lim.is_real and right_lim <= -1e+7:
         # Infinite discontinuity
         return {
             "point": point,
