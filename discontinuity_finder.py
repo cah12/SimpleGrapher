@@ -109,7 +109,7 @@ def find_discontinuities(
     for point in sorted(candidate_points):
         if lower <= point <= upper:
             classification = _classify_discontinuity(expr, var, point)
-            if not classification == "unknown":
+            if classification:
                 discontinuities.append(classification)
 
     return discontinuities
@@ -150,7 +150,7 @@ def _find_pole_points(
             if sing.is_real:
                 point = float(sing)
                 if lower <= point <= upper:
-                    poles.add(point)
+                    poles.add(sing)
             if n > 100:
                 break
             n += 1
@@ -165,7 +165,7 @@ def _find_pole_points(
                 if zero.is_real:
                     point = float(zero)
                     if lower <= point <= upper:
-                        poles.add(point)
+                        poles.add(zero)
         except Exception:
             pass
 
@@ -248,7 +248,7 @@ def _find_radical_discontinuities(
                     if zero.is_real:
                         point = float(zero)
                         if lower <= point <= upper:
-                            radicals.add(point)
+                            radicals.add(zero)
 
     return radicals
 
@@ -289,7 +289,7 @@ def _find_logarithm_discontinuities(
             if zero.is_real:
                 point = float(zero)
                 if lower <= point <= upper:
-                    logs.add(point)
+                    logs.add(zero)
 
     return logs
 
@@ -343,7 +343,7 @@ def _find_trig_discontinuities(
                     if sol.is_real:
                         point = float(sol)
                         if lower <= point <= upper:
-                            trig_discs.add(point)
+                            trig_discs.add(sol)
 
         elif isinstance(term, sp.cot) or isinstance(term, sp.csc):
             # cot(x) and csc(x) undefined at nπ
@@ -354,7 +354,7 @@ def _find_trig_discontinuities(
                     if sol.is_real:
                         point = float(sol)
                         if lower <= point <= upper:
-                            trig_discs.add(point)
+                            trig_discs.add(sol)
 
     return trig_discs
 
@@ -388,20 +388,22 @@ def _classify_discontinuity(
     # Evaluate left and right limits
     left_lim = limit(expr, var, point, '-')
     right_lim = limit(expr, var, point, '+')
-    if left_lim.is_imaginary:
-        left_lim = left_lim.args[0]
-    if right_lim.is_imaginary:
-        right_lim = right_lim.args[0]
+    # left_lim = left_lim.evalf()
+    # right_lim = right_lim.evalf()
+    if left_lim.has(sp.I):
+        left_lim = sp.sympify(0)
+    if right_lim.has(sp.I):
+        right_lim = sp.sympify(0)
 
-    if isinstance(left_lim, sp.Limit):
-        left_lim = left_lim.doit()
-        if left_lim == zoo:
-            left_lim = oo
+    # if isinstance(left_lim, sp.Limit):
+    #     left_lim = left_lim.doit()
+    #     if left_lim == zoo:
+    #         left_lim = oo
 
-    if isinstance(right_lim, sp.Limit):
-        right_lim = right_lim.doit()
-        if right_lim == zoo:
-            right_lim = oo
+    # if isinstance(right_lim, sp.Limit):
+    #     right_lim = right_lim.doit()
+    #     if right_lim == zoo:
+    #         right_lim = oo
 
     # if left_lim.is_Mul and left_lim.args[1] == sp.I and left_lim.args[0] < 1e-1:
     #     left_lim = 0*sp.I
@@ -428,31 +430,28 @@ def _classify_discontinuity(
             "limit": None
         }
 
-    elif expr.has(TrigonometricFunction) and left_lim.is_real and left_lim >= 1e+7 or left_lim.is_real and left_lim <= -1e+7 or right_lim.is_real and right_lim >= 1e+7 or right_lim.is_real and right_lim <= -1e+7:
-        # Infinite discontinuity
-        return {
-            "point": point,
-            "type": "infinite",
-            """ "left_limit": None if left_lim in (oo, -oo) else float(left_lim) if left_lim.is_number else left_lim,
-            "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim, """
-            "limit": None
-        }
-    elif left_lim.is_real == False and left_lim.is_zero == False or right_lim.is_real == False and right_lim.is_zero == False:
-        return {
-            "point": point,
-            "type": "infinite",
-            """ "left_limit": None if left_lim in (oo, -oo) else float(left_lim) if left_lim.is_number else left_lim,
-            "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim, """
-            "limit": None
-        }
+    # elif expr.has(TrigonometricFunction) and left_lim.is_real and left_lim >= 1e+7 or left_lim.is_real and left_lim <= -1e+7 or right_lim.is_real and right_lim >= 1e+7 or right_lim.is_real and right_lim <= -1e+7:
+    #     # Infinite discontinuity
+    #     return {
+    #         "point": point,
+    #         "type": "infinite",
+    #         """ "left_limit": None if left_lim in (oo, -oo) else float(left_lim) if left_lim.is_number else left_lim,
+    #         "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim, """
+    #         "limit": None
+    #     }
+    # elif left_lim.is_real == False and left_lim.is_zero == False or right_lim.is_real == False and right_lim.is_zero == False:
+    #     return {
+    #         "point": point,
+    #         "type": "infinite",
+    #         """ "left_limit": None if left_lim in (oo, -oo) else float(left_lim) if left_lim.is_number else left_lim,
+    #         "right_limit": None if right_lim in (oo, -oo) else float(right_lim) if right_lim.is_number else right_lim, """
+    #         "limit": None
+    #     }
 
-    # elif left_lim == right_lim and not is_defined:
-    elif left_lim == right_lim and left_lim.is_finite:
+    elif left_lim == right_lim and not is_defined:
         # Removable discontinuity
-        if left_lim.is_real == False:
-            limit_value = 0.0
-        elif left_lim.is_number:
-            limit_value = float(left_lim)
+        if left_lim.is_number:
+            limit_value = left_lim.evalf(15)
         else:
             limit_value = None
 
@@ -485,6 +484,21 @@ def _classify_discontinuity(
             """ "left_limit": float(left_lim) if left_lim.is_number else None,
             "right_limit": float(right_lim) if right_lim.is_number else None, """
             "limit": None
+        }
+
+    elif left_lim == right_lim and left_lim == point_value and is_defined:
+        # Removable discontinuity
+        if left_lim.is_number:
+            limit_value = float(left_lim)
+        else:
+            limit_value = None
+
+        return {
+            "point": point,
+            "type": "removable",
+            "left_limit": limit_value,
+            "right_limit": limit_value,
+            "limit": limit_value
         }
 
     return None

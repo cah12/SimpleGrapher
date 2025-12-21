@@ -521,79 +521,29 @@ def find_discontinuities_detailed(
     global full_expr
     full_expr = expr
 
-    """ if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
-        x_min = x_min * sp.pi / 180
-        x_max = x_max * sp.pi / 180 """
-
-    """ New approach using find_discontinuities """
     detailed_results = find_discontinuities(expr, var, x_min, x_max)
-    # for i, disc in enumerate(detailed_results):
-    #     disc = list(disc.values())
-    #     temp = disc[2]
-    #     disc[2] = disc[4]
-    #     disc[3] = disc[4]
-    #     disc[3] = temp
-    #     detailed_results[i] = disc
+
     for i, disc in enumerate(detailed_results):
         disc = list(disc.values())
         temp = []
-        temp.append(disc[0])
+        temp.append(float(disc[0]))
         temp.append(disc[1])
         if disc[1] == "removable":
             temp.append(disc[4])
         detailed_results[i] = temp
-    # print(detailed_results)
 
-    # detailed_results = []
-    # pre_order_traversal(expr, detailed_results, x_min, x_max, var)
-
-    # print(f"Discontinuities: {detailed_results}")
-    # detailed_results = sorted(detailed_results)
-    """ if len(detailed_results) > 1:
-        detailed_results.reverse()
-        results = []
-        i = 0
-        for disc in detailed_results:
-            if i == 0:
-                results.append(disc)
-                i += 1
+    # Remove "removable" discontinuities sandwiched between "infinite" discontinuities
+    _detailed_results = []
+    for i, disc in enumerate(detailed_results):
+        if disc[1] == "removable" and i > 0 and i < len(detailed_results) - 1:
+            if (
+                detailed_results[i - 1][1] == "infinite"
+                and detailed_results[i + 1][1] == "infinite"
+            ):
                 continue
-            if disc[0] == detailed_results[i-1][0]:
-                if disc[1] == "jump" or disc[1] == "removable":
-                    results.append(disc)
-            elif detailed_results[i-1][1] == "jump" or detailed_results[i-1][1] == "removable":
-                results.append(disc)
-            else:
-                results.append(disc)
-            i += 1
+        _detailed_results.append(disc)
 
-        results.reverse()
-        detailed_results = results """
-
-    # for i, disc in enumerate(detailed_results):
-    # if (expr.has(TrigonometricFunction) and mode_deg_rad == "deg"):
-    # if disc[1] == "removable":
-    #     v = sp.sympify(disc[2])
-    #     detailed_results[i][2] = float(v*sp.pi/180)
-    # detailed_results[i][0] = float(disc[0]*180/sp.pi)
-
-    """ if (expr.has(TrigonometricFunction) and len(detailed_results) > 1):
-        cont = False
-        for i, disc in enumerate(detailed_results, 1):
-            if cont:
-                cont = False
-                continue
-            if i > len(detailed_results)-1:
-                break
-            if disc[1] == "removable":
-                if not detailed_results[i][1] == "removable":
-                    detailed_results[i-1][1] = "unknown"
-                cont = True
-                i += 1
-
-        for disc in detailed_results:
-            if disc[1] == "unknown":
-                detailed_results.remove(disc) """
+    detailed_results = _detailed_results
 
     return detailed_results
 
