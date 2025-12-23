@@ -523,27 +523,27 @@ def find_discontinuities_detailed(
 
     detailed_results = find_discontinuities(expr, var, x_min, x_max)
 
-    for i, disc in enumerate(detailed_results):
-        disc = list(disc.values())
-        temp = []
-        temp.append(float(disc[0]))
-        temp.append(disc[1])
-        if disc[1] == "removable":
-            temp.append(disc[4])
-        detailed_results[i] = temp
+    # for i, disc in enumerate(detailed_results):
+    #     disc = list(disc.values())
+    #     temp = []
+    #     temp.append(float(disc[0]))
+    #     temp.append(disc[1])
+    #     if disc[1] == "removable":
+    #         temp.append(disc[4])
+    #     detailed_results[i] = temp
 
     # Remove "removable" discontinuities sandwiched between "infinite" discontinuities
-    _detailed_results = []
-    for i, disc in enumerate(detailed_results):
-        if disc[1] == "removable" and i > 0 and i < len(detailed_results) - 1:
-            if (
-                detailed_results[i - 1][1] == "infinite"
-                and detailed_results[i + 1][1] == "infinite"
-            ):
-                continue
-        _detailed_results.append(disc)
+    # _detailed_results = []
+    # for i, disc in enumerate(detailed_results):
+    #     if disc[1] == "removable" and i > 0 and i < len(detailed_results) - 1:
+    #         if (
+    #             detailed_results[i - 1][1] == "infinite"
+    #             and detailed_results[i + 1][1] == "infinite"
+    #         ):
+    #             continue
+    #     _detailed_results.append(disc)
 
-    detailed_results = _detailed_results
+    # detailed_results = _detailed_results
 
     return detailed_results
 
@@ -610,10 +610,10 @@ def discontinuity():
     #     if disc[2] != None:
     #         disc[2] = float(disc[2])
 
-    for disc in discont:
-        disc[0] = float(disc[0])
-        if len(disc) >= 3 and disc[2] != None:
-            disc[2] = float(disc[2])
+    # for disc in discont:
+    #     disc[0] = float(disc[0])
+    #     if len(disc) >= 3 and disc[2] != None:
+    #         disc[2] = float(disc[2])
 
     period = periodicity(sp.sympify(_exp), sp.Symbol(_var))
     if period != None:
