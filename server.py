@@ -136,25 +136,29 @@ def turning_points(expression, dependent_variable, lower_limit, upper_limit):
     if isinstance(f_prime, sp.Number):
         return []
 
-    critical_points = sp.solveset(f_prime, var, sp.Interval(
-        lower_limit, upper_limit, left_open=True, right_open=True))
-
     points = []
-    num = 0
-    if not isinstance(critical_points, sp.Complement):
-        for point in critical_points:
-            if num > 200:
-                break
-            if point < lower_limit or point > upper_limit:
-                num += 1
-                continue
-            max_x = point
-            if max_x.is_real:
-                max_y = parsed_expression.subs(var, max_x)
-            if max_y.is_real:
-                points.append([float(max_x), float(max_y)])
 
-            num += 1
+    try:
+        critical_points = sp.solveset(f_prime, var, sp.Interval(
+            lower_limit, upper_limit, left_open=True, right_open=True))
+
+        num = 0
+        if not isinstance(critical_points, sp.Complement):
+            for point in critical_points:
+                if num > 200:
+                    break
+                if point < lower_limit or point > upper_limit:
+                    num += 1
+                    continue
+                max_x = point
+                if max_x.is_real:
+                    max_y = parsed_expression.subs(var, max_x)
+                if max_y.is_real:
+                    points.append([float(max_x), float(max_y)])
+
+                num += 1
+    except:
+        pass
 
     return points
 
