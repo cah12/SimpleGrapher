@@ -86,7 +86,7 @@ def find_discontinuities(expr, x, lower, upper):
             typ, lim = classify_point(c)
             if typ:
                 d = {'position': float(c), 'type': typ}
-                if lim is not None:
+                if lim is not None and lim.is_finite:
                     d['limit'] = float(lim)
                 result.append(d)
     elif discontinuities.is_Union:
@@ -114,6 +114,7 @@ def find_discontinuities(expr, x, lower, upper):
 
     # Convert from a list of dictionaries to a list of lists
     result = [list(d.values()) for d in result]
+
     # Sort by position
     result.sort(key=lambda x: x[0])
     return result

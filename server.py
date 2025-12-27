@@ -12,6 +12,8 @@ from sympy.calculus.util import periodicity
 from degree_radian import trig_substitutions, set_mode, get_mode
 from discontinuity_finder import find_discontinuities
 
+from solveset_thread import solve_with_timeout
+
 
 # The Degree To Radian Code
 # --------------------------#
@@ -63,11 +65,11 @@ def solve_for(exp, c):
         # with sp.evaluate(False):
         arr0 = sp.sympify(arr[0])
         if arr[1] == "0":
-            solutions = sp.solveset(arr0, v)
+            solutions = solve_with_timeout(arr0, v)
         else:
             # with sp.evaluate(False):
             arr1 = sp.sympify(arr[1])
-            s = sp.solveset(
+            s = solve_with_timeout(
                 sp.Eq(arr0, arr1), v)
             solutions = list(s)
 
@@ -112,7 +114,7 @@ def inflection_points(expr, lower, upper, var):
 def turning_points2(expr, lower, upper, var):
     try:
         d = sp.diff(sp.parse_expr(expr), sp.Symbol(var))
-        dis = sp.solveset(d, var, sp.Interval(
+        dis = solve_with_timeout(d, var, sp.Interval(
             lower, upper, left_open=True, right_open=True))
         return list(map(float, dis))
     except:
@@ -139,8 +141,11 @@ def turning_points(expression, dependent_variable, lower_limit, upper_limit):
     points = []
 
     try:
-        critical_points = sp.solveset(f_prime, var, sp.Interval(
+        critical_points = solve_with_timeout(f_prime, var, sp.Interval(
             lower_limit, upper_limit, left_open=True, right_open=True))
+
+        # critical_points = sp.solveset(f_prime, var, sp.Interval(
+        #     lower_limit, upper_limit, left_open=True, right_open=True))
 
         num = 0
         if not isinstance(critical_points, sp.Complement):
@@ -167,7 +172,7 @@ def inflection_points(expr, lower, upper, var):
     try:
         x = sp.Symbol(var)
         d = sp.diff(sp.parse_expr(expr), x, x)
-        dis = sp.solveset(d, var, sp.Interval(lower, upper))
+        dis = solve_with_timeout(d, var, sp.Interval(lower, upper))
         return list(map(float, dis))
     except:
         return []
@@ -331,7 +336,7 @@ def find_discontinuities_in_range(
         numer, denom = fraction(expr)
         if denom != 1:
             # Solve for where denominator equals zero
-            zeros = sp.solveset(denom, var, sp.Interval(
+            zeros = solve_with_timeout(denom, var, sp.Interval(
                 x_min, x_max, left_open=True, right_open=True))
 
             # zeros = solve(denom, var)
@@ -345,7 +350,7 @@ def find_discontinuities_in_range(
     for log_expr in expr.atoms(sp.log):
         arg = log_expr.args[0]
         # Log is undefined when argument <= 0
-        critical_points = sp.solveset(arg, var, sp.Interval(
+        critical_points = solve_with_timeout(arg, var, sp.Interval(
             x_min, x_max, left_open=True, right_open=True))
         # critical_points = solve(arg, var)
         for point in critical_points:
@@ -361,7 +366,7 @@ def find_discontinuities_in_range(
             try:
                 # critical_points = sp.solve(base, var)
 
-                critical_points = sp.solveset(base, var, sp.Interval(
+                critical_points = solve_with_timeout(base, var, sp.Interval(
                     x_min, x_max, left_open=True, right_open=True))
 
                 if isinstance(critical_points, sp.FiniteSet):
@@ -527,27 +532,8 @@ def find_discontinuities_detailed(
 
     detailed_results = find_discontinuities(expr, var, x_min, x_max)
 
-    # for i, disc in enumerate(detailed_results):
-    #     disc = list(disc.values())
-    #     temp = []
-    #     temp.append(float(disc[0]))
-    #     temp.append(disc[1])
-    #     if disc[1] == "removable":
-    #         temp.append(disc[4])
-    #     detailed_results[i] = temp
-
-    # Remove "removable" discontinuities sandwiched between "infinite" discontinuities
-    # _detailed_results = []
-    # for i, disc in enumerate(detailed_results):
-    #     if disc[1] == "removable" and i > 0 and i < len(detailed_results) - 1:
-    #         if (
-    #             detailed_results[i - 1][1] == "infinite"
-    #             and detailed_results[i + 1][1] == "infinite"
-    #         ):
-    #             continue
-    #     _detailed_results.append(disc)
-
-    # detailed_results = _detailed_results
+    # Remove duplicate discontinuities
+    detailed_results = unique_elements(detailed_results)
 
     return detailed_results
 
@@ -606,7 +592,7 @@ def discontinuity():
         lower, upper,
         _var
     )
-    tps = turning_points(_exp, _var, lower, upper)
+    tps = []  # turning_points(_exp, _var, lower, upper)
     # print(discont)
 
     # for disc in discont:
