@@ -592,6 +592,7 @@ def discontinuity():
         lower, upper,
         _var
     )
+    # discont = [0, "unknown2", 1]
     tps = []  # turning_points(_exp, _var, lower, upper)
     # print(discont)
 

@@ -87,7 +87,11 @@ def find_discontinuities(expr, x, lower, upper):
             if typ:
                 d = {'position': float(c), 'type': typ}
                 if lim is not None and lim.is_finite:
-                    d['limit'] = float(lim)
+                    try:
+                        lim = float(lim)
+                        d['limit'] = float(lim)
+                    except:
+                        pass
                 result.append(d)
     elif discontinuities.is_Union:
         for part in discontinuities.args:
