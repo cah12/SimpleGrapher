@@ -65,13 +65,19 @@ def solve_for(exp, c):
         # with sp.evaluate(False):
         arr0 = sp.sympify(arr[0])
         if arr[1] == "0":
-            solutions = solve_with_timeout(arr0, v)
+            solutions = sp.solveset(arr0, v)
         else:
             # with sp.evaluate(False):
             arr1 = sp.sympify(arr[1])
-            s = solve_with_timeout(
+            s = sp.solveset(
                 sp.Eq(arr0, arr1), v)
-            solutions = list(s)
+            if s.is_FiniteSet:
+                solutions = list(s)
+            elif s.args:
+                for s in s.args:
+                    if s.is_FiniteSet:
+                        solutions = list(s)
+                        break
 
         l = len(solutions)
 
