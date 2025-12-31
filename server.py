@@ -491,7 +491,8 @@ def find_discontinuities_detailed(
     expr: Union[str, sp.Expr],
     x_min: float,
     x_max: float,
-    var: Union[str, sp.Symbol] = None
+    var: Union[str, sp.Symbol],
+    period
 ) -> List[Tuple[float, str]]:
     """
     Find all discontinuities in an algebraic expression within a given range
@@ -536,7 +537,7 @@ def find_discontinuities_detailed(
     global full_expr
     full_expr = expr
 
-    detailed_results = find_discontinuities(expr, var, x_min, x_max)
+    detailed_results = find_discontinuities(expr, var, x_min, x_max, period)
 
     # Remove duplicate discontinuities
     detailed_results = unique_elements(detailed_results)
@@ -593,10 +594,18 @@ def discontinuity():
     # print(disc)
 
     # discont = discontinuities(_exp, lower, upper, _var)
+
+    period = periodicity(sp.sympify(_exp), sp.Symbol(_var))
+    if period != None:
+        if get_mode() == "deg":
+            period = period * 180 / sp.pi
+        period = float(period)
+
     discont = find_discontinuities_detailed(
         _exp,
         lower, upper,
-        _var
+        _var,
+        period
     )
     # discont = [0, "unknown2", 1]
     tps = []  # turning_points(_exp, _var, lower, upper)
@@ -612,11 +621,11 @@ def discontinuity():
     #     if len(disc) >= 3 and disc[2] != None:
     #         disc[2] = float(disc[2])
 
-    period = periodicity(sp.sympify(_exp), sp.Symbol(_var))
-    if period != None:
-        if get_mode() == "deg":
-            period = period * 180 / sp.pi
-        period = float(period)
+    # period = periodicity(sp.sympify(_exp), sp.Symbol(_var))
+    # if period != None:
+    #     if get_mode() == "deg":
+    #         period = period * 180 / sp.pi
+    #     period = float(period)
 
     return jsonify({"discontinuities": discont, "turningPoints": tps, "period": period})
 

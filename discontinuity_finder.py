@@ -1,5 +1,6 @@
 import sympy as sp
 from sympy import Symbol, Interval, Piecewise, EmptySet, limit, oo, nan, S, FiniteSet, Union, singularities
+from solveset_thread import limit_with_timeout
 
 
 def _find_radical_discontinuities(
@@ -27,16 +28,19 @@ def _find_radical_discontinuities(
                 # radicand_zeros = solve(base, var)
                 radicand_zeros = sp.solveset(base, var, sp.Interval(
                     lower, upper))
-                for zero in radicand_zeros:
-                    if zero.is_real:
-                        point = float(zero)
-                        if lower <= point <= upper:
-                            radicals.add(zero)
+                try:
+                    for zero in radicand_zeros:
+                        if zero.is_real:
+                            point = float(zero)
+                            if lower <= point <= upper:
+                                radicals.add(zero)
+                except:
+                    pass
 
     return radicals
 
 
-def find_discontinuities(expr, x, lower, upper):
+def find_discontinuities(expr, x, lower, upper, period):
     """
     Finds all real discontinuities of expr in the interval [lower, upper] and their types.
     Returns a list of dictionaries: each with 'position' (float), 'type' (string), and optionally 'limit' (float) if exists.
@@ -54,9 +58,14 @@ def find_discontinuities(expr, x, lower, upper):
 
     def classify_point(c):
         try:
+            if not period and c.is_real:
+                c = float(c)
             left = limit(expr, x, c, '-')
             right = limit(expr, x, c, '+')
             f_c = expr.subs(x, c)
+            f_c = sp.simplify(f_c)
+            if f_c.is_real:
+                f_c = f_c
             if left == right and f_c == left:
                 f_c1 = expr.subs(x, c+0.0001)
                 f_c2 = expr.subs(x, c-0.0001)
@@ -67,7 +76,7 @@ def find_discontinuities(expr, x, lower, upper):
                 return 'unknown2', f_c
             if left == right:
                 if left.is_finite:
-                    if f_c == left:
+                    if not left.args and f_c == float(left):
                         return None, None  # continuous
                     else:
                         return 'removable', left
@@ -86,7 +95,7 @@ def find_discontinuities(expr, x, lower, upper):
             typ, lim = classify_point(c)
             if typ:
                 d = {'position': float(c), 'type': typ}
-                if lim is not None and lim.is_finite:
+                if lim is not None:
                     try:
                         lim = float(lim)
                         d['limit'] = float(lim)
@@ -111,7 +120,12 @@ def find_discontinuities(expr, x, lower, upper):
         if typ:
             d = {'position': float(c), 'type': typ}
             if lim is not None:
-                d['limit'] = float(lim)
+                try:
+                    d['limit'] = float(lim)
+                except:
+                    if not lim.is_real and lim.args[0].is_real:
+                        d['limit'] = float(lim.args[0])
+
             result.append(d)
 
     # Skip intervals, as they represent undefined regions without specific points

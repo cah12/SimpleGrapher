@@ -42,6 +42,45 @@ def solve_with_timeout(equation, symbol, domain=sympy.S.Reals, timeout=10):
             raise result
         return result
 
+
+# limit(expr, x, c, '-')
+def run_limit(expr, var, val, dir, queue):
+    """Target function to run solveset and put the result in a queue."""
+    try:
+        # The solveset function call is inside the separate process
+        lim = sympy.limit(expr, var, val)
+        queue.put(lim)
+    except Exception as e:
+        queue.put(e)  # In case of an unexpected error
+
+
+def limit_with_timeout(expr, var, val, dir, timeout=10):
+    """Runs limit with a timeout in a separate process."""
+    # Use a Queue to get the result back from the process
+    queue = multiprocessing.Queue()
+    # Create a process to run the function
+    process = multiprocessing.Process(
+        target=run_limit, args=(expr, var, val, dir, queue))
+
+    # Start the process
+    process.start()
+
+    # Wait for the process to complete with a timeout
+    process.join(timeout)
+
+    # Check if the process is still alive
+    if process.is_alive():
+        print(f"Timeout of {timeout} seconds reached. Terminating process.")
+        process.terminate()  # Forcefully terminate the process
+        process.join()  # Clean up the terminated process
+        return "TIMEOUT"
+    else:
+        # Process finished, get the result from the queue
+        result = queue.get()
+        if isinstance(result, Exception):
+            raise result
+        return result
+
 # --- Example Usage ---
 
 
@@ -69,3 +108,6 @@ if __name__ == "__main__":
         print(f"Solution: {solution_simple}")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+# limit(expr, x, c, '-')
