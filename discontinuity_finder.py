@@ -16,12 +16,17 @@ def _find_radical_discontinuities(
     rad_terms = expr.find(sp.Pow)
 
     for term in rad_terms:
+        if term.is_real:
+            continue
         # Check for even-order radicals or negative exponents
         base, exponent = term.as_base_exp()
 
         # Handle even roots like sqrt(f(x))
-        if exponent.is_Rational:
-            denom = exponent.q
+        if exponent.is_Rational or exponent.is_rational:
+            if exponent.is_Rational:
+                denom = exponent.q
+            else:
+                num, denom = exponent.as_numer_denom()
             # Even root
             if denom % 2 == 0:
                 # Find where the radicand is negative

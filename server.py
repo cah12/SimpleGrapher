@@ -75,7 +75,7 @@ def solve_for(exp, c):
                 solutions = list(s)
             elif s.args:
                 for s in s.args:
-                    if s.is_FiniteSet:
+                    if isinstance(s, sp.FiniteSet):
                         solutions = list(s)
                         break
 
@@ -89,7 +89,8 @@ def solve_for(exp, c):
 
         for solution in solutions:
             num, denom = solution.as_numer_denom()
-            if denom != 1:
+            if c in str(num) and c in str(denom):
+                # if denom != 1:
                 if num.is_polynomial():
                     num = sp.factor(num)
 
@@ -607,7 +608,7 @@ def discontinuity():
         _var,
         period
     )
-    # discont = [0, "unknown2", 1]
+    # discont = [[-1.73205, "unknown2", 0.0], [1.73205, "unknown2", 0.0]]
     tps = []  # turning_points(_exp, _var, lower, upper)
     # print(discont)
 
