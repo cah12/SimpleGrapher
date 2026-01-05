@@ -39,7 +39,7 @@ def jsExpToPyExp(s):
     return s
 
 
-def solve_for(exp, c):
+""" def solve_for(exp, c):
     # while exp.find("^") != -1:
     #     exp = exp.replace("^", "**")
 
@@ -79,6 +79,7 @@ def solve_for(exp, c):
                         solutions = list(s)
                         break
 
+        solutions = list(solutions)
         l = len(solutions)
 
         if l > 2:
@@ -106,6 +107,60 @@ def solve_for(exp, c):
             _str = pyExpToJsExp(_str)
             if _str.find("Piecewise") == -1 and _str.find("I") == -1:
                 result.append(_str)
+
+    except BaseException as error:
+        print(error)
+        return []
+
+    return result """
+
+
+def solve_for(exp, c):
+    exp = jsExpToPyExp(exp)
+    v = sp.Symbol(c)
+    arr = exp.split('=')
+
+    if len(arr) == 2:
+        if arr[0] == c and c not in arr[1]:
+            return [pyExpToJsExp(arr[1])]
+        if arr[1] == c and c not in arr[0]:
+            return [pyExpToJsExp(arr[0])]
+
+    if len(arr) == 1:
+        arr.append("0")
+
+    result = []
+    try:
+        solutions = None
+        arr0 = None
+        arr1 = None
+        # with sp.evaluate(False):
+        arr0 = sp.sympify(arr[0])
+        if arr[1] == "0":
+            solutions = sp.solve(arr0, v)
+        else:
+            # with sp.evaluate(False):
+            arr1 = sp.sympify(arr[1])
+            solutions = sp.solve(
+                sp.Eq(arr0, arr1), v)
+
+        solutions = [s for s in solutions if not s.has(sp.I)]
+
+        for solution in solutions:
+            num, denom = solution.as_numer_denom()
+            if c in str(num) and c in str(denom):
+                # if denom != 1:
+                if num.is_polynomial():
+                    num = sp.factor(num)
+
+                if denom.is_polynomial():
+                    denom = sp.factor(denom)
+
+                solution = (num)/(denom)
+                solution = solution.simplify()
+
+            _str = str(solution)
+            result.append(pyExpToJsExp(_str))
 
     except BaseException as error:
         print(error)
