@@ -79,6 +79,9 @@ def solve_for(exp, c):
         print(error)
         return []
 
+    if len(result) > 1:
+        result.sort(key=len)
+
     return result
 
 
