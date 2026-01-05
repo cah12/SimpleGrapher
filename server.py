@@ -14,6 +14,11 @@ from discontinuity_finder import find_discontinuities
 
 from solveset_thread import solve_with_timeout
 
+from sympy.parsing.sympy_parser import parse_expr, convert_xor, standard_transformations
+
+# Combine the standard transformations with convert_xor
+custom_transformations = standard_transformations + (convert_xor,)
+
 
 # The Degree To Radian Code
 # --------------------------#
@@ -28,103 +33,12 @@ full_expr = ""
 
 
 def pyExpToJsExp(s):
-    while s.find("**") != -1:
-        s = s.replace("**", "^")
-    return s
-
-
-def jsExpToPyExp(s):
-    while s.find("^") != -1:
-        s = s.replace("^", "**")
-    return s
-
-
-""" def solve_for(exp, c):
-    # while exp.find("^") != -1:
-    #     exp = exp.replace("^", "**")
-
-    exp = jsExpToPyExp(exp)
-
-    v = sp.Symbol(c)
-    arr = exp.split('=')
-
-    if len(arr) == 2:
-        if arr[0] == c and c not in arr[1]:
-            return [pyExpToJsExp(arr[1])]
-        if arr[1] == c and c not in arr[0]:
-            return [pyExpToJsExp(arr[0])]
-
-    if len(arr) == 1:
-        arr.append("0")
-
-    result = []
-    try:
-        solutions = None
-        arr0 = None
-        arr1 = None
-        # with sp.evaluate(False):
-        arr0 = sp.sympify(arr[0])
-        if arr[1] == "0":
-            solutions = sp.solveset(arr0, v)
-        else:
-            # with sp.evaluate(False):
-            arr1 = sp.sympify(arr[1])
-            s = sp.solveset(
-                sp.Eq(arr0, arr1), v)
-            if s.is_FiniteSet:
-                solutions = list(s)
-            elif s.args:
-                for s in s.args:
-                    if isinstance(s, sp.FiniteSet):
-                        solutions = list(s)
-                        break
-
-        solutions = list(solutions)
-        l = len(solutions)
-
-        if l > 2:
-            if l % 2 == 0:
-                solutions = [solutions[0], solutions[1]]
-            else:
-                solutions = [solutions[0]]
-
-        for solution in solutions:
-            num, denom = solution.as_numer_denom()
-            if c in str(num) and c in str(denom):
-                # if denom != 1:
-                if num.is_polynomial():
-                    num = sp.factor(num)
-
-                if denom.is_polynomial():
-                    denom = sp.factor(denom)
-
-                solution = (num)/(denom)
-                solution = solution.simplify()
-
-            _str = str(solution)
-            # while _str.find("**") != -1:
-            #     _str = _str.replace("**", "^")
-            _str = pyExpToJsExp(_str)
-            if _str.find("Piecewise") == -1 and _str.find("I") == -1:
-                result.append(_str)
-
-    except BaseException as error:
-        print(error)
-        return []
-
-    return result """
+    return s.replace("**", "^")
 
 
 def solve_for(exp, c):
-    exp = jsExpToPyExp(exp)
-    v = sp.Symbol(c)
+    v = sp.symbols(c)
     arr = exp.split('=')
-
-    if len(arr) == 2:
-        if arr[0] == c and c not in arr[1]:
-            return [pyExpToJsExp(arr[1])]
-        if arr[1] == c and c not in arr[0]:
-            return [pyExpToJsExp(arr[0])]
 
     if len(arr) == 1:
         arr.append("0")
@@ -134,13 +48,12 @@ def solve_for(exp, c):
         solutions = None
         arr0 = None
         arr1 = None
-        # with sp.evaluate(False):
-        arr0 = sp.sympify(arr[0])
+        arr0 = sp.parse_expr(arr[0], transformations=custom_transformations)
         if arr[1] == "0":
             solutions = sp.solve(arr0, v)
         else:
-            # with sp.evaluate(False):
-            arr1 = sp.sympify(arr[1])
+            arr1 = sp.parse_expr(
+                arr[1], transformations=custom_transformations)
             solutions = sp.solve(
                 sp.Eq(arr0, arr1), v)
 
@@ -175,7 +88,8 @@ def inflection_points(expr, lower, upper, var):
 
 def turning_points2(expr, lower, upper, var):
     try:
-        d = sp.diff(sp.parse_expr(expr), sp.Symbol(var))
+        d = sp.diff(sp.parse_expr(
+            expr, transformations=custom_transformations), sp.Symbol(var))
         dis = solve_with_timeout(d, var, sp.Interval(
             lower, upper, left_open=True, right_open=True))
         return list(map(float, dis))
@@ -186,7 +100,8 @@ def turning_points2(expr, lower, upper, var):
 def turning_points(expression, dependent_variable, lower_limit, upper_limit):
     var = sp.Symbol(dependent_variable)
 
-    parsed_expression = sp.sympify(expression)
+    parsed_expression = sp.parse_expr(
+        expression, transformations=custom_transformations)
 
     # parsed_expression = trig_substitutions(parsed_expression)
     # if get_mode() == "deg":
@@ -233,7 +148,8 @@ def turning_points(expression, dependent_variable, lower_limit, upper_limit):
 def inflection_points(expr, lower, upper, var):
     try:
         x = sp.Symbol(var)
-        d = sp.diff(sp.parse_expr(expr), x, x)
+        d = sp.diff(sp.parse_expr(
+            expr, transformations=custom_transformations), x, x)
         dis = solve_with_timeout(d, var, sp.Interval(lower, upper))
         return list(map(float, dis))
     except:
@@ -356,7 +272,7 @@ def find_discontinuities_in_range(
     """
     """ # Convert string to sympy expression if needed
     if isinstance(expr, str):
-        expr = sp.sympify(expr)
+        expr = sp.parse_expr(expr)
 
     # Access the individual terms using the .args attribute
     terms = expr.args
@@ -475,7 +391,7 @@ def analyze_discontinuity_type(
         Type of discontinuity: 'removable', 'infinite', 'jump', or 'unknown'
     """
     if isinstance(expr, str):
-        expr = sp.sympify(expr)
+        expr = sp.parse_expr(expr, transformations=custom_transformations)
 
     if var is None:
         free_vars = list(expr.free_symbols)
@@ -582,11 +498,11 @@ def find_discontinuities_detailed(
 
     # Convert string to sympy expression if needed
     if isinstance(expr, str):
-        # sympify with evaluate=False to avoid side effects of sympy does not work
+        # parse_expr with evaluate=False to avoid side effects of sympy does not work
         # with trig functions that are overwrite.
 
         with sp.evaluate(False):
-            expr = sp.sympify(expr)
+            expr = sp.parse_expr(expr, transformations=custom_transformations)
 
     expr = trig_substitutions(expr)
 
@@ -644,14 +560,15 @@ def discontinuity():
     # while _exp.find("^") != -1:
     #     _exp = _exp.replace("^", "**")
 
-    _exp = jsExpToPyExp(_exp)
+    # _exp = jsExpToPyExp(_exp)
 
     # disc = find_discontinuities(_exp, _var, lower, upper)
     # print(disc)
 
     # discont = discontinuities(_exp, lower, upper, _var)
 
-    period = periodicity(sp.sympify(_exp), sp.Symbol(_var))
+    period = periodicity(sp.parse_expr(
+        _exp, transformations=custom_transformations), sp.Symbol(_var))
     if period != None:
         if get_mode() == "deg":
             period = period * 180 / sp.pi
@@ -677,7 +594,7 @@ def discontinuity():
     #     if len(disc) >= 3 and disc[2] != None:
     #         disc[2] = float(disc[2])
 
-    # period = periodicity(sp.sympify(_exp), sp.Symbol(_var))
+    # period = periodicity(sp.parse_expr(_exp), sp.Symbol(_var))
     # if period != None:
     #     if get_mode() == "deg":
     #         period = period * 180 / sp.pi
@@ -696,7 +613,7 @@ def turningPoints():
     lower = data["lower"]
     upper = data["upper"]
 
-    _exp = jsExpToPyExp(_exp)
+    # _exp = jsExpToPyExp(_exp)
 
     turn_points = turning_points(_exp, lower, upper, _var)
     return jsonify({
@@ -715,7 +632,7 @@ def points():
     # while _exp.find("^") != -1:
     #     _exp = _exp.replace("^", "**")
 
-    _exp = jsExpToPyExp(_exp)
+    # _exp = jsExpToPyExp(_exp)
 
     # discont = discontinuities(_exp, lower, upper, _var)
     discont = find_discontinuities_in_range(

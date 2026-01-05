@@ -143,22 +143,23 @@ def find_discontinuities(expr, x, lower, upper, period):
     return result
 
 
-# expr = sp.sympify("sqrt(sin(x))") #[]
-# expr = sp.sympify("sqrt(1+sin(x))") #[]
-# expr = sp.sympify("sqrt(4+sin(x))") #[]
-# expr = sp.sympify("sqrt(4-sin(x))") #[]
-# expr = sp.sympify("tan(x)") #[{'position': -7.853981633974483, 'type': 'essential'}, {'position': -4.71238898038469, 'type': 'essential'}, {'position': -1.5707963267948966, 'type': 'essential'}, {'position': 1.5707963267948966, 'type': 'essential'}, {'position': 4.71238898038469, 'type': 'essential'}, {'position': 7.853981633974483, 'type': 'essential'}]
-# expr = sp.sympify("cot(x)") #[{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
-# expr = sp.sympify("1/sin(x)") #[{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
-# expr = sp.sympify("sqrt(1/sin(x))") #[{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
-# expr = sp.sympify("sqrt(1+1/sin(x))") #[{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
-expr = sp.sympify("sqrt(4+1/sin(x))")  # [{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
-# expr = sp.sympify("abs(x)/x") #[{'position': 0.0, 'type': 'jump'}]
-# expr = sp.sympify("sin(x)/x") #[{'position': 0.0, 'type': 'removable', 'limit': 1.0}]
-# expr = sp.sympify("sqrt(1/x)") #[{'position': 0.0, 'type': 'removable', 'limit': 1.0}]
-# expr = sp.sympify("(x+2)/(x^2-4)") #[[-2.0, 'removable', -0.25], [2.0, 'essential']]
+# expr = sp.parse_expr("sqrt(sin(x))") #[]
+# expr = sp.parse_expr("sqrt(1+sin(x))") #[]
+# expr = sp.parse_expr("sqrt(4+sin(x))") #[]
+# expr = sp.parse_expr("sqrt(4-sin(x))") #[]
+# expr = sp.parse_expr("tan(x)") #[{'position': -7.853981633974483, 'type': 'essential'}, {'position': -4.71238898038469, 'type': 'essential'}, {'position': -1.5707963267948966, 'type': 'essential'}, {'position': 1.5707963267948966, 'type': 'essential'}, {'position': 4.71238898038469, 'type': 'essential'}, {'position': 7.853981633974483, 'type': 'essential'}]
+# expr = sp.parse_expr("cot(x)") #[{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
+# expr = sp.parse_expr("1/sin(x)") #[{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
+# expr = sp.parse_expr("sqrt(1/sin(x))") #[{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
+# expr = sp.parse_expr("sqrt(1+1/sin(x))") #[{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
+# [{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
+expr = sp.parse_expr("sqrt(4+1/sin(x))")
+# expr = sp.parse_expr("abs(x)/x") #[{'position': 0.0, 'type': 'jump'}]
+# expr = sp.parse_expr("sin(x)/x") #[{'position': 0.0, 'type': 'removable', 'limit': 1.0}]
+# expr = sp.parse_expr("sqrt(1/x)") #[{'position': 0.0, 'type': 'removable', 'limit': 1.0}]
+# expr = sp.parse_expr("(x+2)/(x^2-4)") #[[-2.0, 'removable', -0.25], [2.0, 'essential']]
 
-# var = sp.sympify("x")
+# var = sp.parse_expr("x")
 
 # discont = find_discontinuities(expr, var, -10, 10)
 
