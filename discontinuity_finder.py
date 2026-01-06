@@ -51,15 +51,6 @@ def find_discontinuities(expr, x, lower, upper, period):
     Returns a list of dictionaries: each with 'position' (float), 'type' (string), and optionally 'limit' (float) if exists.
     Types: 'removable', 'jump', 'infinite', 'essential'
     """
-    search_interval = Interval(lower, upper)
-
-    # 1. Find all singularities in the expression
-    sing = singularities(expr, x)
-
-    # 2. The discontinuities are the singularities within the search interval
-    discontinuities = sing.intersection(search_interval)
-
-    result = []
 
     def classify_point(c):
         try:
@@ -94,6 +85,51 @@ def find_discontinuities(expr, x, lower, upper, period):
                     return 'essential', None
         except:
             return 'essential', None
+
+    result = []
+
+    search_interval = Interval(lower, upper)
+
+    # 1. Find all singularities in the expression
+    sing = singularities(expr, x)
+
+    # 2. The discontinuities are the singularities within the search interval
+    discontinuities = sing.intersection(search_interval)
+
+    # if isinstance(discontinuities, sp.ConditionSet):
+    # If singularities fails, try to find them manually
+    # try:
+    # For rational functions, find zeros of denominator
+    # numer, denom = sp.fraction(expr)
+    # denom_zeros = sp.solve(denom, x)
+    # discontinuities = sp.solveset(sp.simplify(denom), x, sp.Interval(
+    #     lower, upper))  # solve(denom, var)
+    # n = 0
+    # for zero in denom_zeros:
+    #     if n > 6:
+    #         break
+    #     n += 1
+    #     if zero.is_real:
+    #         point = float(zero)
+    #         if lower <= point <= upper:
+    #             # result.append(zero)
+    #             typ, lim = classify_point(zero)
+    #             if typ:
+    #                 d = {'position': float(zero), 'type': "essential"}
+    #                 if lim is not None:
+    #                     try:
+    #                         d['limit'] = float(lim)
+    #                     except:
+    #                         if not lim.is_real and lim.args[0].is_real:
+    #                             d['limit'] = float(lim.args[0])
+
+    #                 result.append(d)
+    # except Exception:
+    #     pass
+
+    # 3. Classify the discontinuities
+
+    # result = []
 
     if discontinuities.is_FiniteSet:
         for c in discontinuities:
