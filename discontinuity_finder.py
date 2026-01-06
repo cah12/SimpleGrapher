@@ -1,5 +1,5 @@
 import sympy as sp
-from sympy import Symbol, Interval, Piecewise, EmptySet, limit, oo, nan, S, FiniteSet, Union, singularities
+from sympy import lambdify, Symbol, Interval, Piecewise, EmptySet, limit, oo, nan, S, FiniteSet, Union, singularities
 from solveset_thread import limit_with_timeout
 
 
@@ -96,36 +96,37 @@ def find_discontinuities(expr, x, lower, upper, period):
     # 2. The discontinuities are the singularities within the search interval
     discontinuities = sing.intersection(search_interval)
 
-    # if isinstance(discontinuities, sp.ConditionSet):
-    # If singularities fails, try to find them manually
-    # try:
-    # For rational functions, find zeros of denominator
-    # numer, denom = sp.fraction(expr)
-    # denom_zeros = sp.solve(denom, x)
-    # discontinuities = sp.solveset(sp.simplify(denom), x, sp.Interval(
-    #     lower, upper))  # solve(denom, var)
-    # n = 0
-    # for zero in denom_zeros:
-    #     if n > 6:
-    #         break
-    #     n += 1
-    #     if zero.is_real:
-    #         point = float(zero)
-    #         if lower <= point <= upper:
-    #             # result.append(zero)
-    #             typ, lim = classify_point(zero)
-    #             if typ:
-    #                 d = {'position': float(zero), 'type': "essential"}
-    #                 if lim is not None:
-    #                     try:
-    #                         d['limit'] = float(lim)
-    #                     except:
-    #                         if not lim.is_real and lim.args[0].is_real:
-    #                             d['limit'] = float(lim.args[0])
+    if isinstance(discontinuities, sp.ConditionSet):
+        # If singularities fails, try to find them manually
+        try:
+            # For rational functions, find zeros of denominator
+            numer, denom = sp.fraction(expr)
+            # denom_zeros = sp.solve(denom, x)
+            discontinuities = sp.solveset(sp.simplify(denom), x, sp.Interval(
+                lower, upper))  # solve(denom, var)
+            for part in discontinuities.args:
+                if isinstance(part, sp.Intersection):
+                    list_of_lambda = [
+                        r for r in part.args if isinstance(r, sp.ImageSet)]
+                    _n = sp.symbols("_n")
+                    for c in list_of_lambda:
+                        ld = c.args[0]
+                        ld_expr = str(ld.expr)
+                        ld_expr = sp.parse_expr(ld_expr)
 
-    #                 result.append(d)
-    # except Exception:
-    #     pass
+                        for n in range(0, 50):
+                            ld_expr_subs = ld_expr.subs(_n, n)
+                            if not ld_expr_subs.is_real:
+                                break
+                            if float(ld_expr_subs) <= lower or float(ld_expr_subs) >= upper:
+                                break
+
+                            d = {'position': float(
+                                ld_expr_subs), 'type': "essential"}
+                            result.append(d)
+
+        except Exception:
+            pass
 
     # 3. Classify the discontinuities
 
@@ -144,15 +145,59 @@ def find_discontinuities(expr, x, lower, upper, period):
                         pass
                 result.append(d)
     elif discontinuities.is_Union:
+        # 1.2533141,2.8024956
         for part in discontinuities.args:
             if part.is_FiniteSet:
                 for c in part:
+                    if not c.is_real:
+                        continue
+                    if float(c) <= lower or float(c) >= upper:
+                        break
                     typ, lim = classify_point(c)
                     if typ:
                         d = {'position': float(c), 'type': typ}
                         if lim is not None:
                             d['limit'] = float(lim)
                         result.append(d)
+            # elif isinstance(part, sp.Intersection):
+            #     list_of_lambda = [
+            #         r for r in part.args if isinstance(r, sp.ImageSet)]
+            #     _n = sp.symbols("_n")
+            #     for c in list_of_lambda:
+            #         ld = c.args[0]
+            #         ld_expr = str(ld.expr)
+            #         ld_expr = sp.parse_expr(ld_expr)
+
+            #         for n in range(0, 50):
+            #             ld_expr_subs = ld_expr.subs(_n, n)
+            #             if not ld_expr_subs.is_real:
+            #                 break
+            #             if float(ld_expr_subs) <= lower or float(ld_expr_subs) >= upper:
+            #                 break
+            #             typ, lim = classify_point(ld_expr_subs)
+            #             if typ:
+            #                 d = {'position': float(
+            #                     ld_expr_subs), 'type': "essential"}
+            #                 if lim is not None:
+            #                     d['limit'] = float(lim)
+            #                 result.append(d)
+
+                # itrn = len(part.args)
+
+                # for c in part:
+                #     itrn -= 1
+                #     if not c.is_real:
+                #         continue
+                #     if float(c) <= lower or float(c) >= upper:
+                #         break
+                #     typ, lim = classify_point(c)
+                #     if typ:
+                #         d = {'position': float(c), 'type': "essential"}
+                #         if lim is not None:
+                #             d['limit'] = float(lim)
+                #         result.append(d)
+                #     if itrn == 1:
+                #         break
 
     # 3. Find discontinuities caused by radicals
     radicals = _find_radical_discontinuities(expr, x, lower, upper)
