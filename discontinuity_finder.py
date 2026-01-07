@@ -1,5 +1,6 @@
 import sympy as sp
 from sympy import lambdify, Symbol, Interval, Piecewise, EmptySet, limit, oo, nan, S, FiniteSet, Union, singularities
+from degree_radian import get_mode
 from solveset_thread import limit_with_timeout
 
 
@@ -125,6 +126,15 @@ def find_discontinuities(expr, x, lower, upper, period):
                                 ld_expr_subs), 'type': "essential"}
                             result.append(d)
 
+                if isinstance(part, sp.Eq):
+                    e = part.args[0]
+                    if e.func.__name__ == "sin":
+                        e = sp.Eq(e.args[0], 0)
+                    # elif e.func.__name__ == "cos":
+                    #    e = sp.Eq(e.args[0], 1)
+                    discontinuities = sp.solveset(e, x, sp.Interval(
+                        lower, upper))  # solve(denom, var)
+                    break
         except Exception:
             pass
 
