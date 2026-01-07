@@ -128,12 +128,20 @@ def find_discontinuities(expr, x, lower, upper, period):
 
                 if isinstance(part, sp.Eq):
                     e = part.args[0]
-                    if e.func.__name__ == "sin":
+                    if e.func.__name__ == "sin" or e.func.__name__ == "cos":
                         e = sp.Eq(e.args[0], 0)
                     # elif e.func.__name__ == "cos":
-                    #    e = sp.Eq(e.args[0], 1)
-                    discontinuities = sp.solveset(e, x, sp.Interval(
+                    #     e = sp.Eq(e.args[0], 0)
+                    dis = sp.solveset(e, x, sp.Interval(
                         lower, upper))  # solve(denom, var)
+
+                    for c in dis:
+                        if not c.is_real:
+                            continue
+                        if float(c) <= lower or float(c) >= upper:
+                            break
+                        d = {'position': float(c), 'type': "essential"}
+                        result.append(d)
                     break
         except Exception:
             pass
