@@ -47,7 +47,7 @@ def _find_radical_discontinuities(
     return radicals
 
 
-def nsolveEquation(equation, start, stop, var, numOfGuess=300, decimalPlaces=4):
+def nsolveEquation(equation, start, stop, var, numOfGuess=300, decimalPlaces=10):
     # 2. Define the range for initial guesses using linspace
     # We need to ensure the guesses are within the domain where roots exist
     start, stop = start, stop
@@ -199,45 +199,17 @@ def find_discontinuities(expr, x, lower, upper, period):
                         if lim is not None:
                             d['limit'] = float(lim)
                         result.append(d)
-            # elif isinstance(part, sp.Intersection):
-            #     list_of_lambda = [
-            #         r for r in part.args if isinstance(r, sp.ImageSet)]
-            #     _n = sp.symbols("_n")
-            #     for c in list_of_lambda:
-            #         ld = c.args[0]
-            #         ld_expr = str(ld.expr)
-            #         ld_expr = sp.parse_expr(ld_expr)
-
-            #         for n in range(0, 50):
-            #             ld_expr_subs = ld_expr.subs(_n, n)
-            #             if not ld_expr_subs.is_real:
-            #                 break
-            #             if float(ld_expr_subs) <= lower or float(ld_expr_subs) >= upper:
-            #                 break
-            #             typ, lim = classify_point(ld_expr_subs)
-            #             if typ:
-            #                 d = {'position': float(
-            #                     ld_expr_subs), 'type': "essential"}
-            #                 if lim is not None:
-            #                     d['limit'] = float(lim)
-            #                 result.append(d)
-
-                # itrn = len(part.args)
-
-                # for c in part:
-                #     itrn -= 1
-                #     if not c.is_real:
-                #         continue
-                #     if float(c) <= lower or float(c) >= upper:
-                #         break
-                #     typ, lim = classify_point(c)
-                #     if typ:
-                #         d = {'position': float(c), 'type': "essential"}
-                #         if lim is not None:
-                #             d['limit'] = float(lim)
-                #         result.append(d)
-                #     if itrn == 1:
-                #         break
+            elif isinstance(part, sp.ConditionSet):
+                eq = part.args[1]
+                dis = nsolveEquation(eq, lower, upper, x)
+                for c in dis:
+                    if not c.is_real:
+                        continue
+                    # typ, lim = classify_point(c)
+                    if float(c) <= lower or float(c) >= upper:
+                        break
+                    d = {'position': float(c), 'type': "essential"}
+                    result.append(d)
 
     # 3. Find discontinuities caused by radicals
     radicals = _find_radical_discontinuities(expr, x, lower, upper)
