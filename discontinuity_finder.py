@@ -47,7 +47,7 @@ def _find_radical_discontinuities(
     return radicals
 
 
-def nsolveEquation(equation, start, stop, var, numOfGuess=300, decimalPlaces=10):
+def nsolveEquation(equation, start, stop, var, numOfGuess=300, decimalPlaces=4):
     # 2. Define the range for initial guesses using linspace
     # We need to ensure the guesses are within the domain where roots exist
     start, stop = start, stop
@@ -246,7 +246,7 @@ def find_discontinuities(expr, x, lower, upper, period):
 # expr = sp.parse_expr("sqrt(1/sin(x))") #[{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
 # expr = sp.parse_expr("sqrt(1+1/sin(x))") #[{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
 # [{'position': 0.0, 'type': 'essential'}, {'position': 3.141592653589793, 'type': 'essential'}, {'position': -9.42477796076938, 'type': 'essential'}, {'position': -6.283185307179586, 'type': 'essential'}, {'position': -3.141592653589793, 'type': 'essential'}, {'position': 6.283185307179586, 'type': 'essential'}, {'position': 9.42477796076938, 'type': 'essential'}]
-expr = sp.parse_expr("sqrt(4+1/sin(x))")
+# expr = sp.parse_expr("sqrt(4+1/sin(x))")
 # expr = sp.parse_expr("abs(x)/x") #[{'position': 0.0, 'type': 'jump'}]
 # expr = sp.parse_expr("sin(x)/x") #[{'position': 0.0, 'type': 'removable', 'limit': 1.0}]
 # expr = sp.parse_expr("sqrt(1/x)") #[{'position': 0.0, 'type': 'removable', 'limit': 1.0}]
