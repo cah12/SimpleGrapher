@@ -2,6 +2,7 @@ import sympy as sp
 from sympy import lambdify, Symbol, Interval, Piecewise, EmptySet, limit, oo, nan, S, FiniteSet, Union, singularities
 from degree_radian import get_mode
 from solveset_thread import limit_with_timeout
+import numpy as np
 
 
 def _find_radical_discontinuities(
@@ -44,6 +45,32 @@ def _find_radical_discontinuities(
                     pass
 
     return radicals
+
+
+def nsolveEquation(equation, start, stop, var, numOfGuess=300, decimalPlaces=4):
+    # 2. Define the range for initial guesses using linspace
+    # We need to ensure the guesses are within the domain where roots exist
+    start, stop = start, stop
+    guesses = np.linspace(start, stop, numOfGuess)
+
+    # 3. Use nsolve in a loop to find roots for each initial guess
+    roots = set()
+
+    for guess in guesses:
+        try:
+            root = sp.nsolve(equation, var, guess,
+                             verify=True, prec=decimalPlaces)
+            if sp.im(root) == 0:  # Only consider real roots
+                root = sp.re(root)
+                if float(root) >= start and float(root) <= stop:
+                    roots.add(root)
+                    continue
+        except (ValueError, RuntimeError):
+            # nsolve may fail if the initial guess is poor or a singularity is hit
+            continue
+
+    # Filter unique roots if necessary
+    return roots
 
 
 def find_discontinuities(expr, x, lower, upper, period):
@@ -128,12 +155,7 @@ def find_discontinuities(expr, x, lower, upper, period):
 
                 if isinstance(part, sp.Eq):
                     e = part.args[0]
-                    if e.func.__name__ == "sin" or e.func.__name__ == "cos":
-                        e = sp.Eq(e.args[0], 0)
-                    # elif e.func.__name__ == "cos":
-                    #     e = sp.Eq(e.args[0], 0)
-                    dis = sp.solveset(e, x, sp.Interval(
-                        lower, upper))  # solve(denom, var)
+                    dis = nsolveEquation(e, -10, 10, x)
 
                     for c in dis:
                         if not c.is_real:
