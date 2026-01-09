@@ -3,6 +3,7 @@ from sympy import lambdify, Symbol, Interval, Piecewise, EmptySet, limit, oo, na
 from degree_radian import get_mode
 from solveset_thread import limit_with_timeout
 import numpy as np
+from sympy.functions.elementary.trigonometric import TrigonometricFunction
 
 
 def _find_radical_discontinuities(
@@ -82,7 +83,8 @@ def find_discontinuities(expr, x, lower, upper, period):
 
     def classify_point(c):
         try:
-            if not period and c.is_real:
+            # if not period and c.is_real:
+            if not expr.has(TrigonometricFunction) and c.is_real:
                 c = float(c)
             left = limit(expr, x, c, '-')
             right = limit(expr, x, c, '+')
