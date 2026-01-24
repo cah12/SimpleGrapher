@@ -535,6 +535,7 @@ def csolve():
     exp = data["exp"]
     var = data["var"]
     result = solve_for(exp, var)
+    result = [s.replace("pi", "Math.PI") for s in result]
     # print("solve")
     return jsonify({"result": result})
 
