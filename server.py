@@ -598,9 +598,8 @@ def discontinuity():
     # print(discont)
 
     # for disc in discont:
-    #     disc[0] = float(disc[0])
-    #     if disc[2] != None:
-    #         disc[2] = float(disc[2])
+    #     if disc[1] == "infinite":
+    #         disc[1] = "essential"
 
     # for disc in discont:
     #     disc[0] = float(disc[0])
