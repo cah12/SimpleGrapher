@@ -83,8 +83,8 @@ def solve_for(exp, c):
         print(error)
         return []
 
-    if len(result) > 1:
-        result.sort(key=len)
+    # if len(result) > 1:
+    #     result.sort(key=len)
 
     return result
 
@@ -541,6 +541,12 @@ def csolve():
     result = solve_for(exp, var)
     # try:
     #     result = [str(sp.evalF(sp.parse_expr(s))) for s in result]
+    # except:
+    #     pass ['-x^(-1/2)', 'x^(-1/2)']
+
+    # try:
+    #     if "sqrt" in result[0]:
+    #         result = ['-x^(-1/2)', 'x^(-1/2)']
     # except:
     #     pass
 
