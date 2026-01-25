@@ -72,6 +72,10 @@ def solve_for(exp, c):
                 solution = (num)/(denom)
                 solution = solution.simplify()
 
+            try:
+                solution = float(solution)
+            except:
+                pass
             _str = str(solution)
             result.append(pyExpToJsExp(_str))
 
@@ -535,6 +539,11 @@ def csolve():
     exp = data["exp"]
     var = data["var"]
     result = solve_for(exp, var)
+    # try:
+    #     result = [str(sp.evalF(sp.parse_expr(s))) for s in result]
+    # except:
+    #     pass
+
     result = [s.replace("pi", "Math.PI") for s in result]
     # print("solve")
     return jsonify({"result": result})
