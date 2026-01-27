@@ -88,10 +88,18 @@ def find_discontinuities(expr, x, lower, upper, period):
                 c = float(c)
             left = limit(expr, x, c, '-')
             right = limit(expr, x, c, '+')
+
             f_c = expr.subs(x, c)
             f_c = sp.simplify(f_c)
+
+            if not expr.has(TrigonometricFunction):
+                left = left.evalf()
+                right = right.evalf()
+                f_c = f_c.evalf()
+
             if f_c.is_real:
                 f_c = f_c
+
             if left == right and f_c == left:
                 f_c1 = expr.subs(x, c+0.0001)
                 f_c2 = expr.subs(x, c-0.0001)
@@ -99,6 +107,8 @@ def find_discontinuities(expr, x, lower, upper, period):
                     return None, None
                 return 'unknown2', f_c
             if left.has(sp.I) and right.has(sp.I):
+                if not f_c.is_real:
+                    f_c = None
                 return 'unknown2', f_c
             if left == right:
                 if left.is_finite:

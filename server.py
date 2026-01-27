@@ -599,7 +599,8 @@ def discontinuity():
         _var,
         period
     )
-    # discont = [[-1.73205, "unknown2", 0.0], [1.73205, "unknown2", 0.0]]
+    # For y^3+4y^2-3y-8=x^2
+    # discont = [[-3.160, "unknown2", 2.0], [3.160, "unknown2", 2.0]]
     tps = []  # turning_points(_exp, _var, lower, upper)
     # print(discont)
 
