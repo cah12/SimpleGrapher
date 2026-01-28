@@ -81,6 +81,48 @@ def find_discontinuities(expr, x, lower, upper, period):
     Types: 'removable', 'jump', 'infinite', 'essential'
     """
 
+    # def classify_point(c):
+    #     """
+    #   Classifies the type of discontinuity for a given function at a specific point.
+
+    #    Args:
+    #         f(sympy expression): The function to analyze.
+    #         symbol(sympy symbol): The independent variable.
+    #         point(numeric or sympy expression): The point to check for discontinuity.
+
+    #     Returns:
+    #         str: Description of the discontinuity type, or a message if continuous.
+    #     """
+    #     if not expr.has(TrigonometricFunction) and c.is_real:
+    #         c = c.evalf()
+
+    #     left_limit = limit(expr, x, c, '-')
+    #     right_limit = limit(expr, x, c, '+')
+    #     f_val = expr.subs(x, c)
+
+    #     f_val = f_val.evalf()
+
+    #     if left_limit == right_limit and left_limit == f_val:
+    #         # return f"Continuous at x = {c}"
+    #         return 'unknown2', f_val
+    #     elif left_limit == right_limit:
+    #         # If limits are equal and finite, but not equal to f_val (f_val might be undefined)
+    #         # return f"Removable discontinuity at x = {c}"
+    #         if not left_limit.is_real:
+    #             return 'unknown2', None
+    #         return 'removable', left_limit
+    #     elif left_limit != right_limit and left_limit != oo and left_limit != -oo and right_limit != oo and right_limit != -oo:
+    #         # return f"Jump discontinuity at x = {c}"
+    #         return 'jump', None
+    #     elif left_limit == oo or left_limit == -oo or right_limit == oo or right_limit == -oo:
+    #         # return f"Infinite discontinuity (asymptote) at x = {c}"
+    #         return 'infinite', None
+    #     else:
+    #         # return f"Cannot classify discontinuity at x = {c}"
+    #         if not f_val.is_real:
+    #             f_val = None
+    #         return 'unknown2', f_val
+
     def classify_point(c):
         try:
             # if not period and c.is_real:
@@ -91,6 +133,11 @@ def find_discontinuities(expr, x, lower, upper, period):
 
             f_c = expr.subs(x, c)
             f_c = sp.simplify(f_c)
+
+            if left == right and left == f_c:
+                if not f_c.is_real:
+                    f_c = None
+                return 'unknown2', f_c
 
             if not expr.has(TrigonometricFunction):
                 left = left.evalf()
@@ -105,6 +152,8 @@ def find_discontinuities(expr, x, lower, upper, period):
                 f_c2 = expr.subs(x, c-0.0001)
                 if f_c1.has(sp.I) and f_c2.has(sp.I):
                     return None, None
+                if not f_c.is_real:
+                    f_c = None
                 return 'unknown2', f_c
             if left.has(sp.I) and right.has(sp.I):
                 if not f_c.is_real:
