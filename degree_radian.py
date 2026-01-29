@@ -143,6 +143,7 @@ def set_mode(new_mode):
     global mode_deg_rad
     if new_mode in ["deg", "rad"]:
         mode_deg_rad = new_mode
+        # mode_deg_rad = "rad"
 
 
 def get_mode():

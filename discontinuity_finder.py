@@ -36,6 +36,10 @@ def _find_radical_discontinuities(
                 # radicand_zeros = solve(base, var)
                 radicand_zeros = sp.solveset(base, var, sp.Interval(
                     lower, upper))
+                if isinstance(radicand_zeros, sp.FiniteSet) and len(radicand_zeros) == 3:
+                    element_to_remove = FiniteSet(0)
+                    radicand_zeros = radicand_zeros-element_to_remove
+
                 try:
                     for zero in radicand_zeros:
                         if zero.is_real:
@@ -275,6 +279,9 @@ def find_discontinuities(expr, x, lower, upper, period):
     # 3. Find discontinuities caused by radicals
     radicals = _find_radical_discontinuities(expr, x, lower, upper)
     for c in radicals:
+        _c = float(c)
+        # if lower > _c > upper:
+        #     continue
         typ, lim = classify_point(c)
         if typ:
             d = {'position': float(c), 'type': typ}
@@ -294,6 +301,7 @@ def find_discontinuities(expr, x, lower, upper, period):
 
     # Sort by position
     result.sort(key=lambda x: x[0])
+
     return result
 
 
