@@ -599,18 +599,20 @@ def discontinuity():
         _var,
         period
     )
-    _discont = []
 
-    for index, item in enumerate(discont):
-        if index+1 < len(discont):
-            if index == 0:
+    if len(discont) > 1:
+        _discont = []
+        for index, item in enumerate(discont):
+            if index+1 < len(discont):
+                if index == 0:
+                    _discont.append(item)
+                    continue
+                if (discont[index][1] == "unknown2" and discont[index-1][1] != "unknown2") and (discont[index][1] == "unknown2" and discont[index+1][1] != "unknown2"):
+                    continue
                 _discont.append(item)
-                continue
-            if (discont[index][1] == "unknown2" and discont[index-1][1] != "unknown2") and (discont[index][1] == "unknown2" and discont[index+1][1] != "unknown2"):
-                continue
-            _discont.append(item)
 
-    _discont.append(discont[len(discont)-1])
+        _discont.append(discont[len(discont)-1])
+        discont = _discont
 
     # For y^3+4y^2-3y-8=x^2
     # discont = [[-3.160, "unknown2", 2.0], [3.160, "unknown2", 2.0]]
@@ -632,7 +634,7 @@ def discontinuity():
     #         period = period * 180 / sp.pi
     #     period = float(period)
 
-    return jsonify({"discontinuities": _discont, "turningPoints": tps, "period": period})
+    return jsonify({"discontinuities": discont, "turningPoints": tps, "period": period})
 
 # turning_points(expression, dependent_variable, lower_limit, upper_limit):
 
