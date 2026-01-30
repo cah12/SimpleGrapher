@@ -49,12 +49,14 @@ def _find_radical_discontinuities(
                 except:
                     pass
 
-    sm = (upper-lower)*1e-20
+    sm = (upper-lower)*1e-10
     _radicals = set()
     for v in radicals:
         l = expr.subs(var, v-sm)
         r = expr.subs(var, v+sm)
-        if l.is_real or r.is_real:
+        if l.is_real == None and r.is_real == None:
+            _radicals.add(v)
+        elif l.is_real or r.is_real:
             _radicals.add(v)
     return _radicals
 
