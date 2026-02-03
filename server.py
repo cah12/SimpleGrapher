@@ -17,7 +17,6 @@ from solveset_thread import solve_with_timeout
 from sympy.parsing.sympy_parser import parse_expr, convert_xor, standard_transformations
 
 from numericFallback import generate_points_all_branches
-
 # Combine the standard transformations with convert_xor
 custom_transformations = standard_transformations + (convert_xor,)
 
@@ -663,13 +662,13 @@ def numeric():
     arr0 = sp.parse_expr(arr[0], transformations=custom_transformations)
     if arr[1] == "0":
         branches2 = generate_points_all_branches(
-            arr0, lower, upper, num_x=200, y_samples=600)
+            arr0, lower, upper, num_x=500, y_samples=300)
     else:
         arr1 = sp.parse_expr(
             arr[1], transformations=custom_transformations)
         eq = arr0 - arr1
         branches2 = generate_points_all_branches(
-            eq, lower, upper, num_x=200, y_samples=600)
+            eq, lower, upper, num_x=500, y_samples=300)
 
     # branches2 = generate_points_all_branches(
     #     _exp, lower, upper, num_x=200, y_samples=600)

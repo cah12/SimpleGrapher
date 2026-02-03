@@ -3,6 +3,8 @@ from sympy import symbols, solve, lambdify
 import numpy as np
 from scipy.optimize import fsolve, root, root_scalar
 
+from domain_finder import closer_boundary
+
 # Define variables
 x, y = symbols('x y')
 
@@ -200,6 +202,22 @@ def generate_points_all_branches(equation, x_min, x_max, num_x=400, y_min=None, 
 
     # Filter branches: keep only branches with at least 2 points
     branches = [br for br in branches if len(br) >= 2]
+
+    def fnc(x, y):
+        return y**6+8*y-x
+        # return equation  # return symbolic equation
+
+    # current_boundary = (-6.784, -0.9276)
+    # next_point = (-6.683, -0.9034)
+
+    for branch in branches:
+        if branch[0][0] != x_min:
+            current_boundary = (branch[0][0], branch[0][1])
+            next_point = (branch[1][0], branch[1][1])
+            b = closer_boundary(
+                fnc, current_boundary, next_point)
+            if b is not None:
+                branch.insert(0, [b[0], b[1]])
 
     return branches
 
