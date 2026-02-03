@@ -203,9 +203,11 @@ def generate_points_all_branches(equation, x_min, x_max, num_x=400, y_min=None, 
     # Filter branches: keep only branches with at least 2 points
     branches = [br for br in branches if len(br) >= 2]
 
-    def fnc(x, y):
-        return y**6+8*y-x
-        # return equation  # return symbolic equation
+    # def fnc(x, y):
+    #     return y**6+8*y-x
+    # return equation  # return symbolic equation
+
+    fnc = lambdify((x, y), equation, 'numpy')
 
     # current_boundary = (-6.784, -0.9276)
     # next_point = (-6.683, -0.9034)
