@@ -26,6 +26,22 @@ async function solve_for(exp, c) {
   return res.data.result;
 }
 
+async function numeric(exp, lower, upper, indepVar) {
+  try {
+    res = await axios.post("/numeric", {
+      exp: exp,
+      lower: lower,
+      upper: upper,
+      var: indepVar,
+    });
+    // console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 async function points(exp, lower, upper, indepVar) {
   try {
     res = await axios.post("/points", {

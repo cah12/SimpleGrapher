@@ -16,6 +16,8 @@ from solveset_thread import solve_with_timeout
 
 from sympy.parsing.sympy_parser import parse_expr, convert_xor, standard_transformations
 
+from numericFallback import generate_points_all_branches
+
 # Combine the standard transformations with convert_xor
 custom_transformations = standard_transformations + (convert_xor,)
 
@@ -636,7 +638,43 @@ def discontinuity():
 
     return jsonify({"discontinuities": discont, "turningPoints": tps, "period": period})
 
-# turning_points(expression, dependent_variable, lower_limit, upper_limit):
+
+@app.route("/numeric", methods=['POST'])
+def numeric():
+    data = request.get_json()
+    _exp = data["exp"]
+    _var = data["var"]
+    lower = data["lower"]
+    upper = data["upper"]
+
+    if _exp == None:
+        return []
+
+    # _exp = 'y**7+5*y+45-x**2=0'
+    # _exp = 'y**6+8*y =x'
+
+    arr = _exp.split('=')
+    if len(arr) == 1:
+        arr.append("0")
+
+    arr0 = None
+    arr1 = None
+    branches2 = None
+    arr0 = sp.parse_expr(arr[0], transformations=custom_transformations)
+    if arr[1] == "0":
+        branches2 = generate_points_all_branches(
+            arr0, lower, upper, num_x=200, y_samples=600)
+    else:
+        arr1 = sp.parse_expr(
+            arr[1], transformations=custom_transformations)
+        eq = arr0 - arr1
+        branches2 = generate_points_all_branches(
+            eq, lower, upper, num_x=200, y_samples=600)
+
+    # branches2 = generate_points_all_branches(
+    #     _exp, lower, upper, num_x=200, y_samples=600)
+
+    return jsonify({"branches": branches2})
 
 
 @app.route("/turningPoints", methods=['POST'])
