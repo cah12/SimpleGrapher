@@ -86,6 +86,9 @@ def closer_boundary(fn, current_boundary, next_point):
     y_step = np.abs(current_boundary[1] - next_point[1])
     x_step = np.abs(current_boundary[0] - next_point[0])
 
+    # y_step = np.max([y_step, 0.01])
+    # x_step = np.max([x_step, 0.01])
+
     y_range = (current_boundary[0]-6*y_step, current_boundary[1]+6*y_step)
     x_range = (current_boundary[0]-6*x_step, current_boundary[1]+6*x_step)
 
