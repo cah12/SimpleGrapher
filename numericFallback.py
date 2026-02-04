@@ -217,9 +217,19 @@ def generate_points_all_branches(equation, x_min, x_max, num_x=400, y_min=None, 
             current_boundary = (branch[0][0], branch[0][1])
             next_point = (branch[1][0], branch[1][1])
             b = closer_boundary(
-                fnc, current_boundary, next_point)
+                fnc, current_boundary, next_point, True)
             if b is not None:
                 branch.insert(0, [b[0], b[1]])
+
+        if branch[len(branch) - 1][0] != x_max:
+            current_boundary = (
+                branch[len(branch) - 1][0], branch[len(branch) - 1][1])
+            next_point = (branch[len(branch) - 2][0],
+                          branch[len(branch) - 2][1])
+            b = closer_boundary(
+                fnc, current_boundary, next_point, False)
+            if b is not None:
+                branch.append([b[0], b[1]])
 
     return branches
 

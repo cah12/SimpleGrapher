@@ -82,7 +82,7 @@ def is_x_in_domain_numerical(f_xy, x_val, y_range=(-100, 100), tol=1e-15):
 
 # current_boundary = (-6.784, -0.9276)
 # next_point = (-6.683, -0.9034)
-def closer_boundary(fn, current_boundary, next_point):
+def closer_boundary(fn, current_boundary, next_point, forward=True):
     y_step = np.abs(current_boundary[1] - next_point[1])
     x_step = np.abs(current_boundary[0] - next_point[0])
 
@@ -91,6 +91,13 @@ def closer_boundary(fn, current_boundary, next_point):
 
     y_range = (current_boundary[0]-6*y_step, current_boundary[1]+6*y_step)
     x_range = (current_boundary[0]-6*x_step, current_boundary[1]+6*x_step)
+
+    if not forward:
+        y_range = (current_boundary[0]+6*y_step, current_boundary[1]-6*y_step)
+        x_range = (current_boundary[0]+6*x_step, current_boundary[1]-6*x_step)
+    elif forward:
+        y_range = (current_boundary[0]-6*y_step, current_boundary[1]+6*y_step)
+        x_range = (current_boundary[0]-6*x_step, current_boundary[1]+6*x_step)
 
     x_samples = np.linspace(x_range[0], x_range[1], 500)
     y_samples = np.linspace(y_range[0], y_range[1], 1000)
