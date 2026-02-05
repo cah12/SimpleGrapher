@@ -645,6 +645,9 @@ def numeric():
     _var = data["var"]
     lower = data["lower"]
     upper = data["upper"]
+    numOfPoints = data["numOfPoints"]
+
+    numOfPoints = max(numOfPoints, 500)
 
     if _exp == None:
         return []
@@ -662,13 +665,13 @@ def numeric():
     arr0 = sp.parse_expr(arr[0], transformations=custom_transformations)
     if arr[1] == "0":
         branches2 = generate_points_all_branches(
-            arr0, lower, upper, num_x=500, y_samples=3000)
+            arr0, lower, upper, num_x=numOfPoints, y_samples=3000)
     else:
         arr1 = sp.parse_expr(
             arr[1], transformations=custom_transformations)
         eq = arr0 - arr1
         branches2 = generate_points_all_branches(
-            eq, lower, upper, num_x=500, y_samples=3000)
+            eq, lower, upper, num_x=numOfPoints, y_samples=3000)
 
     # branches2 = generate_points_all_branches(
     #     _exp, lower, upper, num_x=200, y_samples=600)

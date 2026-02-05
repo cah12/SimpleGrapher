@@ -26,13 +26,14 @@ async function solve_for(exp, c) {
   return res.data.result;
 }
 
-async function numeric(exp, lower, upper, indepVar) {
+async function numeric(exp, lower, upper, indepVar, numOfPoints = 200) {
   try {
     res = await axios.post("/numeric", {
       exp: exp,
       lower: lower,
       upper: upper,
       var: indepVar,
+      numOfPoints: numOfPoints,
     });
     // console.log(res.data);
     return res.data;
