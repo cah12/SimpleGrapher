@@ -92,33 +92,33 @@ def generate_points_all_branches(equation, x_min, x_max, num_x=400, y_min=None, 
     f = lambdify((x, y), equation, 'numpy')
 
     # Estimate y-range from symbolic solutions if possible
-    if y_min is None or y_max is None:
-        try:
-            y_sols = solve(equation, y)
-        except Exception:
-            y_sols = []
+    # if y_min is None or y_max is None:
+    #     try:
+    #         y_sols = solve(equation, y)
+    #     except Exception:
+    #         y_sols = []
 
-        if y_sols:
-            y_vals_est = []
-            for ys in y_sols:
-                try:
-                    y_fun = lambdify(x, ys, 'numpy')
-                    y_eval = y_fun(x_vals)
-                    y_eval = np.asarray(y_eval)
-                    valid = ~np.isnan(y_eval) & np.isreal(y_eval)
-                    if np.any(valid):
-                        y_vals_est.append(np.real(y_eval[valid]))
-                except Exception:
-                    pass
-            if y_vals_est:
-                all_est = np.hstack(y_vals_est)
-                est_min, est_max = float(
-                    np.min(all_est)), float(np.max(all_est))
-                padding = max(1.0, 0.1 * (est_max - est_min))
-                if y_min is None:
-                    y_min = est_min - padding
-                if y_max is None:
-                    y_max = est_max + padding
+    #     if y_sols:
+    #         y_vals_est = []
+    #         for ys in y_sols:
+    #             try:
+    #                 y_fun = lambdify(x, ys, 'numpy')
+    #                 y_eval = y_fun(x_vals)
+    #                 y_eval = np.asarray(y_eval)
+    #                 valid = ~np.isnan(y_eval) & np.isreal(y_eval)
+    #                 if np.any(valid):
+    #                     y_vals_est.append(np.real(y_eval[valid]))
+    #             except Exception:
+    #                 pass
+    #         if y_vals_est:
+    #             all_est = np.hstack(y_vals_est)
+    #             est_min, est_max = float(
+    #                 np.min(all_est)), float(np.max(all_est))
+    #             padding = max(1.0, 0.1 * (est_max - est_min))
+    #             if y_min is None:
+    #                 y_min = est_min - padding
+    #             if y_max is None:
+    #                 y_max = est_max + padding
 
     # Fallback heuristic if still not set
     if y_min is None or y_max is None:

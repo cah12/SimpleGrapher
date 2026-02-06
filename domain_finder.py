@@ -89,15 +89,21 @@ def closer_boundary(fn, current_boundary, next_point, forward=True):
     # y_step = np.max([y_step, 0.01])
     # x_step = np.max([x_step, 0.01])
 
-    y_range = (current_boundary[0]-6*y_step, current_boundary[1]+6*y_step)
-    x_range = (current_boundary[0]-6*x_step, current_boundary[1]+6*x_step)
+    stepFactor = 4
+
+    y_range = (current_boundary[0]-stepFactor*y_step,
+               current_boundary[1]+stepFactor*y_step)
+    x_range = (current_boundary[0]-stepFactor*x_step,
+               current_boundary[1]+stepFactor*x_step)
 
     if not forward:
-        y_range = (current_boundary[0]+6*y_step, current_boundary[1]-6*y_step)
-        x_range = (current_boundary[0]+6*x_step, current_boundary[1]-6*x_step)
-    elif forward:
-        y_range = (current_boundary[0]-6*y_step, current_boundary[1]+6*y_step)
-        x_range = (current_boundary[0]-6*x_step, current_boundary[1]+6*x_step)
+        y_range = (current_boundary[0]+stepFactor*y_step,
+                   current_boundary[1]-stepFactor*y_step)
+        x_range = (current_boundary[0]+stepFactor*x_step,
+                   current_boundary[1]-stepFactor*x_step)
+    # elif forward:
+    #     y_range = (current_boundary[0]-6*y_step, current_boundary[1]+6*y_step)
+    #     x_range = (current_boundary[0]-6*x_step, current_boundary[1]+6*x_step)
 
     x_samples = np.linspace(x_range[0], x_range[1], 500)
     y_samples = np.linspace(y_range[0], y_range[1], 1000)
