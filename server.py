@@ -1,9 +1,10 @@
 from ast import expr
+import math
 from flask import Flask, render_template, request, jsonify, make_response
 from waitress import serve
 
 import sympy as sp
-from sympy import symbols, solve, fraction, oo, S, preorder_traversal, sin, cos, tan, cot, sec, csc
+from sympy import ceiling, symbols, solve, fraction, oo, S, preorder_traversal, sin, cos, tan, cot, sec, csc
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
 from sympy.core.function import _mexpand as flat
 from typing import List, Union, Tuple
@@ -685,7 +686,7 @@ def numeric():
             branches2 = generate_points_all_branches(
                 eq, lower, upper, num_x=numOfPoints, y_samples=3000)
         else:
-            # numOfPoints = int(numOfPoints/(len(discont)+1))
+            numOfPoints = math.ceil(numOfPoints/(len(discont)*0.60))
             branches2 = []
             step = (upper - lower) / numOfPoints
             _lower = lower
@@ -695,13 +696,12 @@ def numeric():
                     _branches = generate_points_all_branches(
                         eq, _lower, _upper, num_x=numOfPoints, y_samples=3000)
                     for branch in _branches:
-                        # x, y = sp.symbols('x y')
-                        # v = eq.subs(
-                        #     {x: branch[len(branch)-1][0], y: branch[len(branch)-1][1]})
                         if sp.sign(branch[len(branch)-1][1]) == -1:
-                            branch[len(branch)-1][1] = "-##"
+                            # branch[len(branch)-1][1] = "-##"
+                            branch.append([_upper, "-##"])
                         else:
-                            branch[len(branch)-1][1] = "##"
+                            # branch[len(branch)-1][1] = "##"
+                            branch.append([_upper, "##"])
                         branches2.append(branch)
                     _lower = disc[0] + step
                     if idisc == len(discont)-1:
@@ -711,12 +711,12 @@ def numeric():
                     _branches = generate_points_all_branches(
                         eq, _lower, _upper, num_x=numOfPoints, y_samples=3000)
                     for branch in _branches:
-                        # x, y = sp.symbols('x y')
-                        # v = eq.subs({x: branch[0][0], y: branch[0][1]})
                         if sp.sign(branch[0][1]) == -1:
-                            branch[0][1] = "-##"
+                            # branch[0][1] = "-##"
+                            branch.insert(0, [_lower, "-##"])
                         else:
-                            branch[0][1] = "##"
+                            # branch[0][1] = "##"
+                            branch.insert(0, [_lower, "##"])
                         branches2.append(branch)
 
     # branches2 = generate_points_all_branches(
