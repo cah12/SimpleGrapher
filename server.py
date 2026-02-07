@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, jsonify, make_response
 from waitress import serve
 
 import sympy as sp
-from sympy import ceiling, symbols, solve, fraction, oo, S, preorder_traversal, sin, cos, tan, cot, sec, csc
+from sympy import ceiling, symbols, solve, fraction, oo, S, preorder_traversal, sin, cos, tan, cot, sec, csc, Abs
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
 from sympy.core.function import _mexpand as flat
 from typing import List, Union, Tuple
@@ -540,7 +540,10 @@ def csolve():
     data = request.get_json()
     exp = data["exp"]
     var = data["var"]
+
+    exp = exp.replace("abs", "Abs")
     result = solve_for(exp, var)
+
     # try:
     #     result = [str(sp.evalF(sp.parse_expr(s))) for s in result]
     # except:
@@ -553,6 +556,7 @@ def csolve():
     #     pass
 
     result = [s.replace("pi", "Math.PI") for s in result]
+    result = [s.replace("Abs", "abs") for s in result]
     # print("solve")
     return jsonify({"result": result})
 
@@ -574,6 +578,8 @@ def discontinuity():
     _var = data["var"]
     lower = data["lower"]
     upper = data["upper"]
+
+    _exp = _exp.replace("abs", "Abs")
 
     if _exp == None:
         return []
@@ -647,6 +653,8 @@ def numeric():
     lower = data["lower"]
     upper = data["upper"]
     numOfPoints = data["numOfPoints"]
+
+    _exp = _exp.replace("abs", "Abs")
 
     numOfPoints = max(numOfPoints, 500)
 
@@ -733,6 +741,8 @@ def turningPoints():
     lower = data["lower"]
     upper = data["upper"]
 
+    _exp = _exp.replace("abs", "Abs")
+
     # _exp = jsExpToPyExp(_exp)
 
     turn_points = turning_points(_exp, lower, upper, _var)
@@ -748,6 +758,8 @@ def points():
     _var = data["var"]
     lower = data["lower"]
     upper = data["upper"]
+
+    _exp = _exp.replace("abs", "Abs")
 
     # while _exp.find("^") != -1:
     #     _exp = _exp.replace("^", "**")
