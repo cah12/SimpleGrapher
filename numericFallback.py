@@ -231,100 +231,72 @@ def generate_points_all_branches(equation, x_min, x_max, num_x=400, y_min=None, 
             if b is not None:
                 branch.append([b[0], b[1]])
 
+    # for branch in branches:
+    #     discont = find_discontinuities_in_branch(branch)
+    #     print(f"Discontinuities in branch: {discont}")
+
     return branches
 
 
-def merge_branches_with_discontinuities(branches, gap_marker="~~", jump_marker="~", pos_inf="+oo", neg_inf="-oo", jump_factor=50, large_y_mult=1e3):
+##############################################################
+def find_discontinuities_in_branch(branch, jump_factor=50, large_y_mult=1e3):
     """
-    Merge branches into a single ordered list of points suitable for plotting, inserting discontinuity markers.
+    Find discontinuities in a single branch returned by `generate_points_all_branches`.
 
-    Input:
-        branches: list of branches, each branch is a list of [x (float), y (float)]. Branch x-values must be increasing.
-    Output:
-        List of [x, y] where y is either a float or a marker string ("+oo", "-oo", "~", "~~").
+    Args:
+        branch: list of [x, y] points (x increasing)
+        jump_factor: multiplier for median dy to decide jump threshold
+        large_y_mult: multiplier for median|y| to decide "infinite" threshold
 
-    Heuristics used:
-    - Compute median step in y across all branches to set a jump threshold: if a step between successive points
-      exceeds `median_dy * jump_factor`, a jump is declared.
-    - If one of the values around a jump is very large (abs(y) > large_y_threshold), treat as infinite (+oo/-oo).
-    - Otherwise treat as a finite jump (~). Missing or NaN values generate a gap marker (~~).
-    - Branches are concatenated in ascending starting-x order and separated by a gap marker to avoid connecting them.
+    Returns:
+        List of discontinuities where each entry is [index_in_branch_where_discontinuity_occur, type]
+        - index is 1-based index of the earlier point involved in the discontinuity
+        - type is one of: "infinite", "jump", "gap", "unknow"
     """
-    if not branches:
+    if not branch or len(branch) < 2:
         return []
 
-    # collect statistics
-    all_dys = []
-    all_abs_y = []
-    for br in branches:
-        ys = [pt[1] for pt in br]
-        all_abs_y.extend([abs(y) for y in ys])
-        all_dys.extend([abs(ys[i + 1] - ys[i]) for i in range(len(ys) - 1)])
+    ys = [pt[1] for pt in branch]
+    try:
+        ys_arr = np.asarray(ys, dtype=float)
+    except Exception:
+        return [[1, "unknow"]]
 
-    median_dy = float(np.median(all_dys)) if all_dys else 0.0
-    median_abs_y = float(np.median(all_abs_y)) if all_abs_y else 0.0
+    dys = np.abs(np.diff(ys_arr))
+
+    median_dy = float(np.median(dys)) if dys.size > 0 else 0.0
+    median_abs_y = float(np.median(np.abs(ys_arr))) if ys_arr.size > 0 else 0.0
 
     jump_threshold = max(1e-12, median_dy * jump_factor)
     large_y_threshold = max(1e6, median_abs_y * large_y_mult)
 
-    def process_branch(br):
-        out = []
-        for i, (x, y) in enumerate(br):
-            out.append([float(x), float(y)])
-            if i + 1 < len(br):
-                x2, y2 = br[i + 1]
-                # handle NaNs
-                if np.isnan(y) or np.isnan(y2):
-                    midx = (x + x2) / 2.0
-                    out.append([float(midx), gap_marker])
-                    continue
+    discontinuities = []
 
-                dy = abs(y2 - y)
-                if dy > jump_threshold:
-                    midx = (x + x2) / 2.0
-                    # check for infinite-like behavior
-                    if abs(y) > large_y_threshold or abs(y2) > large_y_threshold:
-                        large_val = y if abs(y) >= abs(y2) else y2
-                        marker = pos_inf if large_val > 0 else neg_inf
-                        out.append([float(midx), marker])
-                    else:
-                        out.append([float(midx), jump_marker])
-        return out
+    for i in range(len(ys) - 1):
+        y0 = ys_arr[i]
+        y1 = ys_arr[i + 1]
 
-    processed = [process_branch(br) for br in branches if br]
-
-    # sort branches by their starting x
-    processed = sorted(processed, key=lambda br: br[0][0])
-
-    merged = []
-    for br in processed:
-        if not br:
+        # gap: NaN present
+        if np.isnan(y0) or np.isnan(y1):
+            discontinuities.append([i + 1, "gap"])  # 1-based index
             continue
-        if merged:
-            # insert a gap marker between branches to avoid connecting them
-            last_x = merged[-1][0]
-            start_x = br[0][0]
-            midx = (last_x + start_x) / 2.0
-            merged.append([float(midx), gap_marker])
-        merged.extend(br)
 
-    # compress consecutive identical markers
-    out = []
-    prev_marker = None
-    for x, y in merged:
-        if isinstance(y, str):
-            if y == prev_marker:
-                continue
-            prev_marker = y
-            out.append([x, y])
-        else:
-            prev_marker = None
-            out.append([x, float(y)])
+        # infinite-like: either value is infinite or very large compared to threshold
+        if np.isinf(y0) or np.isinf(y1) or abs(y0) > large_y_threshold or abs(y1) > large_y_threshold:
+            if abs(y1 - y0) > jump_threshold:
+                discontinuities.append([i + 1, "infinite"])
+            else:
+                discontinuities.append([i + 1, "unknow"])
+            continue
 
-    return out
+        # jump discontinuity
+        if abs(y1 - y0) > jump_threshold:
+            discontinuities.append([i + 1, "jump"])  # 1-based index
+            continue
 
+        # otherwise continuous at this segment
 
-##############################################################
+    return discontinuities
 # Example: equation with y and x on both sides
 # e.g., y**2 + x*y - x**2 = 0
 # equation = y**2 + x*y - x**2

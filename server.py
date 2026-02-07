@@ -661,7 +661,7 @@ def numeric():
 
     arr0 = None
     arr1 = None
-    branches2 = None
+    branches2 = []
     arr0 = sp.parse_expr(arr[0], transformations=custom_transformations)
     if arr[1] == "0":
         branches2 = generate_points_all_branches(
@@ -670,13 +670,59 @@ def numeric():
         arr1 = sp.parse_expr(
             arr[1], transformations=custom_transformations)
         eq = arr0 - arr1
-        branches2 = generate_points_all_branches(
-            eq, lower, upper, num_x=numOfPoints, y_samples=3000)
+        period = periodicity(eq, sp.Symbol(_var))
+        if period != None:
+            if get_mode() == "deg":
+                period = period * 180 / sp.pi
+            period = float(period)
+        discont = find_discontinuities_detailed(
+            eq,
+            lower, upper,
+            _var,
+            period
+        )
+        if len(discont) == 0:
+            branches2 = generate_points_all_branches(
+                eq, lower, upper, num_x=numOfPoints, y_samples=3000)
+        else:
+            # numOfPoints = int(numOfPoints/(len(discont)+1))
+            branches2 = []
+            step = (upper - lower) / numOfPoints
+            _lower = lower
+            for idisc, disc in enumerate(discont):
+                if disc[1] == "infinite" or disc[1] == "essential" and lower < disc[0] < upper:
+                    _upper = disc[0] - step
+                    _branches = generate_points_all_branches(
+                        eq, _lower, _upper, num_x=numOfPoints, y_samples=3000)
+                    for branch in _branches:
+                        # x, y = sp.symbols('x y')
+                        # v = eq.subs(
+                        #     {x: branch[len(branch)-1][0], y: branch[len(branch)-1][1]})
+                        if sp.sign(branch[len(branch)-1][1]) == -1:
+                            branch[len(branch)-1][1] = "-##"
+                        else:
+                            branch[len(branch)-1][1] = "##"
+                        branches2.append(branch)
+                    _lower = disc[0] + step
+                    if idisc == len(discont)-1:
+                        _upper = upper
+                    else:
+                        _upper = discont[idisc+1][0] - step
+                    _branches = generate_points_all_branches(
+                        eq, _lower, _upper, num_x=numOfPoints, y_samples=3000)
+                    for branch in _branches:
+                        # x, y = sp.symbols('x y')
+                        # v = eq.subs({x: branch[0][0], y: branch[0][1]})
+                        if sp.sign(branch[0][1]) == -1:
+                            branch[0][1] = "-##"
+                        else:
+                            branch[0][1] = "##"
+                        branches2.append(branch)
 
     # branches2 = generate_points_all_branches(
     #     _exp, lower, upper, num_x=200, y_samples=600)
 
-    return jsonify({"branches": branches2})
+    return jsonify({"branches": branches2, "discontinuities": discont})
 
 
 @app.route("/turningPoints", methods=['POST'])
