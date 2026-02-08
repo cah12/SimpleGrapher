@@ -141,8 +141,9 @@ def find_discontinuities(expr, x, lower, upper, period):
             # if not period and c.is_real:
             if not expr.has(TrigonometricFunction) and c.is_real:
                 c = float(c)
-            left = limit(expr, x, c, '-')
-            right = limit(expr, x, c, '+')
+            _expr = expr.subs(sp.symbols("y"), c)
+            left = limit(_expr, x, c, '-')
+            right = limit(_expr, x, c, '+')
 
             f_c = expr.subs(x, c)
             f_c = sp.simplify(f_c)
