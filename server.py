@@ -761,9 +761,24 @@ def numeric():
                     #     elif disc[1] == "jump" and lower < disc[0] < upper:
                     #         branch[0][0] = disc[0]
                 branches2.append(branch)
-
                 if idisc < len(discont):
                     _lower = discont[idisc][0] + step
+
+            branch = branches2[len(branches2)-1]
+            if branch[len(branch)-1][0] != upper:
+                _lower = discont[len(discont)-1][0] + step
+                _upper = upper
+                _branches = generate_points_all_branches(
+                    eq, _lower, _upper, num_x=numOfPoints, y_samples=50000)
+                branch = _branches[0]
+                if discont[len(discont)-1][1] == "infinite" or discont[len(discont)-1][1] == "essential":
+                    if sp.sign(branch[0][1]) == -1:
+                        branch.insert(0, [_lower, "-##"])
+                    else:
+                        branch.insert(0, [_lower, "##"])
+
+                branches2.append(branch)
+
                 # if idisc == len(discont)-1:
                 #     _upper = upper
                 # else:
