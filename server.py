@@ -697,7 +697,7 @@ def numeric():
     )
     if len(discont) == 0:
         branches2 = generate_points_all_branches(
-            eq, lower, upper, num_x=numOfPoints, y_samples=500)
+            eq, lower, upper, num_x=numOfPoints, y_samples=800)
     else:
         _discont = []
         for d in discont:
