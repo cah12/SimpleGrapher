@@ -676,10 +676,7 @@ def numeric():
     # _exp = trig_substitutions(_exp)
     arr0 = sp.parse_expr(arr[0], transformations=custom_transformations)
     arr0 = TR2(arr0)
-    # if arr[1] == "#":
-    #     branches2 = generate_points_all_branches(
-    #         arr0, lower, upper, num_x=numOfPoints, y_samples=3000)
-    # else:
+
     arr1 = sp.parse_expr(
         arr[1], transformations=custom_transformations)
     arr1 = TR2(arr1)
@@ -708,7 +705,7 @@ def numeric():
 
         numOfPoints = math.ceil(numOfPoints/(len(discont)*0.6))
         branches2 = []
-        step = ((upper - lower) / (numOfPoints-1))*2
+        step = ((upper - lower) / (numOfPoints-1))*0.6
         _lower = lower
         for idisc, disc in enumerate(discont):
             if idisc == len(discont)-1 and disc[1] == "jump":
