@@ -10,6 +10,7 @@ from sympy.functions.elementary.trigonometric import TrigonometricFunction
 from sympy.core.function import _mexpand as flat
 from typing import List, Union, Tuple
 from sympy.calculus.util import periodicity
+from sympy.simplify.fu import TR2
 
 from degree_radian import trig_substitutions, set_mode, get_mode
 from discontinuity_finder import find_discontinuities
@@ -672,117 +673,121 @@ def numeric():
     arr0 = None
     arr1 = None
     branches2 = []
+    # _exp = trig_substitutions(_exp)
     arr0 = sp.parse_expr(arr[0], transformations=custom_transformations)
-    if arr[1] == "0":
+    arr0 = TR2(arr0)
+    # if arr[1] == "#":
+    #     branches2 = generate_points_all_branches(
+    #         arr0, lower, upper, num_x=numOfPoints, y_samples=3000)
+    # else:
+    arr1 = sp.parse_expr(
+        arr[1], transformations=custom_transformations)
+    arr1 = TR2(arr1)
+    eq = trig_substitutions(arr0 - arr1)
+    period = periodicity(eq, sp.Symbol(_var))
+    if period != None:
+        if get_mode() == "deg":
+            period = period * 180 / sp.pi
+        period = float(period)
+    discont = find_discontinuities_detailed(
+        eq,
+        lower, upper,
+        _var,
+        period
+    )
+    if len(discont) == 0:
         branches2 = generate_points_all_branches(
-            arr0, lower, upper, num_x=numOfPoints, y_samples=3000)
+            eq, lower, upper, num_x=numOfPoints, y_samples=500)
     else:
-        arr1 = sp.parse_expr(
-            arr[1], transformations=custom_transformations)
-        eq = arr0 - arr1
-        period = periodicity(eq, sp.Symbol(_var))
-        if period != None:
-            if get_mode() == "deg":
-                period = period * 180 / sp.pi
-            period = float(period)
-        discont = find_discontinuities_detailed(
-            eq,
-            lower, upper,
-            _var,
-            period
-        )
-        if len(discont) == 0:
-            branches2 = generate_points_all_branches(
-                eq, lower, upper, num_x=numOfPoints, y_samples=50000)
-        else:
-            _discont = []
-            for d in discont:
-                if d[1] == "jump":
-                    _discont.append(d)
+        _discont = []
+        for d in discont:
+            if d[1] == "jump":
                 _discont.append(d)
-            discont = _discont
+            _discont.append(d)
+        discont = _discont
 
-            numOfPoints = math.ceil(numOfPoints/(len(discont)*0.60))
-            branches2 = []
-            step = ((upper - lower) / numOfPoints)*0.6
-            _lower = lower
-            for idisc, disc in enumerate(discont):
-                if idisc == len(discont)-1 and disc[1] == "jump":
-                    _upper = upper
-                else:
-                    _upper = disc[0] - step
-                _branches = generate_points_all_branches(
-                    eq, _lower, _upper, num_x=numOfPoints, y_samples=50000)
-                branch = _branches[0]
-
-                if branch[len(branch)-1][0] != upper:
-                    closer = closer_boundary(
-                        eq, branch[len(branch)-1], branch[len(branch)-2], forward=False)
-                    if closer != None:
-                        branch.append(closer)
-                    if disc[1] == "jump" and lower < disc[0] < upper:
-                        branch[len(branch)-1][0] = disc[0]
-
-                if branch[0][0] != lower:
-                    closer = closer_boundary(
-                        eq, branch[0], branch[1], forward=True)
-                    if closer != None:
-                        branch.append(closer)
-                    elif disc[1] == "jump" and lower < disc[0] < upper:
-                        branch[0][0] = disc[0]
-
-                # Handle far end of branch
-                if branch[len(branch)-1][0] != upper:
-                    if disc[1] == "infinite" or disc[1] == "essential" and lower < disc[0] < upper:
-                        if sp.sign(branch[len(branch)-1][1]) == -1:
-                            branch.append([_upper, "-##"])
-                        else:
-                            branch.append([_upper, "##"])
-                    # elif branch[len(branch)-1][0] != upper:
-                    #     closer = closer_boundary(
-                    #         eq, branch[len(branch)-1], branch[len(branch)-2], forward=False)
-                    #     if closer != None:
-                    #         branch.append(closer)
-                    #     if disc[1] == "jump" and lower < disc[0] < upper:
-                    #         branch[len(branch)-1][0] = disc[0]
-
-                # Handle near end of branch
-                if branch[0][0] != lower:
-                    if disc[1] == "infinite" or disc[1] == "essential" and lower < disc[0] < upper:
-                        if sp.sign(branch[0][1]) == -1:
-                            branch.insert(0, [_lower, "-##"])
-                        else:
-                            branch.insert(0, [_lower, "##"])
-                    # elif branch[0][0] != lower:
-                    #     closer = closer_boundary(
-                    #         eq, branch[0], branch[1], forward=True)
-                    #     if closer != None:
-                    #         branch.insert(0, closer)
-                    #     elif disc[1] == "jump" and lower < disc[0] < upper:
-                    #         branch[0][0] = disc[0]
-                branches2.append(branch)
+        numOfPoints = math.ceil(numOfPoints/(len(discont)*0.6))
+        branches2 = []
+        step = ((upper - lower) / (numOfPoints-1))*2
+        _lower = lower
+        for idisc, disc in enumerate(discont):
+            if idisc == len(discont)-1 and disc[1] == "jump":
+                _upper = upper
+            else:
+                _upper = disc[0] - step
+            _branches = generate_points_all_branches(
+                eq, _lower, _upper, num_x=numOfPoints, y_samples=500)
+            if len(_branches) == 0:
                 if idisc < len(discont):
                     _lower = discont[idisc][0] + step
+                continue
+            branch = _branches[0]
 
-            branch = branches2[len(branches2)-1]
             if branch[len(branch)-1][0] != upper:
-                _lower = discont[len(discont)-1][0] + step
-                _upper = upper
-                _branches = generate_points_all_branches(
-                    eq, _lower, _upper, num_x=numOfPoints, y_samples=50000)
-                branch = _branches[0]
-                if discont[len(discont)-1][1] == "infinite" or discont[len(discont)-1][1] == "essential":
+                closer = closer_boundary(
+                    eq, branch[len(branch)-1], branch[len(branch)-2], forward=False)
+                if closer != None:
+                    branch.append(closer)
+                if disc[1] == "jump" and lower < disc[0] < upper:
+                    branch[len(branch)-1][0] = disc[0]
+
+            if branch[0][0] != lower:
+                closer = closer_boundary(
+                    eq, branch[0], branch[1], forward=True)
+                if closer != None:
+                    branch.append(closer)
+                elif disc[1] == "jump" and lower < disc[0] < upper:
+                    branch[0][0] = disc[0]
+
+            # Handle far end of branch
+            if branch[len(branch)-1][0] != upper:
+                if disc[1] == "infinite" or disc[1] == "essential" and lower < disc[0] < upper:
+                    if sp.sign(branch[len(branch)-1][1]) == -1:
+                        branch.append([_upper, "-##"])
+                    else:
+                        branch.append([_upper, "##"])
+                # elif branch[len(branch)-1][0] != upper:
+                #     closer = closer_boundary(
+                #         eq, branch[len(branch)-1], branch[len(branch)-2], forward=False)
+                #     if closer != None:
+                #         branch.append(closer)
+                #     if disc[1] == "jump" and lower < disc[0] < upper:
+                #         branch[len(branch)-1][0] = disc[0]
+
+            # Handle near end of branch
+            if branch[0][0] != lower:
+                if disc[1] == "infinite" or disc[1] == "essential" and lower < disc[0] < upper:
                     if sp.sign(branch[0][1]) == -1:
                         branch.insert(0, [_lower, "-##"])
                     else:
                         branch.insert(0, [_lower, "##"])
+                # elif branch[0][0] != lower:
+                #     closer = closer_boundary(
+                #         eq, branch[0], branch[1], forward=True)
+                #     if closer != None:
+                #         branch.insert(0, closer)
+                #     elif disc[1] == "jump" and lower < disc[0] < upper:
+                #         branch[0][0] = disc[0]
+            branches2.append(branch)
+            if idisc < len(discont):
+                _lower = discont[idisc][0] + step
 
-                branches2.append(branch)
+        if len(branches2) == 0:
+            return jsonify({"branches": branches2, "discontinuities": discont})
+        branch = branches2[len(branches2)-1]
+        if branch[len(branch)-1][0] != upper:
+            _lower = discont[len(discont)-1][0] + step
+            _upper = upper
+            _branches = generate_points_all_branches(
+                eq, _lower, _upper, num_x=numOfPoints, y_samples=500)
+            branch = _branches[0]
+            if discont[len(discont)-1][1] == "infinite" or discont[len(discont)-1][1] == "essential":
+                if sp.sign(branch[0][1]) == -1:
+                    branch.insert(0, [_lower, "-##"])
+                else:
+                    branch.insert(0, [_lower, "##"])
 
-                # if idisc == len(discont)-1:
-                #     _upper = upper
-                # else:
-                #     _upper = discont[idisc+1][0] - step
+            branches2.append(branch)
 
     return jsonify({"branches": branches2, "discontinuities": discont})
 

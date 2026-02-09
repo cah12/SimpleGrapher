@@ -1,9 +1,75 @@
 import sympy as sp
-from sympy import symbols, solve, lambdify
+from sympy import symbols, solve
 import numpy as np
 from scipy.optimize import fsolve, root, root_scalar
 
 from domain_finder import closer_boundary
+from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
+
+
+def custom_sin_mode(arg):
+    return np.sin(np.deg2rad(arg))
+
+
+def custom_cos_mode(arg):
+    return np.cos(np.deg2rad(arg))
+
+
+def custom_tan_mode(arg):
+    return np.tan(np.deg2rad(arg))
+
+
+def custom_cot_mode(arg):
+    return 1 / np.tan(np.deg2rad(arg))
+
+
+def custom_sec_mode(arg):
+    return 1 / np.cos(np.deg2rad(arg))
+
+
+def custom_csc_mode(arg):
+    return 1 / np.sin(np.deg2rad(arg))
+
+
+def custom_asin_mode(arg):
+    return np.rad2deg(np.arcsin(arg))
+
+
+def custom_acos_mode(arg):
+    return np.rad2deg(np.arccos(arg))
+
+
+def custom_atan_mode(arg):
+    return np.rad2deg(np.arctan(arg))
+
+
+def custom_acot_mode(arg):
+    return np.rad2deg(np.arccot(arg))
+
+
+def custom_asec_mode(arg):
+    return np.rad2deg(np.arccos(1/arg))
+
+
+def custom_acsc_mode(arg):
+    return np.rad2deg(np.arcsin(1/arg))
+
+
+custom = {
+    "sin_mode": custom_sin_mode,
+    "cos_mode": custom_cos_mode,
+    "tan_mode": custom_tan_mode,
+    "cot_mode": custom_cot_mode,
+    "sec_mode": custom_sec_mode,
+    "csc_mode": custom_csc_mode,
+    "asin_mode": custom_asin_mode,
+    "acos_mode": custom_acos_mode,
+    "atan_mode": custom_atan_mode,
+    "acot_mode": custom_acot_mode,
+    "asec_mode": custom_asec_mode,
+    "acsc_mode": custom_acsc_mode
+}
+
 
 # Define variables
 x, y = symbols('x y')
@@ -19,7 +85,11 @@ def generate_points_symbolic(equation, x_var, y_var, x_min, x_max, num_points=10
     points = []
 
     for y_sol in y_solutions:
-        y_func = lambdify(x_var, y_sol, 'numpy')
+        # y_func = sp.lambdify(x_var, y_sol, 'numpy')
+        # y_func = sp.lambdify(x_var, y_sol, modules=[
+        #     {"sin_mode": custom_sin_mode}, 'numpy'])
+        y_func = sp.lambdify(x_var, y_sol, modules=[
+            custom, 'numpy'])
         try:
             y_vals = y_func(x_vals)
             # Filter out complex/NaN values
@@ -33,46 +103,46 @@ def generate_points_symbolic(equation, x_var, y_var, x_min, x_max, num_points=10
 # Method 2: Using scipy.optimize.root for implicit equations
 
 
-def generate_points_numerical(equation, x_min, x_max, y_init_guess=0, num_points=100, method='hybr'):
-    """
-    Generate x-y points for implicit equations using scipy.optimize.root.
+# def generate_points_numerical(equation, x_min, x_max, y_init_guess=0, num_points=100, method='hybr'):
+#     """
+#     Generate x-y points for implicit equations using scipy.optimize.root.
 
-    Args:
-        equation: SymPy equation (implicitly = 0)
-        x_min: Lower bound for x
-        x_max: Upper bound for x
-        y_init_guess: Initial guess for y (default: 0)
-        num_points: Number of points to generate (default: 100)
-        method: Root finding method - 'hybr', 'lm', 'broyden1', etc. (default: 'hybr')
+#     Args:
+#         equation: SymPy equation (implicitly = 0)
+#         x_min: Lower bound for x
+#         x_max: Upper bound for x
+#         y_init_guess: Initial guess for y (default: 0)
+#         num_points: Number of points to generate (default: 100)
+#         method: Root finding method - 'hybr', 'lm', 'broyden1', etc. (default: 'hybr')
 
-    Returns:
-        List of lists [[x1, y1], [x2, y2], ...] representing points on the curve
-    """
-    x_vals = np.linspace(x_min, x_max, num_points)
-    points = []
+#     Returns:
+#         List of lists [[x1, y1], [x2, y2], ...] representing points on the curve
+#     """
+#     x_vals = np.linspace(x_min, x_max, num_points)
+#     points = []
 
-    # Create a function from the equation
-    f = lambdify((x, y), equation, 'numpy')
+#     # Create a function from the equation
+#     f = lambdify((x, y), equation, 'numpy')
 
-    current_y = y_init_guess
-    for x_val in x_vals:
-        try:
-            # Define function to find root: f(x_val, y) = 0
-            def equation_at_x(y_val):
-                return f(x_val, y_val)
+#     current_y = y_init_guess
+#     for x_val in x_vals:
+#         try:
+#             # Define function to find root: f(x_val, y) = 0
+#             def equation_at_x(y_val):
+#                 return f(x_val, y_val)
 
-            # Use scipy.optimize.root
-            result = root(equation_at_x, current_y, method=method)
+#             # Use scipy.optimize.root
+#             result = root(equation_at_x, current_y, method=method)
 
-            if result.success:
-                y_sol = result.x[0] if hasattr(
-                    result.x, '__len__') else result.x
-                points.append([x_val.item(), y_sol.item()])
-                current_y = y_sol  # Use previous solution as next guess
-        except:
-            pass
+#             if result.success:
+#                 y_sol = result.x[0] if hasattr(
+#                     result.x, '__len__') else result.x
+#                 points.append([x_val.item(), y_sol.item()])
+#                 current_y = y_sol  # Use previous solution as next guess
+#         except:
+#             pass
 
-    return points
+#     return points
 
 
 def generate_points_all_branches(equation, x_min, x_max, num_x=400, y_min=None, y_max=None, y_samples=400, match_tol=None, f_tol=1e-15):
@@ -89,7 +159,12 @@ def generate_points_all_branches(equation, x_min, x_max, num_x=400, y_min=None, 
         List of branches, where each branch is a list of [x, y] points (both floats).
     """
     x_vals = np.linspace(x_min, x_max, num_x)
-    f = lambdify((x, y), equation, 'numpy')
+    # f = sp.lambdify((x, y), equation,  'numpy')
+
+    # f = sp.lambdify((x, y), equation, modules=[
+    #                 {"sin_mode": custom_sin_mode}, 'numpy'])
+    f = sp.lambdify((x, y), equation, modules=[
+                    custom, 'numpy'])
 
     # Estimate y-range from symbolic solutions if possible
     # if y_min is None or y_max is None:
@@ -137,6 +212,8 @@ def generate_points_all_branches(equation, x_min, x_max, num_x=400, y_min=None, 
 
     for xi in x_vals:
         try:
+            # if get_mode() == "deg":
+            #     xi = np.deg2rad(xi)
             fvals = f(xi, y_grid)
             fvals = np.asarray(fvals, dtype=float)
         except Exception:
@@ -207,7 +284,11 @@ def generate_points_all_branches(equation, x_min, x_max, num_x=400, y_min=None, 
     #     return y**6+8*y-x
     # return equation  # return symbolic equation
 
-    fnc = lambdify((x, y), equation, 'numpy')
+    # fnc = sp.lambdify((x, y), equation, 'numpy')
+    # fnc = sp.lambdify((x, y), equation, modules=[
+    #     {"sin_mode": custom_sin_mode}, 'numpy'])
+    fnc = sp.lambdify((x, y), equation, modules=[
+        custom, 'numpy'])
 
     # current_boundary = (-6.784, -0.9276)
     # next_point = (-6.683, -0.9034)
