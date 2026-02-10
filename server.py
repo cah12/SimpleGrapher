@@ -561,6 +561,7 @@ def csolve():
     result = [s.replace("Abs", "abs") for s in result]
     # print("solve")
     return jsonify({"result": result})
+    # return jsonify({"result": ['sqrt(1/sin(x))', '-sqrt(1/sin(x))']})
 
 
 @app.route("/mode", methods=['POST'])
@@ -692,6 +693,12 @@ def numeric():
         _var,
         period
     )
+    # discont = find_discontinuities_detailed(
+    #     eq.subs(sp.Symbol("y"), 1),
+    #     lower, upper,
+    #     _var,
+    #     period
+    # )
     if len(discont) == 0:
         branches2 = generate_points_all_branches(
             eq, lower, upper, num_x=numOfPoints, y_samples=800)
@@ -718,56 +725,44 @@ def numeric():
                 if idisc < len(discont):
                     _lower = discont[idisc][0] + step
                 continue
-            branch = _branches[0]
+            # branch = _branches[0]
 
-            if branch[len(branch)-1][0] != upper:
-                closer = closer_boundary(
-                    eq, branch[len(branch)-1], branch[len(branch)-2], forward=False)
-                if closer != None:
-                    branch.append(closer)
-                if disc[1] == "jump" and lower < disc[0] < upper:
-                    branch[len(branch)-1][0] = disc[0]
+            for branch in _branches:
+                if branch[len(branch)-1][0] != upper:
+                    closer = closer_boundary(
+                        eq, branch[len(branch)-1], branch[len(branch)-2], forward=False)
+                    if closer != None:
+                        branch.append(closer)
+                    if disc[1] == "jump" and lower < disc[0] < upper:
+                        branch[len(branch)-1][0] = disc[0]
 
-            if branch[0][0] != lower:
-                closer = closer_boundary(
-                    eq, branch[0], branch[1], forward=True)
-                if closer != None:
-                    branch.append(closer)
-                elif disc[1] == "jump" and lower < disc[0] < upper:
-                    branch[0][0] = disc[0]
+                if branch[0][0] != lower:
+                    closer = closer_boundary(
+                        eq, branch[0], branch[1], forward=True)
+                    if closer != None:
+                        branch.append(closer)
+                    elif disc[1] == "jump" and lower < disc[0] < upper:
+                        branch[0][0] = disc[0]
 
-            # Handle far end of branch
-            if branch[len(branch)-1][0] != upper:
-                if disc[1] == "infinite" or disc[1] == "essential" and lower < disc[0] < upper:
-                    if sp.sign(branch[len(branch)-1][1]) == -1:
-                        branch.append([_upper, "-##"])
-                    else:
-                        branch.append([_upper, "##"])
-                # elif branch[len(branch)-1][0] != upper:
-                #     closer = closer_boundary(
-                #         eq, branch[len(branch)-1], branch[len(branch)-2], forward=False)
-                #     if closer != None:
-                #         branch.append(closer)
-                #     if disc[1] == "jump" and lower < disc[0] < upper:
-                #         branch[len(branch)-1][0] = disc[0]
+                # Handle far end of branch
+                if branch[len(branch)-1][0] != upper:
+                    if disc[1] == "infinite" or disc[1] == "essential" and lower < disc[0] < upper:
+                        if sp.sign(branch[len(branch)-1][1]) == -1:
+                            branch.append([_upper, "-##"])
+                        else:
+                            branch.append([_upper, "##"])
 
-            # Handle near end of branch
-            if branch[0][0] != lower:
-                if disc[1] == "infinite" or disc[1] == "essential" and lower < disc[0] < upper:
-                    if sp.sign(branch[0][1]) == -1:
-                        branch.insert(0, [_lower, "-##"])
-                    else:
-                        branch.insert(0, [_lower, "##"])
-                # elif branch[0][0] != lower:
-                #     closer = closer_boundary(
-                #         eq, branch[0], branch[1], forward=True)
-                #     if closer != None:
-                #         branch.insert(0, closer)
-                #     elif disc[1] == "jump" and lower < disc[0] < upper:
-                #         branch[0][0] = disc[0]
-            branches2.append(branch)
+                # Handle near end of branch
+                if branch[0][0] != lower:
+                    if disc[1] == "infinite" or disc[1] == "essential" and lower < disc[0] < upper:
+                        if sp.sign(branch[0][1]) == -1:
+                            branch.insert(0, [_lower, "-##"])
+                        else:
+                            branch.insert(0, [_lower, "##"])
+                branches2.append(branch)
             if idisc < len(discont):
                 _lower = discont[idisc][0] + step
+        ########## For Loop Ends #################
 
         if len(branches2) == 0:
             return jsonify({"branches": branches2, "discontinuities": discont})
@@ -777,14 +772,17 @@ def numeric():
             _upper = upper
             _branches = generate_points_all_branches(
                 eq, _lower, _upper, num_x=numOfPoints, y_samples=500)
-            branch = _branches[0]
-            if discont[len(discont)-1][1] == "infinite" or discont[len(discont)-1][1] == "essential":
-                if sp.sign(branch[0][1]) == -1:
-                    branch.insert(0, [_lower, "-##"])
-                else:
-                    branch.insert(0, [_lower, "##"])
+            if len(_branches) == 0:
+                return jsonify({"branches": branches2, "discontinuities": discont})
+            # branch = _branches[0]
+            for branch in _branches:
+                if discont[len(discont)-1][1] == "infinite" or discont[len(discont)-1][1] == "essential":
+                    if sp.sign(branch[0][1]) == -1:
+                        branch.insert(0, [_lower, "-##"])
+                    else:
+                        branch.insert(0, [_lower, "##"])
 
-            branches2.append(branch)
+                branches2.append(branch)
 
     return jsonify({"branches": branches2, "discontinuities": discont})
 
