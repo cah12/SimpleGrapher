@@ -110,7 +110,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
 
     X, Y = np.meshgrid(_x, _y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
-    f = sp.lambdify((x, y), expr, modules='numpy')
+    f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
     z = f(X, Y)
     z[np.abs(z) > 40] = np.nan
     try:
