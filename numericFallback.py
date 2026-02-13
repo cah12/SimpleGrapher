@@ -243,7 +243,7 @@ def processBranches(branches, f):
         x0, y0 = branch[0]
         x1, y1 = branch[1]
         slope = (y1-y0)/(x1-x0) if x1 != x0 else float('inf')
-        if abs(slope) == abs(float('inf')) or abs(slope) > 50:
+        if abs(slope) == abs(float('inf')) or abs(slope) > 30:
             infinite_discont = True
             if np.sign(branch[0][1]) == 1 and verified(f, branch[0][0], 1):
                 branch.insert(0, [branch[0][0], "##"])
@@ -253,7 +253,7 @@ def processBranches(branches, f):
         x0, y0 = branch[-2]
         x1, y1 = branch[-1]
         slope = (y1-y0)/(x1-x0) if x1 != x0 else float('inf')
-        if abs(slope) == abs(float('inf')) or abs(slope) > 50:
+        if abs(slope) == abs(float('inf')) or abs(slope) > 30:
             infinite_discont = True
             if np.sign(branch[-1][1]) == 1:
                 branch.append([branch[-1][0], "##"])
