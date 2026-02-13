@@ -87,23 +87,32 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
     if expr.has(TrigonometricFunction) == False:
         try:
             Fy = sp.diff(expr, y)
-            Fx = sp.diff(expr, x)
-            critical_points = solve([Fy, Fx], (x, y))
 
-            if isinstance(critical_points, list):
-                for cp in critical_points:
-                    _e = expr.subs(x, cp[0])
+            if Fy.is_Number == False:
+                Fx = sp.diff(expr, x)
+                critical_points = solve([Fy, Fx], (x, y))
+
+                if isinstance(critical_points, list):
+                    for cp in critical_points:
+                        _e = expr.subs(x, cp[0])
+                        res = solve(_e, y)
+                        for r in res:
+                            y_min = min(y_min, r)
+                            y_max = max(y_max, r)
+                else:
+                    _e = expr.subs(x, critical_points[x])
                     res = solve(_e, y)
                     for r in res:
-                        y_min = min(y_min, r)
-                        y_max = max(y_max, r)
+                        y_min = min(y_min, float(r))
+                        y_max = max(y_max, float(r))
             else:
-                _e = expr.subs(x, critical_points[x])
-                res = solve(_e, y)
-                for r in res:
-                    y_min = min(y_min, float(r))
-                    y_max = max(y_max, float(r))
-
+                v = solve(expr, y)
+                if isinstance(v, list):
+                    for r in v:
+                        y_min = min(y_min, float(r.subs({x: x_min})))
+                        y_max = max(y_max, float(r.subs({x: x_max})))
+            if y_min > y_max:
+                y_min, y_max = y_max, y_min
         except:
             pass
 
@@ -199,16 +208,16 @@ def points_with_vertical_tangent(f):
 
 
 def verified(f, x_val, sign=1):
-    return True
-    # if f.has(TrigonometricFunction):
-    #     return True
-    # try:
-    #     v = f.subs({x: x_val, y: sign*1e+100})
-    #     if abs(v) <= 1:
-    #         return True
-    #     return False
-    # except Exception:
-    #     return False
+    # return True
+    if f.has(TrigonometricFunction):
+        return True
+    try:
+        v = f.subs({x: x_val, y: sign*1e+100})
+        if abs(v) <= 1:
+            return True
+        return False
+    except Exception:
+        return False
 
 
 def processBranches(branches, f):
@@ -244,21 +253,23 @@ def processBranches(branches, f):
         x1, y1 = branch[1]
         slope = (y1-y0)/(x1-x0) if x1 != x0 else float('inf')
         if abs(slope) == abs(float('inf')) or abs(slope) > 30:
-            infinite_discont = True
             if np.sign(branch[0][1]) == 1 and verified(f, branch[0][0], 1):
                 branch.insert(0, [branch[0][0], "##"])
-            elif verified(f, branch[0][0], -1):
+                infinite_discont = True
+            elif np.sign(branch[0][1]) == -1 and verified(f, branch[0][0], -1):
                 branch.insert(0, [branch[0][0], "-##"])
+                infinite_discont = True
 
         x0, y0 = branch[-2]
         x1, y1 = branch[-1]
         slope = (y1-y0)/(x1-x0) if x1 != x0 else float('inf')
         if abs(slope) == abs(float('inf')) or abs(slope) > 30:
-            infinite_discont = True
-            if np.sign(branch[-1][1]) == 1:
+            if np.sign(branch[-1][1]) == 1 and verified(f, branch[-1][0], 1):
                 branch.append([branch[-1][0], "##"])
-            else:
+                infinite_discont = True
+            elif np.sign(branch[-1][1]) == -1 and verified(f, branch[-1][0], -1):
                 branch.append([branch[-1][0], "-##"])
+                infinite_discont = True
 
         processed.append(branch)
 
