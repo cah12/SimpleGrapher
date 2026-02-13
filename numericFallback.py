@@ -1,10 +1,13 @@
+from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
+from domain_finder import closer_boundary
+import matplotlib.pyplot as plt
 import sympy as sp
-from sympy import symbols, solve
+from sympy import symbols, solve, plot_implicit
 import numpy as np
 from scipy.optimize import fsolve, root, root_scalar
 
-from domain_finder import closer_boundary
-from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
+import matplotlib
+matplotlib.use('Agg')
 
 
 def custom_sin_mode(arg):
@@ -75,251 +78,176 @@ custom = {
 x, y = symbols('x y')
 
 
-# Method 1: Using SymPy's solve (works for equations solvable for y)
-def generate_points_symbolic(equation, x_var, y_var, x_min, x_max, num_points=100):
-    """Solve equation for y symbolically, then evaluate numerically"""
-    # Solve for y in terms of x
-    y_solutions = solve(equation, y_var)
-
-    x_vals = np.linspace(x_min, x_max, num_points)
-    points = []
-
-    for y_sol in y_solutions:
-        # y_func = sp.lambdify(x_var, y_sol, 'numpy')
-        # y_func = sp.lambdify(x_var, y_sol, modules=[
-        #     {"sin_mode": custom_sin_mode}, 'numpy'])
-        y_func = sp.lambdify(x_var, y_sol, modules=[
-            custom, 'numpy'])
-        try:
-            y_vals = y_func(x_vals)
-            # Filter out complex/NaN values
-            valid = ~np.isnan(y_vals) & np.isreal(y_vals)
-            points.append(list(zip(x_vals[valid], np.real(y_vals[valid]))))
-        except:
-            pass
-
-    return points
-
-# Method 2: Using scipy.optimize.root for implicit equations
-
-
-# def generate_points_numerical(equation, x_min, x_max, y_init_guess=0, num_points=100, method='hybr'):
-#     """
-#     Generate x-y points for implicit equations using scipy.optimize.root.
-
-#     Args:
-#         equation: SymPy equation (implicitly = 0)
-#         x_min: Lower bound for x
-#         x_max: Upper bound for x
-#         y_init_guess: Initial guess for y (default: 0)
-#         num_points: Number of points to generate (default: 100)
-#         method: Root finding method - 'hybr', 'lm', 'broyden1', etc. (default: 'hybr')
-
-#     Returns:
-#         List of lists [[x1, y1], [x2, y2], ...] representing points on the curve
-#     """
-#     x_vals = np.linspace(x_min, x_max, num_points)
-#     points = []
-
-#     # Create a function from the equation
-#     f = lambdify((x, y), equation, 'numpy')
-
-#     current_y = y_init_guess
-#     for x_val in x_vals:
-#         try:
-#             # Define function to find root: f(x_val, y) = 0
-#             def equation_at_x(y_val):
-#                 return f(x_val, y_val)
-
-#             # Use scipy.optimize.root
-#             result = root(equation_at_x, current_y, method=method)
-
-#             if result.success:
-#                 y_sol = result.x[0] if hasattr(
-#                     result.x, '__len__') else result.x
-#                 points.append([x_val.item(), y_sol.item()])
-#                 current_y = y_sol  # Use previous solution as next guess
-#         except:
-#             pass
-
-#     return points
-
-
-def generate_points_all_branches(equation, x_min, x_max, num_x=400, y_min=None, y_max=None, y_samples=400, match_tol=None, f_tol=1e-15):
-    """
-    Robustly compute all real y(x) branches for the implicit equation `equation(x,y)=0` over x in [x_min, x_max].
-
-    Strategy:
-    - Try to use symbolic solutions to estimate y-range (if available).
-    - For each x sample, evaluate f(x, y) on a dense y grid, find sign changes and near-zero samples to bracket roots.
-    - Use `scipy.optimize.root_scalar` (brentq) to find roots for each bracket.
-    - Group roots across successive x values into continuous branches.
-
-    Returns:
-        List of branches, where each branch is a list of [x, y] points (both floats).
-    """
-    x_vals = np.linspace(x_min, x_max, num_x)
-    # f = sp.lambdify((x, y), equation,  'numpy')
-
-    # f = sp.lambdify((x, y), equation, modules=[
-    #                 {"sin_mode": custom_sin_mode}, 'numpy'])
-    f = sp.lambdify((x, y), equation, modules=[
-                    custom, 'numpy'])
+def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_max=10.0,
+                                  resolution=40000, adaptive=False, remove_temp_file=True):
 
     # Estimate y-range from symbolic solutions if possible
-    # if y_min is None or y_max is None:
-    #     try:
-    #         y_sols = solve(equation, y)
-    #     except Exception:
-    #         y_sols = []
-
-    #     if y_sols:
-    #         y_vals_est = []
-    #         for ys in y_sols:
-    #             try:
-    #                 y_fun = lambdify(x, ys, 'numpy')
-    #                 y_eval = y_fun(x_vals)
-    #                 y_eval = np.asarray(y_eval)
-    #                 valid = ~np.isnan(y_eval) & np.isreal(y_eval)
-    #                 if np.any(valid):
-    #                     y_vals_est.append(np.real(y_eval[valid]))
-    #             except Exception:
-    #                 pass
-    #         if y_vals_est:
-    #             all_est = np.hstack(y_vals_est)
-    #             est_min, est_max = float(
-    #                 np.min(all_est)), float(np.max(all_est))
-    #             padding = max(1.0, 0.1 * (est_max - est_min))
-    #             if y_min is None:
-    #                 y_min = est_min - padding
-    #             if y_max is None:
-    #                 y_max = est_max + padding
-
-    # Fallback heuristic if still not set
-    if y_min is None or y_max is None:
-        y_guess = max(1.0, abs(x_min), abs(x_max)) * 10.0
-        y_min = -y_guess if y_min is None else y_min
-        y_max = y_guess if y_max is None else y_max
-
-    # matching tolerance for grouping branches
-    if match_tol is None:
-        match_tol = (y_max - y_min) * 0.1 if (y_max - y_min) > 0 else 0.1
-
-    branches = []  # list of lists of [x,y]
-    prev_roots = []  # stores last y of each branch
-
-    y_grid = np.linspace(y_min, y_max, y_samples)
-
-    for xi in x_vals:
-        try:
-            # if get_mode() == "deg":
-            #     xi = np.deg2rad(xi)
-            fvals = f(xi, y_grid)
-            fvals = np.asarray(fvals, dtype=float)
-        except Exception:
-            # If evaluation fails, skip this x
-            continue
-
-        roots_this_x = []
-        # points where function is (close to) zero on grid
-        close_idx = np.where(np.abs(fvals) <= f_tol)[0]
-        for idx in close_idx:
-            roots_this_x.append(float(y_grid[idx]))
-
-        # bracketing sign changes
-        sign_changes = np.where(
-            np.sign(fvals[:-1]) * np.sign(fvals[1:]) < 0)[0]
-        for idx in sign_changes:
-            a, b = float(y_grid[idx]), float(y_grid[idx + 1])
-            try:
-                sol = root_scalar(lambda yy: float(f(xi, yy)),
-                                  bracket=[a, b], method='brentq')
-                if sol.converged:
-                    roots_this_x.append(float(sol.root))
-            except Exception:
-                pass
-
-        # unique roots (within tolerance)
-        if not roots_this_x:
-            # no real roots at this x
-            prev_roots = []
-            continue
-
-        roots = sorted(set(np.round(np.array(roots_this_x, dtype=float), 12)))
-
-        # match roots to existing branches (by proximity)
-        assigned = [False] * len(roots)
-        new_prev_roots = []
-
-        # First, try to match to existing branches
-        for bi, brow in enumerate(prev_roots):
-            # find closest root to brow
-            diffs = [abs(r - brow) for r in roots]
-            if diffs:
-                best_idx = int(np.argmin(diffs))
-                if diffs[best_idx] <= match_tol and not assigned[best_idx]:
-                    # append to branch bi
-                    branches[bi].append([float(xi), float(roots[best_idx])])
-                    assigned[best_idx] = True
-                    new_prev_roots.append(roots[best_idx])
-                else:
-                    # branch disappears at this x (no append)
-                    new_prev_roots.append(brow)
+    try:
+        Fy = sp.diff(expr, y)
+        Fx = sp.diff(expr, x)
+        critical_points = solve([Fy, Fx], (x, y))
+        # print(f"Critical points: {critical_points}")
+        if not critical_points.has(sp.I):
+            if isinstance(critical_points, list):
+                for cp in critical_points:
+                    _e = expr.subs(x, cp[0])
+                    res = solve(_e, y)
+                    for r in res:
+                        y_min = min(y_min, r)
+                        y_max = max(y_max, r)
             else:
-                new_prev_roots.append(brow)
+                _e = expr.subs(x, critical_points[x])
+                res = solve(_e, y)
+                for r in res:
+                    y_min = min(y_min, float(r))
+                    y_max = max(y_max, float(r))
 
-        # Create new branches for unassigned roots
-        for ri, r in enumerate(roots):
-            if not assigned[ri]:
-                branches.append([[float(xi), float(r)]])
-                new_prev_roots.append(r)
+    except:
+        pass
 
-        # Update prev_roots for next iteration
-        prev_roots = new_prev_roots
+    _x = np.linspace(x_min, x_max, 400)
+    _y = np.linspace(y_min, y_max, 400)
 
-    # Filter branches: keep only branches with at least 2 points
-    branches = [br for br in branches if len(br) >= 2]
+    X, Y = np.meshgrid(_x, _y)
+    # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
+    f = sp.lambdify((x, y), expr, modules='numpy')
+    z = f(X, Y)
+    z[np.abs(z) > 40] = np.nan
+    try:
+        # Z = np.round(z, 2)  # Adjust precision as necessary
+        # Replace inf with nan to avoid issues in contouring
+        z[np.isinf(z)] = np.nan
+        CS = plt.contour(X, Y, np.ma.masked_invalid(
+            z), levels=[0], colors='blue', alpha=0)
 
-    # def fnc(x, y):
-    #     return y**6+8*y-x
-    # return equation  # return symbolic equation
+        all_points = []
+        for level_segments in CS.allsegs:
+            for segment in level_segments:
+                # segment is a NumPy array of shape (n_points, 2), where each row is [x, y]
+                all_points.append(segment.tolist())
+                # print("Extracted points for a contour segment:")
+                # print(segment)
 
-    # fnc = sp.lambdify((x, y), equation, 'numpy')
-    # fnc = sp.lambdify((x, y), equation, modules=[
-    #     {"sin_mode": custom_sin_mode}, 'numpy'])
-    fnc = sp.lambdify((x, y), equation, modules=[
-        custom, 'numpy'])
+        return all_points
 
-    # current_boundary = (-6.784, -0.9276)
-    # next_point = (-6.683, -0.9034)
+    except Exception as e:
+        print(f"Error generating implicit plot points: {e}")
+        return []
+
+
+def split_list(lst, delimiter):
+    if delimiter not in lst:
+        return [lst]
+    else:
+        return [lst[:lst.index(delimiter)], *split_list(lst[lst.index(delimiter)+1:], delimiter)]
+
+
+def estimateStepSize(branch):
+    previous = 1e300
+
+    for i in range(1, len(branch)):
+        x0 = branch[i-1][0]
+        x1 = branch[i][0]
+        if x0 == "##" or x1 == "##" or x0 == "#" or x1 == "#":
+            continue
+        s = x1 - x0
+        if s < previous and s != 0:
+            previous = abs(x1 - x0)
+    return previous
+
+
+def changeInSlope(branch, ind):
+
+    x0 = branch[ind-1][0]
+    x1 = branch[ind][0]
+    y0 = branch[ind-1][1]
+    y1 = branch[ind][1]
+
+    slope1 = (y1-y0)/(x1-x0)
+    ind = ind+1
+    x0 = branch[ind-1][0]
+    x1 = branch[ind][0]
+    y0 = branch[ind-1][1]
+    y1 = branch[ind][1]
+    slope2 = (y1-y0)/(x1-x0)
+
+    return slope2 - slope1
+
+
+def points_with_vertical_tangent(f):
+    # 2. Calculate partial derivatives
+    df_dx = sp.diff(f, x)
+    df_dy = sp.diff(f, y)
+
+    # 3. Find where F_y = 0 and F = 0
+    # For a circle, y=0 gives vertical tangents
+    vertical_tangent_points = sp.solve([f, df_dy], (x, y))
+    print(f"Points with vertical tangents: {vertical_tangent_points}")
+
+    # 4. Numerical evaluation
+    numerical_points = [(p[0].evalf(), p[1].evalf())
+                        for p in vertical_tangent_points]
+    print(f"Numerical points: {numerical_points}")
+
+    return numerical_points
+
+
+def processBranches(branches, f):
+    # return branches
+    processed = []
+
+    infinite_discont = False
 
     for branch in branches:
-        if branch[0][0] != x_min:
-            current_boundary = (branch[0][0], branch[0][1])
-            next_point = (branch[1][0], branch[1][1])
-            b = closer_boundary(
-                fnc, current_boundary, next_point, True)
-            if b is not None:
-                branch.insert(0, [b[0], b[1]])
+        if len(branch) < 40:
+            continue
 
-        if branch[len(branch) - 1][0] != x_max:
-            current_boundary = (
-                branch[len(branch) - 1][0], branch[len(branch) - 1][1])
-            next_point = (branch[len(branch) - 2][0],
-                          branch[len(branch) - 2][1])
-            b = closer_boundary(
-                fnc, current_boundary, next_point, False)
-            if b is not None:
-                branch.append([b[0], b[1]])
+        # Find and remove straight lines
+        # x0, y0 = branch[0]
+        # x1, y1 = branch[-1]
+        # ref_slope = (y1-y0)/(x1-x0) if x1 != x0 else float('inf')
+        # a_straight_line = True
+        # for i in range(1, len(branch)):
+        #     x0, y0 = branch[i-1]
+        #     x1, y1 = branch[i]
+        #     slope = (y1-y0)/(x1-x0) if x1 != x0 else float('inf')
+        #     # v = slope - ref_slope
+        #     if abs(slope - ref_slope) > 0.01:
+        #         a_straight_line = False
+        #         break
+        # if a_straight_line:
+        #     continue
 
-    # for branch in branches:
-    #     discont = find_discontinuities_in_branch(branch)
-    #     print(f"Discontinuities in branch: {discont}")
+        # Mark infinity with "##"
+        # vt = points_with_vertical_tangent(f)
 
-    return branches
+        x0, y0 = branch[0]
+        x1, y1 = branch[1]
+        slope = (y1-y0)/(x1-x0) if x1 != x0 else float('inf')
+        if abs(slope) == abs(float('inf')) or abs(slope) > 15:
+            infinite_discont = True
+            if np.sign(branch[0][1]) == 1:
+                branch.insert(0, [branch[0][0], "##"])
+            else:
+                branch.insert(0, [branch[0][0], "-##"])
 
+        x0, y0 = branch[-2]
+        x1, y1 = branch[-1]
+        slope = (y1-y0)/(x1-x0) if x1 != x0 else float('inf')
+        if abs(slope) == abs(float('inf')) or abs(slope) > 15:
+            infinite_discont = True
+            if np.sign(branch[-1][1]) == 1:
+                branch.append([branch[-1][0], "##"])
+            else:
+                branch.append([branch[-1][0], "-##"])
+
+        processed.append(branch)
+
+    return processed, infinite_discont
 
 ##############################################################
+
+
 def find_discontinuities_in_branch(branch, jump_factor=50, large_y_mult=1e3):
     """
     Find discontinuities in a single branch returned by `generate_points_all_branches`.
