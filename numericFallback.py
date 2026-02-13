@@ -5,6 +5,7 @@ import sympy as sp
 from sympy import symbols, solve, plot_implicit
 import numpy as np
 from scipy.optimize import fsolve, root, root_scalar
+from sympy.functions.elementary.trigonometric import TrigonometricFunction
 
 import matplotlib
 matplotlib.use('Agg')
@@ -82,12 +83,13 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
                                   resolution=40000, adaptive=False, remove_temp_file=True):
 
     # Estimate y-range from symbolic solutions if possible
-    try:
-        Fy = sp.diff(expr, y)
-        Fx = sp.diff(expr, x)
-        critical_points = solve([Fy, Fx], (x, y))
-        # print(f"Critical points: {critical_points}")
-        if not critical_points.has(sp.I):
+    # Avoid using critical points for trig functions due to complexity
+    if expr.has(TrigonometricFunction) == False:
+        try:
+            Fy = sp.diff(expr, y)
+            Fx = sp.diff(expr, x)
+            critical_points = solve([Fy, Fx], (x, y))
+
             if isinstance(critical_points, list):
                 for cp in critical_points:
                     _e = expr.subs(x, cp[0])
@@ -102,17 +104,21 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
                     y_min = min(y_min, float(r))
                     y_max = max(y_max, float(r))
 
-    except:
-        pass
+        except:
+            pass
 
-    _x = np.linspace(x_min, x_max, 400)
-    _y = np.linspace(y_min, y_max, 400)
+    else:
+        y_min = -20
+        y_max = 20
+
+    _x = np.linspace(x_min, x_max, 2000)
+    _y = np.linspace(y_min, y_max, 2000)
 
     X, Y = np.meshgrid(_x, _y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
     f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
     z = f(X, Y)
-    z[np.abs(z) > 40] = np.nan
+    z[np.abs(z) > 100] = np.nan
     try:
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring
@@ -192,6 +198,19 @@ def points_with_vertical_tangent(f):
     return numerical_points
 
 
+def verified(f, x_val, sign=1):
+    return True
+    # if f.has(TrigonometricFunction):
+    #     return True
+    # try:
+    #     v = f.subs({x: x_val, y: sign*1e+100})
+    #     if abs(v) <= 1:
+    #         return True
+    #     return False
+    # except Exception:
+    #     return False
+
+
 def processBranches(branches, f):
     # return branches
     processed = []
@@ -224,17 +243,17 @@ def processBranches(branches, f):
         x0, y0 = branch[0]
         x1, y1 = branch[1]
         slope = (y1-y0)/(x1-x0) if x1 != x0 else float('inf')
-        if abs(slope) == abs(float('inf')) or abs(slope) > 15:
+        if abs(slope) == abs(float('inf')) or abs(slope) > 50:
             infinite_discont = True
-            if np.sign(branch[0][1]) == 1:
+            if np.sign(branch[0][1]) == 1 and verified(f, branch[0][0], 1):
                 branch.insert(0, [branch[0][0], "##"])
-            else:
+            elif verified(f, branch[0][0], -1):
                 branch.insert(0, [branch[0][0], "-##"])
 
         x0, y0 = branch[-2]
         x1, y1 = branch[-1]
         slope = (y1-y0)/(x1-x0) if x1 != x0 else float('inf')
-        if abs(slope) == abs(float('inf')) or abs(slope) > 15:
+        if abs(slope) == abs(float('inf')) or abs(slope) > 50:
             infinite_discont = True
             if np.sign(branch[-1][1]) == 1:
                 branch.append([branch[-1][0], "##"])
