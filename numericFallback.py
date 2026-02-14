@@ -1,3 +1,4 @@
+from my_misc import estimate_y_bounds, sanitize_contour_segments
 from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
 from domain_finder import closer_boundary
 import matplotlib.pyplot as plt
@@ -84,41 +85,47 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
 
     # Estimate y-range from symbolic solutions if possible
     # Avoid using critical points for trig functions due to complexity
-    if expr.has(TrigonometricFunction) == False:
-        try:
-            Fy = sp.diff(expr, y)
+    # if expr.has(TrigonometricFunction) == False:
+    #     try:
+    #         Fy = sp.diff(expr, y)
 
-            if Fy.is_Number == False:
-                Fx = sp.diff(expr, x)
-                critical_points = solve([Fy, Fx], (x, y))
+    #         if Fy.is_Number == False:
+    #             Fx = sp.diff(expr, x)
+    #             critical_points = solve([Fy, Fx], (x, y))
 
-                if isinstance(critical_points, list):
-                    for cp in critical_points:
-                        _e = expr.subs(x, cp[0])
-                        res = solve(_e, y)
-                        for r in res:
-                            y_min = min(y_min, r)
-                            y_max = max(y_max, r)
-                else:
-                    _e = expr.subs(x, critical_points[x])
-                    res = solve(_e, y)
-                    for r in res:
-                        y_min = min(y_min, float(r))
-                        y_max = max(y_max, float(r))
-            else:
-                v = solve(expr, y)
-                if isinstance(v, list):
-                    for r in v:
-                        y_min = min(y_min, float(r.subs({x: x_min})))
-                        y_max = max(y_max, float(r.subs({x: x_max})))
-            if y_min > y_max:
-                y_min, y_max = y_max, y_min
-        except:
-            pass
+    #             if isinstance(critical_points, list):
+    #                 for cp in critical_points:
+    #                     _e = expr.subs(x, cp[0])
+    #                     res = solve(_e, y)
+    #                     for r in res:
+    #                         y_min = min(y_min, r)
+    #                         y_max = max(y_max, r)
+    #             else:
+    #                 _e = expr.subs(x, critical_points[x])
+    #                 res = solve(_e, y)
+    #                 for r in res:
+    #                     y_min = min(y_min, float(r))
+    #                     y_max = max(y_max, float(r))
+    #         else:
+    #             v = solve(expr, y)
+    #             if isinstance(v, list):
+    #                 for r in v:
+    #                     y_min = min(y_min, float(r.subs({x: x_min})))
+    #                     y_max = max(y_max, float(r.subs({x: x_max})))
+    #         if y_min > y_max:
+    #             y_min, y_max = y_max, y_min
+    #     except:
+    #         pass
 
-    else:
-        y_min = -20
-        y_max = 20
+    # else:
+    #     y_min = -20
+    #     y_max = 20
+
+    f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
+
+    (_y_min, _y_max) = estimate_y_bounds(f, x_min, x_max)
+    y_min = min(y_min, _y_min)
+    y_max = max(y_max, _y_max)
 
     _x = np.linspace(x_min, x_max, 2000)
     _y = np.linspace(y_min, y_max, 2000)
