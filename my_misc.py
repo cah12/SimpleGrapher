@@ -1,10 +1,15 @@
 
 import numpy as np
 from typing import List, Tuple
+import sympy as sp
+from sympy.parsing.sympy_parser import parse_expr
+from domain_finder import is_x_in_domain_numerical, closer_boundary
+from custom import custom
+from sympy.functions.elementary.trigonometric import TrigonometricFunction
 
 
-def sanitize_contour_segments(allsegs: List[np.ndarray],
-                              threshold_distance: float = 1e-6,
+def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
+                               x_min: float = -1e6, x_max: float = 1e6,threshold_distance: float = 1e-6,
                               max_segment_length: float = 1e6) -> List[np.ndarray]:
     """
     Sanitize contour segments by removing spurious and rogue lines.
@@ -32,7 +37,7 @@ def sanitize_contour_segments(allsegs: List[np.ndarray],
     sanitized = []
 
     for segment in allsegs:
-        if segment is None or len(segment) < 2:
+        if segment is None or len(segment) < 40:
             continue
 
         # Remove NaN values
@@ -51,15 +56,15 @@ def sanitize_contour_segments(allsegs: List[np.ndarray],
             continue
 
         # Handle trigonometric discontinuities and large jumps
-        cleaned_segment = _handle_discontinuities(segment, max_segment_length)
+        cleaned_segment = _handle_discontinuities(expr, segment, x_min, x_max, max_segment_length)
 
         if cleaned_segment is not None:
-            sanitized.append(cleaned_segment)
+            sanitized.append(cleaned_segment.tolist())
 
     return sanitized
 
 
-def _handle_discontinuities(segment: np.ndarray,
+def _handle_discontinuities(expr, segment: np.ndarray, x_min: float = -1e6, x_max: float = 1e6,
                             max_segment_length: float = 1e6) -> np.ndarray:
     """
     Handle discontinuities from trigonometric functions and infinity points.
@@ -79,9 +84,13 @@ def _handle_discontinuities(segment: np.ndarray,
     np.ndarray or List
         Cleaned segment, possibly with "##" markers for infinity.
     """
+    
 
     if len(segment) < 2:
         return None
+    
+    if not has_infinite_discontinuity_in_xrange(expr, x_min, x_max):
+        return segment
 
     # Calculate distances between consecutive points
     distances = np.sqrt(np.sum(np.diff(segment, axis=0)**2, axis=1))
@@ -91,7 +100,7 @@ def _handle_discontinuities(segment: np.ndarray,
 
     # If no major discontinuities, check for infinity markers
     if len(discontinuity_indices) == 0:
-        return _mark_infinity_points(segment)
+        return _mark_infinity_points(expr, segment)
 
     # Split segment at discontinuities
     split_segments = []
@@ -107,10 +116,10 @@ def _handle_discontinuities(segment: np.ndarray,
             # Check if the jump indicates an asymptote/infinity
             if _is_asymptote_jump(segment[disc_idx], segment[disc_idx + 1]):
                 # Mark the endpoints with infinity indicator
-                marked_sub = _mark_infinity_at_endpoints(sub_segment)
+                marked_sub = _mark_infinity_at_endpoints(expr, sub_segment)
                 split_segments.append(marked_sub)
             else:
-                split_segments.append(_mark_infinity_points(sub_segment))
+                split_segments.append(_mark_infinity_points(expr, sub_segment))
 
         start_idx = end_idx
 
@@ -118,7 +127,7 @@ def _handle_discontinuities(segment: np.ndarray,
     if start_idx < len(segment):
         sub_segment = segment[start_idx:]
         if len(sub_segment) >= 2:
-            split_segments.append(_mark_infinity_points(sub_segment))
+            split_segments.append(_mark_infinity_points(expr, sub_segment))
 
     # Merge back if only one segment
     if len(split_segments) == 1:
@@ -166,7 +175,150 @@ def _is_asymptote_jump(point1: np.ndarray, point2: np.ndarray,
     return False
 
 
-def _mark_infinity_points(segment: np.ndarray) -> np.ndarray:
+
+
+
+def has_infinite_discontinuity_in_xrange(implicit_expr, x_min, x_max) -> bool:
+    """
+    Symbolically detect vertical/infinite discontinuities for f(x,y)=0
+    between the x-values of `current_boundary` and `next_point`.
+
+    Approach:
+    - Convert `implicit_expr` to a SymPy expression `F(x,y)` (if possible).
+    - Consider the numerator `N(x,y)` of `F` (so we inspect `N==0`).
+    - If `N` is a polynomial in `y`, compute its leading coefficient in `y`.
+      Solutions of `leading_coeff(x)==0` are x-values where the highest-power
+      term in `y` vanishes; these are candidate x-locations where arbitrarily
+      large |y| can satisfy `N==0` (vertical asymptote behavior).
+    - As a fallback, compute `lim_{y->oo} F(x,y)` and solve for x where that
+      limit equals 0.
+
+    Returns True if any symbolic candidate lies within the x-range between
+    the two provided boundary points; False otherwise.
+    """
+    # extract x-range from provided boundary points (expect sequences/tuples)
+    def _get_x(val):
+        try:
+            return float(val[0])
+        except Exception:
+            try:
+                return float(val)
+            except Exception:
+                raise ValueError("Cannot extract x coordinate from boundary values")
+
+    x0 = x_min
+    x1 = x_max
+    xmin = min(x0, x1)
+    xmax = max(x0, x1)
+
+    # Prepare symbolic expression
+    expr_sym = None
+    if isinstance(implicit_expr, sp.Expr):
+        expr_sym = implicit_expr
+    elif isinstance(implicit_expr, str):
+        s = implicit_expr.strip()
+        if "=" in s:
+            L, R = s.split("=", 1)
+            s = f"({L})-({R})"
+        try:
+            expr_sym = parse_expr(s)
+        except Exception:
+            expr_sym = None
+
+    x, y = sp.symbols("x y")
+    if expr_sym is None:
+        return False
+
+    # Work with numerator (if rational) so we check polynomial condition N(x,y)==0
+    try:
+        N, D = sp.together(expr_sym).as_numer_denom()
+    except Exception:
+        N = expr_sym
+
+    # Try polynomial-in-y route
+    try:
+        polyN = sp.Poly(sp.expand(N), y)
+        deg = polyN.degree()
+        if deg is not None and deg >= 1:
+            leading = polyN.LC()
+            # Solve leading(x) == 0 on reals
+            solset = sp.solveset(sp.Eq(sp.simplify(sp.factor(leading)), 0), x, domain=sp.S.Reals)
+            # If solution set intersects the interval, report True
+            if isinstance(solset, sp.Set):
+                interval = sp.Interval(float(xmin), float(xmax))
+                inter = solset.intersect(interval)
+                if not inter.is_EmptySet:
+                    return True
+            else:
+                # fallback: iterate finite solutions
+                for s in solset:
+                    try:
+                        sv = float(s.evalf())
+                        if xmin - 1e-12 <= sv <= xmax + 1e-12:
+                            return True
+                    except Exception:
+                        continue
+    except Exception:
+        # not polynomial in y or other failure; fall through to limit approach
+        pass
+
+    # Fallback: compute limit as y->oo of expr_sym; if limit simplifies to 0
+    # for some x in the interval, that's indicative of vertical asymptote.
+    try:
+        lim_expr = sp.limit(expr_sym, y, sp.oo)
+        # Solve lim_expr == 0 over reals
+        solset2 = sp.solveset(sp.Eq(sp.simplify(sp.factor(lim_expr)), 0), x, domain=sp.S.Reals)
+        if isinstance(solset2, sp.Set):
+            interval = sp.Interval(float(xmin), float(xmax))
+            inter2 = solset2.intersect(interval)
+            if not inter2.is_EmptySet:
+                return True
+        else:
+            for s in solset2:
+                try:
+                    sv = float(s.evalf())
+                    if xmin - 1e-12 <= sv <= xmax + 1e-12:
+                        return True
+                except Exception:
+                    continue
+    except Exception:
+        pass
+
+    return False
+
+# def _mark_infinity_points(segment: np.ndarray) -> np.ndarray:
+#     """
+#     Identify and mark points near infinity in a segment.
+
+#     Parameters
+#     ----------
+#     segment : np.ndarray
+#         Segment with shape (N, 2) containing (x, y) pairs.
+
+#     Returns
+#     -------
+#     np.ndarray or List
+#         Segment with "##" marking y-values of points at infinity.
+#     """
+
+#     # Use large numeric sentinels for infinity markers so arrays remain numeric
+#     POS_INF = 1e300
+#     NEG_INF = -1e300
+
+#     result = []
+#     for x, y in segment:
+#         # Positive infinity or very large positive values
+#         if np.isposinf(y) or (not np.isinf(y) and y > 1e15):
+#             result.append([x, POS_INF])
+#         # Negative infinity or very large negative values
+#         elif np.isneginf(y) or (not np.isinf(y) and y < -1e15):
+#             result.append([x, NEG_INF])
+#         else:
+#             result.append([x, y])
+
+#     return np.array(result, dtype=float)
+
+def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
     """
     Identify and mark points near infinity in a segment.
 
@@ -184,50 +336,123 @@ def _mark_infinity_points(segment: np.ndarray) -> np.ndarray:
     # Use large numeric sentinels for infinity markers so arrays remain numeric
     POS_INF = 1e300
     NEG_INF = -1e300
+    THRESHOLD_SLOPE = 60
 
-    result = []
-    for x, y in segment:
-        # Positive infinity or very large positive values
-        if np.isposinf(y) or (not np.isinf(y) and y > 1e15):
-            result.append([x, POS_INF])
-        # Negative infinity or very large negative values
-        elif np.isneginf(y) or (not np.isinf(y) and y < -1e15):
-            result.append([x, NEG_INF])
+    if len(segment) < 2:
+        return segment
+    
+    # _max_y = segment.max(axis=0)[1]
+    # _min_y = segment.min(axis=0)[1]
+    
+    x_0, y_0 = segment[0]
+    x_1, y_1 = segment[1]
+
+    if (expr.has(TrigonometricFunction)) or ("_mode" in str(expr)):
+        x_0 = np.deg2rad(x_0)
+        x_1 = np.deg2rad(x_1)
+    
+    slope = (y_1 - y_0)/(x_1 - x_0)
+    if abs(slope) > THRESHOLD_SLOPE:
+        if np.sign(y_0) == -1:
+            segment[0,1] = NEG_INF             
         else:
-            result.append([x, y])
+            segment[0,1] = POS_INF 
+        # if np.sign(y_0) == -1 and y_1 > y_0:
+        #     segment[0,1] = NEG_INF             
+        # elif np.sign(y_0) == 1 and y_1 < y_0:
+        #     segment[0,1] = POS_INF 
+        
+    x_0, y_0 = segment[len(segment)-1]
+    x_1, y_1 = segment[len(segment)-2]
+    if (expr.has(TrigonometricFunction)) or ("_mode" in str(expr)):
+        x_0 = np.deg2rad(x_0)
+        x_1 = np.deg2rad(x_1)
+    slope = (y_1 - y_0)/(x_1 - x_0)
+    if abs(slope) > THRESHOLD_SLOPE:
+        if np.sign(y_0) == -1:
+            segment[len(segment)-1,1] = NEG_INF 
+        else:
+            segment[len(segment)-1,1] = POS_INF 
+        # if np.sign(y_0) == -1 and y_1 > y_0:
+        #     segment[len(segment)-1,1] = NEG_INF 
+        # elif np.sign(y_0) == 1 and y_1 < y_0:
+        #     segment[len(segment)-1,1] = POS_INF 
+    return segment        
 
-    return np.array(result, dtype=float)
+
+# def _mark_infinity_at_endpoints(segment: np.ndarray) -> np.ndarray:
+#     """
+#     Mark the endpoints of a segment that appears to approach asymptotes.
+
+#     Parameters
+#     ----------
+#     segment : np.ndarray
+#         Segment with shape (N, 2).
+
+#     Returns
+#     -------
+#     np.ndarray or List
+#         Segment with endpoints marked for infinity where appropriate.
+#     """
+
+#     POS_INF = 1e300
+#     NEG_INF = -1e300
+
+#     result = []
+#     for i, (x, y) in enumerate(segment):
+#         # Mark last point if it's at the discontinuity
+#         if i == len(segment) - 1 and (np.isposinf(y) or (not np.isinf(y) and y > 1e12)):
+#             result.append([x, POS_INF])
+#         elif i == len(segment) - 1 and (np.isneginf(y) or (not np.isinf(y) and y < -1e12)):
+#             result.append([x, NEG_INF])
+#         else:
+#             result.append([x, y])
+
+#     return np.array(result, dtype=float)
 
 
-def _mark_infinity_at_endpoints(segment: np.ndarray) -> np.ndarray:
+def _mark_infinity_at_endpoints(expr, segment: np.ndarray) -> np.ndarray:
     """
-    Mark the endpoints of a segment that appears to approach asymptotes.
+    Identify and mark points near infinity in a segment.
 
     Parameters
     ----------
     segment : np.ndarray
-        Segment with shape (N, 2).
+        Segment with shape (N, 2) containing (x, y) pairs.
 
     Returns
     -------
     np.ndarray or List
-        Segment with endpoints marked for infinity where appropriate.
+        Segment with "##" marking y-values of points at infinity.
     """
 
+    # Use large numeric sentinels for infinity markers so arrays remain numeric
     POS_INF = 1e300
     NEG_INF = -1e300
+    THRESHOLD_SLOPE = 300
 
-    result = []
-    for i, (x, y) in enumerate(segment):
-        # Mark last point if it's at the discontinuity
-        if i == len(segment) - 1 and (np.isposinf(y) or (not np.isinf(y) and y > 1e12)):
-            result.append([x, POS_INF])
-        elif i == len(segment) - 1 and (np.isneginf(y) or (not np.isinf(y) and y < -1e12)):
-            result.append([x, NEG_INF])
+    if len(segment) < 2:
+        return segment
+    
+    x_0, y_0 = segment[0]
+    x_1, y_1 = segment[1]
+    new_row = None
+    slope = (y_1 - y_0)/(x_1 - x_0)
+    if abs(slope) > THRESHOLD_SLOPE:
+        if np.sign(y_0) == -1:
+            segment[0,1] = NEG_INF             
         else:
-            result.append([x, y])
-
-    return np.array(result, dtype=float)
+            segment[0,1] = POS_INF 
+        
+    x_0, y_0 = segment[len(segment)-1]
+    x_1, y_1 = segment[len(segment)-2]
+    slope = (y_1 - y_0)/(x_1 - x_0)
+    if abs(slope) > THRESHOLD_SLOPE:
+        if np.sign(y_0) == -1:
+            segment[len(segment)-1,1] = NEG_INF 
+        else:
+            segment[len(segment)-1,1] = POS_INF 
+    return segment  
 
 
 # Example usage and testing
@@ -268,8 +493,11 @@ if __name__ == "__main__":
         print(seg)
 
 
+
+
+
 def estimate_y_bounds(implicit_func, lower_x: float, upper_x: float,
-                      num_samples: int = 50, y_search_range: Tuple[float, float] = (-1e6, 1e6)) -> Tuple[float, float]:
+                      num_samples: int = 50, y_search_range: Tuple[float, float] = (-1e100, 1e100)) -> Tuple[float, float]:
     """
     Estimate the Y bounds for an implicit function over a given X range.
 
@@ -337,7 +565,8 @@ def estimate_y_bounds(implicit_func, lower_x: float, upper_x: float,
 
     if not y_values:
         # If no solutions found, return the search range
-        return (min_y, max_y)
+        # return (min_y, max_y)
+        return (-10, 10)
 
     y_values = np.array(y_values)
     lower_y = float(np.min(y_values))

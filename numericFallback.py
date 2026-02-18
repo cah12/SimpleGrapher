@@ -8,133 +8,90 @@ import numpy as np
 from scipy.optimize import fsolve, root, root_scalar
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
 
+from sympy import lambdify
+
+from custom import custom
+
 import matplotlib
 matplotlib.use('Agg')
 
-
-def custom_sin_mode(arg):
-    return np.sin(np.deg2rad(arg))
-
-
-def custom_cos_mode(arg):
-    return np.cos(np.deg2rad(arg))
-
-
-def custom_tan_mode(arg):
-    return np.tan(np.deg2rad(arg))
-
-
-def custom_cot_mode(arg):
-    return 1 / np.tan(np.deg2rad(arg))
-
-
-def custom_sec_mode(arg):
-    return 1 / np.cos(np.deg2rad(arg))
-
-
-def custom_csc_mode(arg):
-    return 1 / np.sin(np.deg2rad(arg))
-
-
-def custom_asin_mode(arg):
-    return np.rad2deg(np.arcsin(arg))
-
-
-def custom_acos_mode(arg):
-    return np.rad2deg(np.arccos(arg))
-
-
-def custom_atan_mode(arg):
-    return np.rad2deg(np.arctan(arg))
-
-
-def custom_acot_mode(arg):
-    return np.rad2deg(np.arccot(arg))
-
-
-def custom_asec_mode(arg):
-    return np.rad2deg(np.arccos(1/arg))
-
-
-def custom_acsc_mode(arg):
-    return np.rad2deg(np.arcsin(1/arg))
-
-
-custom = {
-    "sin_mode": custom_sin_mode,
-    "cos_mode": custom_cos_mode,
-    "tan_mode": custom_tan_mode,
-    "cot_mode": custom_cot_mode,
-    "sec_mode": custom_sec_mode,
-    "csc_mode": custom_csc_mode,
-    "asin_mode": custom_asin_mode,
-    "acos_mode": custom_acos_mode,
-    "atan_mode": custom_atan_mode,
-    "acot_mode": custom_acot_mode,
-    "asec_mode": custom_asec_mode,
-    "acsc_mode": custom_acsc_mode
-}
 
 
 # Define variables
 x, y = symbols('x y')
 
 
-def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_max=10.0,
-                                  resolution=40000, adaptive=False, remove_temp_file=True):
-
+def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None, y_samples=400, match_tol=None, f_tol=1e-15):
+    if (equation.has(TrigonometricFunction)) or ("_mode" in str(equation)):
+        return (-100, 100)
+    
     # Estimate y-range from symbolic solutions if possible
-    # Avoid using critical points for trig functions due to complexity
-    # if expr.has(TrigonometricFunction) == False:
-    #     try:
-    #         Fy = sp.diff(expr, y)
+    x_vals = np.linspace(x_min, x_max, num_x)
+    if y_min is None or y_max is None:
+        try:
+            y_sols = solve(equation, y)
+        except Exception:
+            y_sols = []
 
-    #         if Fy.is_Number == False:
-    #             Fx = sp.diff(expr, x)
-    #             critical_points = solve([Fy, Fx], (x, y))
+        if y_sols:
+            y_vals_est = []
+            for ys in y_sols:
+                try:
+                    y_fun = lambdify(x, ys, modules=[custom, 'numpy'])
+                    y_eval = y_fun(x_vals)
+                    y_eval = np.asarray(y_eval)
+                    valid = ~np.isnan(y_eval) & np.isreal(y_eval)
+                    if np.any(valid):
+                        y_vals_est.append(np.real(y_eval[valid]))
+                except Exception:
+                    pass
+            if y_vals_est:
+                all_est = np.hstack(y_vals_est)
+                est_min, est_max = float(
+                    np.min(all_est)), float(np.max(all_est))
+                padding = max(1.0, 0.1 * (est_max - est_min))
+                if y_min is None:
+                    y_min = est_min - padding
+                if y_max is None:
+                    y_max = est_max + padding
 
-    #             if isinstance(critical_points, list):
-    #                 for cp in critical_points:
-    #                     _e = expr.subs(x, cp[0])
-    #                     res = solve(_e, y)
-    #                     for r in res:
-    #                         y_min = min(y_min, r)
-    #                         y_max = max(y_max, r)
-    #             else:
-    #                 _e = expr.subs(x, critical_points[x])
-    #                 res = solve(_e, y)
-    #                 for r in res:
-    #                     y_min = min(y_min, float(r))
-    #                     y_max = max(y_max, float(r))
-    #         else:
-    #             v = solve(expr, y)
-    #             if isinstance(v, list):
-    #                 for r in v:
-    #                     y_min = min(y_min, float(r.subs({x: x_min})))
-    #                     y_max = max(y_max, float(r.subs({x: x_max})))
-    #         if y_min > y_max:
-    #             y_min, y_max = y_max, y_min
-    #     except:
-    #         pass
+    # Fallback heuristic if still not set
+    if y_min is None or y_max is None:
+        y_guess = max(1.0, abs(x_min), abs(x_max)) * 10.0
+        y_min = -y_guess if y_min is None else y_min
+        y_max = y_guess if y_max is None else y_max
 
-    # else:
-    #     y_min = -20
-    #     y_max = 20
+    return (y_min, y_max)
 
-    f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
 
-    (_y_min, _y_max) = estimate_y_bounds(f, x_min, x_max)
+def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_max=10.0,
+                                  resolution=40000, adaptive=False, remove_temp_file=True):  
+
+
+    (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
+    # (_y_min, _y_max) = (x_min, x_max)
+
+
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    _x = np.linspace(x_min, x_max, 2000)
-    _y = np.linspace(y_min, y_max, 2000)
+    _x = np.linspace(x_min, x_max, 1000)
+    _y = np.linspace(y_min, y_max, 1000)
 
     X, Y = np.meshgrid(_x, _y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
     f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
     z = f(X, Y)
-    z[np.abs(z) > 100] = np.nan
+    z_val = 0.5*y_max
+    # Convert the expression to a string
+    expr_str = str(expr)
+    if (expr.has(TrigonometricFunction)) or ("_mode" in expr_str):
+        z_val = np.maximum(z_val,100)
+    else:
+        z_val = np.maximum(z_val, 15)
+    # if abs(z_val) >= 1e100:
+    #     z_val = 100
+    z[np.abs(z) > z_val] = np.nan
     try:
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring
@@ -146,10 +103,11 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
         for level_segments in CS.allsegs:
             for segment in level_segments:
                 # segment is a NumPy array of shape (n_points, 2), where each row is [x, y]
-                all_points.append(segment.tolist())
-                # print("Extracted points for a contour segment:")
-                # print(segment)
+                all_points.append(segment)
+                # all_points.append(segment.tolist())
+                
 
+        all_points = sanitize_contour_segments(expr, all_points, x_min, x_max)
         return all_points
 
     except Exception as e:

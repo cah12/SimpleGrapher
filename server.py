@@ -826,8 +826,14 @@ def numeric():
 
     branches = generate_implicit_plot_points(
         eq, lower, upper)
+    
+    infinite_discont = False
+    for branch in branches:
+        if abs(branch[0][1]) == 1e+300 or abs(branch[len(branch)-1][1])== 1e+300:
+            infinite_discont =True
 
-    branches, infinite_discont = processBranches(branches, eq)
+
+    # branches, infinite_discont = processBranches(branches, eq)
     if infinite_discont:
         return jsonify({"branches": branches, "discontinuities": [[0, "infinite"]]})
     return jsonify({"branches": branches, "discontinuities": []})
