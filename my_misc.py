@@ -336,8 +336,7 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
     # Use large numeric sentinels for infinity markers so arrays remain numeric
     POS_INF = 1e300
     NEG_INF = -1e300
-    THRESHOLD_SLOPE = 120
-
+    THRESHOLD_SLOPE = 9.5
     if len(segment) < 2:
         return segment
     
@@ -347,7 +346,13 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
     x_0, y_0 = segment[0]
     x_1, y_1 = segment[1]
 
-    if (expr.has(TrigonometricFunction)) or ("_mode" in str(expr)):
+
+    THRESHOLD_SLOPE_MIN = 40
+    THRESHOLD_SLOPE_MAX = 400
+
+    THRESHOLD_SLOPE = THRESHOLD_SLOPE_MIN+((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*abs(y_0)
+
+    if ("_mode" in str(expr)):
         x_0 = np.deg2rad(x_0)
         x_1 = np.deg2rad(x_1)
     
@@ -364,7 +369,8 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
         
     x_0, y_0 = segment[len(segment)-1]
     x_1, y_1 = segment[len(segment)-2]
-    if (expr.has(TrigonometricFunction)) or ("_mode" in str(expr)):
+    THRESHOLD_SLOPE = THRESHOLD_SLOPE_MIN+((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*abs(y_0)
+    if ("_mode" in str(expr)):
         x_0 = np.deg2rad(x_0)
         x_1 = np.deg2rad(x_1)
     slope = (y_1 - y_0)/(x_1 - x_0)
