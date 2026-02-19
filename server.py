@@ -19,7 +19,7 @@ from solveset_thread import solve_with_timeout
 
 from sympy.parsing.sympy_parser import parse_expr, convert_xor, standard_transformations
 
-from numericFallback import processBranches, generate_implicit_plot_points
+from numericFallback import generate_implicit_plot_points
 # Combine the standard transformations with convert_xor
 custom_transformations = standard_transformations + (convert_xor,)
 
@@ -784,7 +784,7 @@ def discontinuity():
 
 #                 branches2.append(branch)
 
-#     # branches2 = processBranches(branches2)
+
 
 #     return jsonify({"branches": branches2, "discontinuities": discont})
 
@@ -835,7 +835,6 @@ def numeric():
             infinite_discont =True
 
 
-    # branches, infinite_discont = processBranches(branches, eq)
     if infinite_discont:
         return jsonify({"branches": branches, "discontinuities": [[0, "infinite"]]})
     return jsonify({"branches": branches, "discontinuities": []})
