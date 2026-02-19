@@ -648,145 +648,36 @@ def discontinuity():
     return jsonify({"discontinuities": discont, "turningPoints": tps, "period": period})
 
 
-# @app.route("/numeric", methods=['POST'])
-# def numeric():
-#     data = request.get_json()
-#     _exp = data["exp"]
-#     _var = data["var"]
-#     lower = data["lower"]
-#     upper = data["upper"]
-#     numOfPoints = data["numOfPoints"]
+# def stream_branches():
+#         yield "{\"branches\": ["
+#         first = True
+#         infinite_discont = False
 
-#     _exp = _exp.replace("abs", "Abs")
+#         # Iterate and stream branches as produced to avoid building
+#         # a giant in-memory JSON string via jsonify.
+#         for branch in generate_implicit_plot_points(eq, lower, upper, lower_y, upper_y):
+#             try:
+#                 if len(branch) > 0:
+#                     if abs(branch[0][1]) == 1e+300 or abs(branch[-1][1]) == 1e+300:
+#                         infinite_discont = True
+#             except Exception:
+#                 pass
 
-#     numOfPoints = max(numOfPoints, 500)
+#             if not first:
+#                 yield ","
+#             # Use flask.json to serialize branch safely
+#             yield json.dumps(branch)
+#             first = False
 
-#     if _exp == None:
-#         return []
+#         yield "], \"discontinuities\": "
+#         if infinite_discont:
+#             yield json.dumps([[0, "infinite"]])
+#         else:
+#             yield json.dumps([])
 
-#     # _exp = 'y**7+5*y+45-x**2=0'
-#     # _exp = 'y**6+8*y =x'
+#         yield "}"
 
-#     arr = _exp.split('=')
-#     if len(arr) == 1:
-#         arr.append("0")
-
-#     arr0 = None
-#     arr1 = None
-#     branches2 = []
-#     # _exp = trig_substitutions(_exp)
-#     arr0 = sp.parse_expr(arr[0], transformations=custom_transformations)
-#     arr0 = TR2(arr0)
-
-#     arr1 = sp.parse_expr(
-#         arr[1], transformations=custom_transformations)
-#     arr1 = TR2(arr1)
-#     eq = trig_substitutions(arr0 - arr1)
-#     period = periodicity(eq, sp.Symbol(_var))
-#     if period != None:
-#         if get_mode() == "deg":
-#             period = period * 180 / sp.pi
-#         period = float(period)
-#     discont = find_discontinuities_detailed(
-#         eq,
-#         lower, upper,
-#         _var,
-#         period
-#     )
-#     # discont = find_discontinuities_detailed(
-#     #     eq.subs(sp.Symbol("y"), 1),
-#     #     lower, upper,
-#     #     _var,
-#     #     period
-#     # )
-#     if len(discont) == 0:
-#         branches2 = generate_points_all_branches(
-#             eq, lower, upper, num_x=numOfPoints, y_samples=800)
-#     else:
-#         _discont = []
-#         for d in discont:
-#             if d[1] == "jump":
-#                 _discont.append(d)
-#             _discont.append(d)
-#         discont = _discont
-
-#         numOfPoints = math.ceil(numOfPoints/(len(discont)*0.6))
-#         branches2 = []
-#         step = ((upper - lower) / (numOfPoints-1))*0.6
-#         _lower = lower
-#         for idisc, disc in enumerate(discont):
-#             if idisc == len(discont)-1 and disc[1] == "jump":
-#                 _upper = upper
-#             else:
-#                 _upper = disc[0] - step
-#             _branches = generate_points_all_branches(
-#                 eq, _lower, _upper, num_x=numOfPoints, y_samples=500)
-#             if len(_branches) == 0:
-#                 if idisc < len(discont):
-#                     _lower = discont[idisc][0] + step
-#                 continue
-#             # branch = _branches[0]
-
-#             for branch in _branches:
-#                 if branch[len(branch)-1][0] != upper:
-#                     closer = closer_boundary(
-#                         eq, branch[len(branch)-1], branch[len(branch)-2], forward=False)
-#                     if closer != None:
-#                         branch.append(closer)
-#                     if disc[1] == "jump" and lower < disc[0] < upper:
-#                         branch[len(branch)-1][0] = disc[0]
-
-#                 if len(branch) > 1 and branch[0][0] != lower:
-#                     closer = closer_boundary(
-#                         eq, branch[0], branch[1], forward=True)
-#                     if closer != None:
-#                         branch.append(closer)
-#                     elif disc[1] == "jump" and lower < disc[0] < upper:
-#                         branch[0][0] = disc[0]
-
-#                 # Handle far end of branch
-#                 if len(branch) > 1 and branch[len(branch)-1][0] != upper:
-#                     if disc[1] == "infinite" or disc[1] == "essential" and lower < disc[0] < upper:
-#                         if sp.sign(branch[len(branch)-1][1]) == -1:
-#                             branch.append([_upper, "-##"])
-#                         else:
-#                             branch.append([_upper, "##"])
-
-#                 # Handle near end of branch
-#                 if len(branch) > 1 and branch[0][0] != lower:
-#                     if disc[1] == "infinite" or disc[1] == "essential" and lower < disc[0] < upper:
-#                         if sp.sign(branch[0][1]) == -1:
-#                             branch.insert(0, [_lower, "-##"])
-#                         else:
-#                             branch.insert(0, [_lower, "##"])
-#                 branches2.append(branch)
-#             if idisc < len(discont):
-#                 _lower = discont[idisc][0] + step
-#         ########## For Loop Ends #################
-
-#         if len(branches2) == 0:
-#             return jsonify({"branches": branches2, "discontinuities": discont})
-#         branch = branches2[len(branches2)-1]
-#         if len(branch) > 1 and branch[len(branch)-1][0] != upper:
-#             _lower = discont[len(discont)-1][0] + step
-#             _upper = upper
-#             _branches = generate_points_all_branches(
-#                 eq, _lower, _upper, num_x=numOfPoints, y_samples=500)
-#             if len(_branches) == 0:
-#                 return jsonify({"branches": branches2, "discontinuities": discont})
-#             # branch = _branches[0]
-#             for branch in _branches:
-#                 if discont[len(discont)-1][1] == "infinite" or discont[len(discont)-1][1] == "essential":
-#                     if sp.sign(branch[0][1]) == -1:
-#                         branch.insert(0, [_lower, "-##"])
-#                     else:
-#                         branch.insert(0, [_lower, "##"])
-
-#                 branches2.append(branch)
-
-
-
-#     return jsonify({"branches": branches2, "discontinuities": discont})
+#     return Response(stream_branches(), mimetype='application/json')
 
 
 @app.route("/numeric", methods=['POST'])
@@ -826,36 +717,18 @@ def numeric():
     arr1 = TR2(arr1)
     eq = trig_substitutions(arr0 - arr1)
 
-    def stream_branches():
-        yield "{\"branches\": ["
-        first = True
-        infinite_discont = False
+    branches = generate_implicit_plot_points(
+        eq, lower, upper, lower_y, upper_y)
+    
+    infinite_discont = False
+    for branch in branches:
+        if abs(branch[0][1]) == 1e+300 or abs(branch[len(branch)-1][1])== 1e+300:
+            infinite_discont =True
 
-        # Iterate and stream branches as produced to avoid building
-        # a giant in-memory JSON string via jsonify.
-        for branch in generate_implicit_plot_points(eq, lower, upper, lower_y, upper_y):
-            try:
-                if len(branch) > 0:
-                    if abs(branch[0][1]) == 1e+300 or abs(branch[-1][1]) == 1e+300:
-                        infinite_discont = True
-            except Exception:
-                pass
-
-            if not first:
-                yield ","
-            # Use flask.json to serialize branch safely
-            yield json.dumps(branch)
-            first = False
-
-        yield "], \"discontinuities\": "
-        if infinite_discont:
-            yield json.dumps([[0, "infinite"]])
-        else:
-            yield json.dumps([])
-
-        yield "}"
-
-    return Response(stream_branches(), mimetype='application/json')
+    
+    if infinite_discont:
+        return jsonify({"branches": branches, "discontinuities": [[0, "infinite"]]})
+    return jsonify({"branches": branches, "discontinuities": []})
 
 
 @app.route("/turningPoints", methods=['POST'])
