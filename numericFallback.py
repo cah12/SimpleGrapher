@@ -108,6 +108,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
                 # segment is a NumPy array of shape (n_points, 2), where each row is [x, y]
                 all_points.append(segment)
                 # all_points.append(segment.tolist())
+        CS.allsegs = []  # Clear segments to free memory
                 
 
         all_points = sanitize_contour_segments(expr, all_points, x_min, x_max)
