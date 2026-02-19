@@ -23,7 +23,7 @@ x, y = symbols('x y')
 
 def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None, y_samples=400, match_tol=None, f_tol=1e-15):
     if (equation.has(TrigonometricFunction)) or ("_mode" in str(equation)):
-        return (-100, 100)
+        return (-300, 300)
     
     # Estimate y-range from symbolic solutions if possible
     x_vals = np.linspace(x_min, x_max, num_x)
@@ -75,8 +75,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    _x = np.linspace(x_min, x_max, 1000)
-    _y = np.linspace(y_min, y_max, 1000)
+    _x = np.linspace(x_min, x_max, 1500)
+    _y = np.linspace(y_min, y_max, 1500)
 
     X, Y = np.meshgrid(_x, _y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
@@ -85,8 +85,10 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
     z_val = 0.5*y_max
     # Convert the expression to a string
     expr_str = str(expr)
-    if (expr.has(TrigonometricFunction)) or ("_mode" in expr_str):
+    if expr.has(TrigonometricFunction):
         z_val = np.maximum(z_val,100)
+    if ("_mode" in expr_str):
+        z_val = np.maximum(z_val,200)
     else:
         z_val = np.maximum(z_val, 15)
     # if abs(z_val) >= 1e100:

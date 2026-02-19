@@ -797,6 +797,8 @@ def numeric():
     lower = data["lower"]
     upper = data["upper"]
     numOfPoints = data["numOfPoints"]
+    lower_y = data["lower_y"]
+    upper_y = data["upper_y"]
 
     _exp = _exp.replace("abs", "Abs")
 
@@ -825,7 +827,7 @@ def numeric():
     eq = trig_substitutions(arr0 - arr1)
 
     branches = generate_implicit_plot_points(
-        eq, lower, upper)
+        eq, lower, upper, lower_y, upper_y)
     
     infinite_discont = False
     for branch in branches:
