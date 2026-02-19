@@ -1,3 +1,4 @@
+import gc
 from my_misc import estimate_y_bounds, sanitize_contour_segments
 from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
 from domain_finder import closer_boundary
@@ -110,6 +111,9 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
                 
 
         all_points = sanitize_contour_segments(expr, all_points, x_min, x_max)
+        del CS
+        plt.clf()
+        gc.collect()
         return all_points
 
     except Exception as e:
