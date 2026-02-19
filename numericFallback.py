@@ -114,6 +114,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
         del CS
         plt.clf()
         gc.collect()
+        plt.close()
         return all_points
 
     except Exception as e:

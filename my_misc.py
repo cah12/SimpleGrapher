@@ -61,6 +61,7 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
         if cleaned_segment is not None:
             sanitized.append(cleaned_segment.tolist())
 
+    del allsegs
     return sanitized
 
 
