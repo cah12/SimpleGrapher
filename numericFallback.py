@@ -2,7 +2,7 @@ import gc
 from my_misc import estimate_y_bounds, sanitize_contour_segments
 from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
 from domain_finder import closer_boundary
-import matplotlib.pyplot as plt
+
 import sympy as sp
 from sympy import symbols, solve, plot_implicit
 import numpy as np
@@ -15,6 +15,7 @@ from custom import custom
 
 import matplotlib
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 
