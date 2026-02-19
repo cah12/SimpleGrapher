@@ -38,21 +38,25 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
 
     for segment in allsegs:
         if segment is None or len(segment) < 40:
+            segment = None  # Clear reference to segment to free memory
             continue
 
         # Remove NaN values
         valid_mask = ~np.isnan(segment).any(axis=1)
         if not np.any(valid_mask):
+            segment = None  # Clear reference to segment to free memory
             continue
 
         segment = segment[valid_mask]
 
         if len(segment) < 2:
+            segment = None  # Clear reference to segment to free memory
             continue
 
         # Check for degenerate segments (all points identical or too close)
         distances = np.sqrt(np.sum(np.diff(segment, axis=0)**2, axis=1))
         if np.all(distances < threshold_distance):
+            segment = None  # Clear reference to segment to free memory
             continue
 
         # Handle trigonometric discontinuities and large jumps
@@ -60,8 +64,10 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
 
         if cleaned_segment is not None:
             sanitized.append(cleaned_segment.tolist())
+            cleaned_segment = None  # Clear reference to cleaned_segment to free memory
 
-    del allsegs
+        segment = None  # Clear reference to segment to free memory
+        allsegs = None  # Clear reference to allsegs to free memory
     return sanitized
 
 
