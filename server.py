@@ -1,7 +1,8 @@
 from domain_finder import closer_boundary
 from ast import expr
 import math
-from flask import Flask, Response, json, render_template, request, jsonify, make_response
+from flask import Flask, Response, json, render_template, request, jsonify, make_response, after_this_request
+import gc
 from waitress import serve
 
 import sympy as sp
@@ -679,6 +680,10 @@ def discontinuity():
 
 #     return Response(stream_branches(), mimetype='application/json')
 
+@app.after_request
+def invoke_gc(response):
+    gc.collect()
+    return response
 
 @app.route("/numeric", methods=['POST'])
 def numeric():
