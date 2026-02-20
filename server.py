@@ -760,6 +760,7 @@ def numeric():
                 yield ","
             # Use flask.json to serialize branch safely
             yield json.dumps(branch)
+            branch = None  # Clear reference to branch to free memory
             first = False
 
         yield "], \"discontinuities\": "
