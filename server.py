@@ -683,15 +683,15 @@ def discontinuity():
 
 #     return Response(stream_branches(), mimetype='application/json')
 
-@app.after_request
-def invoke_gc(response):
-    gc.collect()
-    return response
+# @app.after_request
+# def invoke_gc(response):
+#     gc.collect()
+#     return response
 
-@app.teardown_request
-def teardown_request(exception):
-    # This function is called even if an error occurs.
-    gc.collect()
+# @app.teardown_request
+# def teardown_request(exception):
+#     # This function is called even if an error occurs.
+#     gc.collect()
 
 @app.route("/numeric", methods=['POST'])
 def numeric():
@@ -747,71 +747,63 @@ def numeric():
     # Write branches to a temporary file incrementally to avoid OOM
     tmp = None
     infinite_discont = False
-    try:
-        tmp = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.json')
-        tmp_name = tmp.name
-        # Write a JSON array of branches incrementally
-        tmp.write('[')
-        first = True
-        count = 0
-        for branch in generate_implicit_plot_points(eq, lower, upper, lower_y, upper_y):
-            # quick check for infinite sentinel in branch endpoints
-            try:
-                if len(branch) > 0 and (abs(branch[0][1]) == 1e+300 or abs(branch[-1][1]) == 1e+300):
-                    infinite_discont = True
-            except Exception:
-                pass
-
-            if not first:
-                tmp.write(',')
-            # Dump branch as compact JSON
-            tmp.write(json.dumps(branch, separators=(',', ':')))
-            # free local reference and collect periodically
-            branch = None
-            first = False
-            count += 1
-            if count % 16 == 0:
-                tmp.flush()
-                gc.collect()
-
-        tmp.write(']')
-        tmp.flush()
-        tmp.close()
-
-        def stream_from_temp():
-            # Stream back using ijson to parse the temp array incrementally
-            yield '{"branches":['
-            first_out = True
-            with open(tmp_name, 'rb') as f:
-                # ijson.items with prefix '' and map_type=list parses top-level array items
-                for item in ijson.items(f, ''):
-                    if not first_out:
-                        yield ','
-                    yield json.dumps(item, separators=(',', ':'))
-                    # free item and run GC
-                    item = None
-                    first_out = False
-                    gc.collect()
-
-            yield '], "discontinuities": '
-            if infinite_discont:
-                yield json.dumps([[0, "infinite"]])
-            else:
-                yield json.dumps([])
-            yield '}'
-
-        # Return a streaming response
-        return Response(stream_from_temp(), mimetype='application/json')
-    finally:
-        # Ensure temporary file is removed and free memory
+    tmp = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.json')
+    tmp_name = tmp.name
+    # Write a JSON array of branches incrementally
+    tmp.write('{"branches":[')
+    first = True
+    count = 0
+    branches = generate_implicit_plot_points(eq, lower, upper, lower_y, upper_y)
+    for branch in branches:
+        # quick check for infinite sentinel in branch endpoints
         try:
-            if tmp is not None and not tmp.closed:
-                tmp.close()
-            if tmp is not None:
-                os.remove(tmp.name)
+            if len(branch) > 0 and (abs(branch[0][1]) == 1e+300 or abs(branch[-1][1]) == 1e+300):
+                infinite_discont = True
         except Exception:
             pass
-        gc.collect()
+
+        if not first:
+            tmp.write(', ')
+        # Dump branch as compact JSON
+        tmp.write(json.dumps(branch))
+        # free local reference and collect periodically
+        branch = None
+        first = False
+        count += 1
+        if count % 16 == 0:
+            tmp.flush()
+            gc.collect()
+
+    tmp.write(']')
+    if infinite_discont:
+        tmp.write(', "discontinuities": [[0, "infinite"]]')
+    else:
+        tmp.write(', "discontinuities": []')   
+    tmp.write('}')
+    tmp.close()
+
+    def stream_from_temp():
+        try:
+            with open(tmp_name, 'rb') as f:
+                # Read the file in chunks
+                chunk_size = 1024
+                while True:
+                    chunk = f.read(chunk_size)
+                    if not chunk:
+                        break
+                    # Yield the chunk of data
+                    yield chunk
+        finally:
+            # cleanup temp file after streaming completes
+            try:
+                if os.path.exists(tmp_name):
+                    os.remove(tmp_name)
+            except Exception:
+                pass
+            gc.collect()
+
+    # Return a streaming response
+    return Response(stream_from_temp(), mimetype='application/json')
 
 
 @app.route("/turningPoints", methods=['POST'])
