@@ -730,16 +730,47 @@ def numeric():
     branches = generate_implicit_plot_points(
         eq, lower, upper, lower_y, upper_y)
     
-    infinite_discont = False
-    for branch in branches:
-        if abs(branch[0][1]) == 1e+300 or abs(branch[len(branch)-1][1])== 1e+300:
-            infinite_discont =True
-            break
+    # infinite_discont = False
+    # for branch in branches:
+    #     if abs(branch[0][1]) == 1e+300 or abs(branch[len(branch)-1][1])== 1e+300:
+    #         infinite_discont =True
+    #         break
 
     
-    if infinite_discont:
-        return jsonify({"branches": branches, "discontinuities": [[0, "infinite"]]})
-    return jsonify({"branches": branches, "discontinuities": []})
+    # if infinite_discont:
+    #     return jsonify({"branches": branches, "discontinuities": [[0, "infinite"]]})
+    # return jsonify({"branches": branches, "discontinuities": []})
+
+    def stream_branches():
+        yield "{\"branches\": ["
+        first = True
+        infinite_discont = False
+
+        # Iterate and stream branches as produced to avoid building
+        # a giant in-memory JSON string via jsonify.
+        for branch in generate_implicit_plot_points(eq, lower, upper, lower_y, upper_y):
+            try:
+                if len(branch) > 0:
+                    if abs(branch[0][1]) == 1e+300 or abs(branch[-1][1]) == 1e+300:
+                        infinite_discont = True
+            except Exception:
+                pass
+
+            if not first:
+                yield ","
+            # Use flask.json to serialize branch safely
+            yield json.dumps(branch)
+            first = False
+
+        yield "], \"discontinuities\": "
+        if infinite_discont:
+            yield json.dumps([[0, "infinite"]])
+        else:
+            yield json.dumps([])
+
+        yield "}"
+
+    return Response(stream_branches(), mimetype='application/json')
 
 
 @app.route("/turningPoints", methods=['POST'])
