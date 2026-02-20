@@ -110,6 +110,15 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
             for segment in level_segments:
                 # segment is a NumPy array of shape (n_points, 2), where each row is [x, y]
                 # all_points.append(segment)
+
+
+                # Remove NaN values
+                valid_mask = ~np.isnan(segment).any(axis=1)
+                if not np.any(valid_mask):
+                    segment = None  # Clear reference to segment to free memory
+                    continue
+
+                segment = segment[valid_mask]
                 all_points.append(segment.tolist())
                 segment = None  # Clear reference to segment to free memory
              
