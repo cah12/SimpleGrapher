@@ -727,8 +727,8 @@ def numeric():
     arr1 = TR2(arr1)
     eq = trig_substitutions(arr0 - arr1)
 
-    branches = generate_implicit_plot_points(
-        eq, lower, upper, lower_y, upper_y)
+    # branches = generate_implicit_plot_points(
+    #     eq, lower, upper, lower_y, upper_y)
     
     # infinite_discont = False
     # for branch in branches:
