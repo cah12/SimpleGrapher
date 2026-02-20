@@ -685,6 +685,11 @@ def invoke_gc(response):
     gc.collect()
     return response
 
+@app.teardown_request
+def teardown_request(exception):
+    # This function is called even if an error occurs.
+    gc.collect()
+
 @app.route("/numeric", methods=['POST'])
 def numeric():
     data = request.get_json()
