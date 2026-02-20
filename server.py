@@ -724,6 +724,7 @@ def numeric():
     for branch in branches:
         if abs(branch[0][1]) == 1e+300 or abs(branch[len(branch)-1][1])== 1e+300:
             infinite_discont =True
+            break
 
     
     if infinite_discont:

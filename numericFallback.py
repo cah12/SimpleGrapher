@@ -1,6 +1,4 @@
 import gc
-
-from matplotlib.figure import Figure
 from my_misc import estimate_y_bounds, sanitize_contour_segments
 from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
 from domain_finder import closer_boundary
@@ -15,9 +13,9 @@ from sympy import lambdify
 
 from custom import custom
 
-# import matplotlib
-# matplotlib.use('Agg')
-# import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 
@@ -102,11 +100,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring
         z[np.isinf(z)] = np.nan
-        # Generate the figure without using pyplot
-        fig = Figure()
-        ax = fig.subplots()
-        
-        CS = ax.contour(X, Y, np.ma.masked_invalid(
+        CS = plt.contour(X, Y, np.ma.masked_invalid(
             z), levels=[0], colors='blue', alpha=0)
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
@@ -115,9 +109,10 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
         for level_segments in CS.allsegs:
             for segment in level_segments:
                 # segment is a NumPy array of shape (n_points, 2), where each row is [x, y]
-                all_points.append(segment)
-                # all_points.append(segment.tolist())
-                
+                # all_points.append(segment)
+                all_points.append(segment.tolist())
+                segment = None  # Clear reference to segment to free memory
+             
 
         all_points = sanitize_contour_segments(expr, all_points, x_min, x_max)
         # del CS
@@ -125,7 +120,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
         # gc.collect()
         # plt.close()
         # Mandatory cleanup
-        # plt.close('all')
+        
+        plt.close('all')
         del CS
         gc.collect() # Force garbage collection
         return all_points

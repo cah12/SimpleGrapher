@@ -41,11 +41,11 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
             continue
 
         # Remove NaN values
-        valid_mask = ~np.isnan(segment).any(axis=1)
-        if not np.any(valid_mask):
-            continue
+        # valid_mask = ~np.isnan(segment).any(axis=1)
+        # if not np.any(valid_mask):
+        #     continue
 
-        segment = segment[valid_mask]
+        # segment = segment[valid_mask]
 
         if len(segment) < 2:
             continue
@@ -59,10 +59,11 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
         cleaned_segment = _handle_discontinuities(expr, segment, x_min, x_max, max_segment_length)
 
         if cleaned_segment is not None:
-            sanitized.append(cleaned_segment.tolist())
+            sanitized.append(cleaned_segment)
 
-    del allsegs
+    # del allsegs
     return sanitized
+    # return cleaned_segment
 
 
 def _handle_discontinuities(expr, segment: np.ndarray, x_min: float = -1e6, x_max: float = 1e6,
@@ -360,9 +361,9 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
     slope = (y_1 - y_0)/(x_1 - x_0)
     if abs(slope) > THRESHOLD_SLOPE:
         if np.sign(y_0) == -1:
-            segment[0,1] = NEG_INF             
+            segment[0][1] = NEG_INF             
         else:
-            segment[0,1] = POS_INF 
+            segment[0][1] = POS_INF 
         # if np.sign(y_0) == -1 and y_1 > y_0:
         #     segment[0,1] = NEG_INF             
         # elif np.sign(y_0) == 1 and y_1 < y_0:
@@ -377,9 +378,9 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
     slope = (y_1 - y_0)/(x_1 - x_0)
     if abs(slope) > THRESHOLD_SLOPE:
         if np.sign(y_0) == -1:
-            segment[len(segment)-1,1] = NEG_INF 
+            segment[len(segment)-1][1] = NEG_INF 
         else:
-            segment[len(segment)-1,1] = POS_INF 
+            segment[len(segment)-1][1] = POS_INF 
         # if np.sign(y_0) == -1 and y_1 > y_0:
         #     segment[len(segment)-1,1] = NEG_INF 
         # elif np.sign(y_0) == 1 and y_1 < y_0:
