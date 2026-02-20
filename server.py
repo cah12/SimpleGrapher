@@ -21,6 +21,9 @@ from solveset_thread import solve_with_timeout
 from sympy.parsing.sympy_parser import parse_expr, convert_xor, standard_transformations
 
 from numericFallback import generate_implicit_plot_points
+import ijson
+import tempfile
+import os
 # Combine the standard transformations with convert_xor
 custom_transformations = standard_transformations + (convert_xor,)
 
@@ -741,37 +744,74 @@ def numeric():
     #     return jsonify({"branches": branches, "discontinuities": [[0, "infinite"]]})
     # return jsonify({"branches": branches, "discontinuities": []})
 
-    def stream_branches():
-        yield "{\"branches\": ["
+    # Write branches to a temporary file incrementally to avoid OOM
+    tmp = None
+    infinite_discont = False
+    try:
+        tmp = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.json')
+        tmp_name = tmp.name
+        # Write a JSON array of branches incrementally
+        tmp.write('[')
         first = True
-        infinite_discont = False
-
-        # Iterate and stream branches as produced to avoid building
-        # a giant in-memory JSON string via jsonify.
+        count = 0
         for branch in generate_implicit_plot_points(eq, lower, upper, lower_y, upper_y):
+            # quick check for infinite sentinel in branch endpoints
             try:
-                if len(branch) > 0:
-                    if abs(branch[0][1]) == 1e+300 or abs(branch[-1][1]) == 1e+300:
-                        infinite_discont = True
+                if len(branch) > 0 and (abs(branch[0][1]) == 1e+300 or abs(branch[-1][1]) == 1e+300):
+                    infinite_discont = True
             except Exception:
                 pass
 
             if not first:
-                yield ","
-            # Use flask.json to serialize branch safely
-            yield json.dumps(branch)
-            branch = None  # Clear reference to branch to free memory
+                tmp.write(',')
+            # Dump branch as compact JSON
+            tmp.write(json.dumps(branch, separators=(',', ':')))
+            # free local reference and collect periodically
+            branch = None
             first = False
+            count += 1
+            if count % 16 == 0:
+                tmp.flush()
+                gc.collect()
 
-        yield "], \"discontinuities\": "
-        if infinite_discont:
-            yield json.dumps([[0, "infinite"]])
-        else:
-            yield json.dumps([])
+        tmp.write(']')
+        tmp.flush()
+        tmp.close()
 
-        yield "}"
+        def stream_from_temp():
+            # Stream back using ijson to parse the temp array incrementally
+            yield '{"branches":['
+            first_out = True
+            with open(tmp_name, 'rb') as f:
+                # ijson.items with prefix '' and map_type=list parses top-level array items
+                for item in ijson.items(f, ''):
+                    if not first_out:
+                        yield ','
+                    yield json.dumps(item, separators=(',', ':'))
+                    # free item and run GC
+                    item = None
+                    first_out = False
+                    gc.collect()
 
-    return Response(stream_branches(), mimetype='application/json')
+            yield '], "discontinuities": '
+            if infinite_discont:
+                yield json.dumps([[0, "infinite"]])
+            else:
+                yield json.dumps([])
+            yield '}'
+
+        # Return a streaming response
+        return Response(stream_from_temp(), mimetype='application/json')
+    finally:
+        # Ensure temporary file is removed and free memory
+        try:
+            if tmp is not None and not tmp.closed:
+                tmp.close()
+            if tmp is not None:
+                os.remove(tmp.name)
+        except Exception:
+            pass
+        gc.collect()
 
 
 @app.route("/turningPoints", methods=['POST'])
