@@ -772,7 +772,7 @@ def numeric():
         count += 1
         if count % 16 == 0:
             tmp.flush()
-            gc.collect()
+        gc.collect()
 
     tmp.write(']')
     if infinite_discont:
