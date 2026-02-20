@@ -65,7 +65,6 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
 
     return (y_min, y_max)
 
-fig, ax = plt.subplots()
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_max=10.0,
                                   resolution=40000, adaptive=False, remove_temp_file=True):  
@@ -101,8 +100,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring
         z[np.isinf(z)] = np.nan
-        
-        CS = ax.contour(X, Y, np.ma.masked_invalid(
+        CS = plt.contour(X, Y, np.ma.masked_invalid(
             z), levels=[0], colors='blue', alpha=0, _legacy_new_subsegments=False, use_legacy_contour=True)  # Use _legacy_new_subsegments=False for use_legacy_contour=True)
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
