@@ -21,9 +21,6 @@ from solveset_thread import solve_with_timeout
 from sympy.parsing.sympy_parser import parse_expr, convert_xor, standard_transformations
 
 from numericFallback import generate_implicit_plot_points
-import ijson
-import tempfile
-import os
 # Combine the standard transformations with convert_xor
 custom_transformations = standard_transformations + (convert_xor,)
 
@@ -651,6 +648,67 @@ def discontinuity():
 
     return jsonify({"discontinuities": discont, "turningPoints": tps, "period": period})
 
+# # Write branches to a temporary file incrementally to avoid OOM
+#     tmp = None
+#     infinite_discont = False
+#     tmp = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.json')
+#     tmp_name = tmp.name
+#     # Write a JSON array of branches incrementally
+#     tmp.write('{"branches":[')
+#     first = True
+#     count = 0
+#     branches = generate_implicit_plot_points(eq, lower, upper, lower_y, upper_y)
+#     for branch in branches:
+#         # quick check for infinite sentinel in branch endpoints
+#         try:
+#             if len(branch) > 0 and (abs(branch[0][1]) == 1e+300 or abs(branch[-1][1]) == 1e+300):
+#                 infinite_discont = True
+#         except Exception:
+#             pass
+
+#         if not first:
+#             tmp.write(', ')
+#         # Dump branch as compact JSON
+#         tmp.write(json.dumps(branch))
+#         # free local reference and collect periodically
+#         branch = None
+#         first = False
+#         count += 1
+#         if count % 16 == 0:
+#             tmp.flush()
+#         gc.collect()
+
+#     tmp.write(']')
+#     if infinite_discont:
+#         tmp.write(', "discontinuities": [[0, "infinite"]]')
+#     else:
+#         tmp.write(', "discontinuities": []')   
+#     tmp.write('}')
+#     tmp.close()
+
+#     def stream_from_temp():
+#         try:
+#             with open(tmp_name, 'rb') as f:
+#                 # Read the file in chunks
+#                 chunk_size = 1024
+#                 while True:
+#                     chunk = f.read(chunk_size)
+#                     if not chunk:
+#                         break
+#                     # Yield the chunk of data
+#                     yield chunk
+#         finally:
+#             # cleanup temp file after streaming completes
+#             try:
+#                 if os.path.exists(tmp_name):
+#                     os.remove(tmp_name)
+#             except Exception:
+#                 pass
+#             gc.collect()
+
+#     # Return a streaming response
+#     return Response(stream_from_temp(), mimetype='application/json')
+
 
 # def stream_branches():
 #         yield "{\"branches\": ["
@@ -730,80 +788,21 @@ def numeric():
     arr1 = TR2(arr1)
     eq = trig_substitutions(arr0 - arr1)
 
-    # branches = generate_implicit_plot_points(
-    #     eq, lower, upper, lower_y, upper_y)
+    branches = generate_implicit_plot_points(
+        eq, lower, upper, lower_y, upper_y)
     
-    # infinite_discont = False
-    # for branch in branches:
-    #     if abs(branch[0][1]) == 1e+300 or abs(branch[len(branch)-1][1])== 1e+300:
-    #         infinite_discont =True
-    #         break
-
-    
-    # if infinite_discont:
-    #     return jsonify({"branches": branches, "discontinuities": [[0, "infinite"]]})
-    # return jsonify({"branches": branches, "discontinuities": []})
-
-    # Write branches to a temporary file incrementally to avoid OOM
-    tmp = None
     infinite_discont = False
-    tmp = tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.json')
-    tmp_name = tmp.name
-    # Write a JSON array of branches incrementally
-    tmp.write('{"branches":[')
-    first = True
-    count = 0
-    branches = generate_implicit_plot_points(eq, lower, upper, lower_y, upper_y)
     for branch in branches:
-        # quick check for infinite sentinel in branch endpoints
-        try:
-            if len(branch) > 0 and (abs(branch[0][1]) == 1e+300 or abs(branch[-1][1]) == 1e+300):
-                infinite_discont = True
-        except Exception:
-            pass
+        if abs(branch[0][1]) == 1e+300 or abs(branch[len(branch)-1][1])== 1e+300:
+            infinite_discont =True
+            break
 
-        if not first:
-            tmp.write(', ')
-        # Dump branch as compact JSON
-        tmp.write(json.dumps(branch))
-        # free local reference and collect periodically
-        branch = None
-        first = False
-        count += 1
-        if count % 16 == 0:
-            tmp.flush()
-        gc.collect()
-
-    tmp.write(']')
+    
     if infinite_discont:
-        tmp.write(', "discontinuities": [[0, "infinite"]]')
-    else:
-        tmp.write(', "discontinuities": []')   
-    tmp.write('}')
-    tmp.close()
+        return jsonify({"branches": branches, "discontinuities": [[0, "infinite"]]})
+    return jsonify({"branches": branches, "discontinuities": []})
 
-    def stream_from_temp():
-        try:
-            with open(tmp_name, 'rb') as f:
-                # Read the file in chunks
-                chunk_size = 1024
-                while True:
-                    chunk = f.read(chunk_size)
-                    if not chunk:
-                        break
-                    # Yield the chunk of data
-                    yield chunk
-        finally:
-            # cleanup temp file after streaming completes
-            try:
-                if os.path.exists(tmp_name):
-                    os.remove(tmp_name)
-            except Exception:
-                pass
-            gc.collect()
-
-    # Return a streaming response
-    return Response(stream_from_temp(), mimetype='application/json')
+    
 
 
 @app.route("/turningPoints", methods=['POST'])
