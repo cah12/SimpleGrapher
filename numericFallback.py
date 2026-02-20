@@ -124,7 +124,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
                 segment = None  # Clear reference to segment to free memory
         all_segments = None  # Clear reference to all_segments to free memory    
 
-        all_points = sanitize_contour_segments(expr, all_points, x_min, x_max)
+        # all_points = sanitize_contour_segments(expr, all_points, x_min, x_max)
         # del CS
         # plt.clf()
         # gc.collect()
