@@ -338,7 +338,7 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
     # Use large numeric sentinels for infinity markers so arrays remain numeric
     POS_INF = 1e300
     NEG_INF = -1e300
-    THRESHOLD_SLOPE = 9.5
+    THRESHOLD_SLOPE = 8.5
     if len(segment) < 2:
         return segment
     
