@@ -13,9 +13,9 @@ from sympy import lambdify
 
 from custom import custom
 
-# import matplotlib
-# matplotlib.use('Agg')
-# import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 
@@ -69,9 +69,7 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_max=10.0,
                                   resolution=40000, adaptive=False, remove_temp_file=True):  
     
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
+    
 
 
     (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
@@ -81,8 +79,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    _x = np.linspace(x_min, x_max, 1500)
-    _y = np.linspace(y_min, y_max, 1500)
+    _x = np.linspace(x_min, x_max, 1500, dtype=np.float32)
+    _y = np.linspace(y_min, y_max, 1500, dtype=np.float32)
 
     X, Y = np.meshgrid(_x, _y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
@@ -105,7 +103,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
         # Replace inf with nan to avoid issues in contouring
         z[np.isinf(z)] = np.nan
         CS = plt.contour(X, Y, np.ma.masked_invalid(
-            z), levels=[0])  # Use _legacy_new_subsegments=False for use_legacy_contour=True)
+            z), levels=[0], nchunk=2)  # Use _legacy_new_subsegments=False for use_legacy_contour=True)
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
 
