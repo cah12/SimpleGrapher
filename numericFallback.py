@@ -79,24 +79,24 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    _x = np.linspace(x_min, x_max, 500, dtype=np.float32)
+    _x = np.linspace(x_min, x_max, 250, dtype=np.float32)
     _y = np.linspace(y_min, y_max, 500, dtype=np.float32)
 
     X, Y = np.meshgrid(_x, _y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
     f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
     z = f(X, Y)
-    z_val = 0.5*y_max
+    z_val = 0.03*y_max
     # Convert the expression to a string
     expr_str = str(expr)
     if expr.has(TrigonometricFunction):
-        z_val = np.maximum(z_val,100)
+        z_val = np.maximum(z_val,10)
     if ("_mode" in expr_str):
-        z_val = np.maximum(z_val,200)
+        z_val = np.maximum(z_val,13)
     else:
         z_val = np.maximum(z_val, 15)
     # if abs(z_val) >= 1e100:
-    #     z_val = 100
+    # z_val = 10
     z[np.abs(z) > z_val] = np.nan
     try:
         # Z = np.round(z, 2)  # Adjust precision as necessary
