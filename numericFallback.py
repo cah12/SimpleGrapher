@@ -103,7 +103,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
         # Replace inf with nan to avoid issues in contouring
         z[np.isinf(z)] = np.nan
         CS = plt.contour(X, Y, np.ma.masked_invalid(
-            z), levels=[0], nchunk=2)  # Use _legacy_new_subsegments=False for use_legacy_contour=True)
+            z), levels=[0])  # Use _legacy_new_subsegments=False for use_legacy_contour=True)
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
 
