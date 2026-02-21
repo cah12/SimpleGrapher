@@ -798,10 +798,10 @@ def numeric():
             break
 
     
-    # if infinite_discont:
-    #     return jsonify({"branches": branches, "discontinuities": [[0, "infinite"]]})
-    # return jsonify({"branches": branches, "discontinuities": []})
-    return jsonify({"branches": [[[0, 0], [10, 10]]], "discontinuities": []})
+    if infinite_discont:
+        return jsonify({"branches": branches, "discontinuities": [[0, "infinite"]]})
+    return jsonify({"branches": branches, "discontinuities": []})
+    # return jsonify({"branches": [[[0, 0], [10, 10]]], "discontinuities": []})
 
     
 

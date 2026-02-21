@@ -13,9 +13,9 @@ from sympy import lambdify
 
 from custom import custom
 
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+# import matplotlib
+# matplotlib.use('Agg')
+# import matplotlib.pyplot as plt
 
 
 
@@ -68,6 +68,10 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_max=10.0,
                                   resolution=40000, adaptive=False, remove_temp_file=True):  
+    
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
 
 
     (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
