@@ -32,8 +32,7 @@ async function numeric(
   upper,
   indepVar,
   numOfPoints = 200,
-  lower_y = -100,
-  upper_y = 100,
+  has_discontinuity = false,
 ) {
   try {
     res = await axios.post("/numeric", {
@@ -42,8 +41,7 @@ async function numeric(
       upper: upper,
       var: indepVar,
       numOfPoints: numOfPoints,
-      lower_y: lower_y,
-      upper_y: upper_y,
+      has_discontinuity: has_discontinuity,
     });
     // console.log(res.data);
     return res.data;

@@ -20,7 +20,7 @@ def unique_x(segment):
     return result
 
 def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
-                               x_min: float = -1e6, x_max: float = 1e6,threshold_distance: float = 1e-6,
+                               x_min: float = -1e6, x_max: float = 1e6, has_discontinuity: bool = False, threshold_distance: float = 1e-6,
                               max_segment_length: float = 1e6) -> List[np.ndarray]:
     """
     Sanitize contour segments by removing spurious and rogue lines.
@@ -46,10 +46,12 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
     """
 
     sanitized = []
-    has_discontinuity = False
+    
+    if not has_discontinuity:
+        has_discontinuity = has_infinite_discontinuity_in_xrange(expr, x_min, x_max)
 
-    if has_infinite_discontinuity_in_xrange(expr, x_min, x_max):
-        has_discontinuity = True
+    # if has_infinite_discontinuity_in_xrange(expr, x_min, x_max):
+    #     has_discontinuity = True
 
     for segment in allsegs:
         if segment is None or len(segment) < 40:

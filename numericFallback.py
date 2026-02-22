@@ -66,8 +66,7 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
     return (y_min, y_max)
 
 
-def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_max=10.0,
-                                  resolution=40000, adaptive=False, remove_temp_file=True):  
+def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):  
     
     
 
@@ -131,7 +130,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, y_min=-10.0, y_
                 segment = None  # Clear reference to segment to free memory
         all_segments = None  # Clear reference to all_segments to free memory    
 
-        all_points = sanitize_contour_segments(expr, all_points, x_min, x_max)
+        all_points = sanitize_contour_segments(expr, all_points, x_min, x_max, has_discontinuity)
         # del CS
         plt.clf()
         plt.cla()
