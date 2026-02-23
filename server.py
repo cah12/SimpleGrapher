@@ -5,6 +5,7 @@ from flask import Flask, Response, json, render_template, request, jsonify, make
 import gc
 from waitress import serve
 
+import numpy as np
 import sympy as sp
 from sympy import ceiling, symbols, solve, fraction, oo, S, preorder_traversal, sin, cos, tan, cot, sec, csc, Abs
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
@@ -12,6 +13,8 @@ from sympy.core.function import _mexpand as flat
 from typing import List, Union, Tuple
 from sympy.calculus.util import periodicity
 from sympy.simplify.fu import TR2
+
+import base64
 
 from degree_radian import trig_substitutions, set_mode, get_mode
 from discontinuity_finder import find_discontinuities
@@ -751,6 +754,23 @@ def discontinuity():
 #     # This function is called even if an error occurs.
 #     gc.collect()
 
+def custom_serializer(obj):
+    if isinstance(obj, bytes):
+        # Convert bytes to base64 encoded string
+        return base64.b64encode(obj).decode('utf-8')
+    # Let the default encoder handle other types
+    raise TypeError(f'Object of type {obj.__class__.__name__} is not JSON serializable')
+
+""" my_data = {
+    "text": "hello",
+    "binary": b'\x00\x01'
+}
+
+# Use the custom serializer for unsupported types
+json_string = json.dumps(my_data, default=custom_serializer)
+print(json_string)
+# Output: "{"text": "hello", "binary": "AAE="}" """
+
 @app.route("/numeric", methods=['POST'])
 def numeric():
     data = request.get_json()
@@ -791,18 +811,48 @@ def numeric():
         eq, lower, upper, has_discontinuity)
     
     infinite_discont = False
+    _branches = []
     for branch in branches:
-        if abs(branch[0][1]) == 1e+300 or abs(branch[len(branch)-1][1])== 1e+300:
+        if infinite_discont == False and abs(branch[0][1]) == 3.4e+38 or abs(branch[len(branch)-1][1])== -3.4e+38:
             infinite_discont =True
-            break
+        branch = np.array(branch, dtype=np.float32)
+        _branches.append(base64.b64encode(branch.tobytes()).decode('utf-8'))
 
     
-    if infinite_discont:
-        return jsonify({"branches": branches, "discontinuities": [[0, "infinite"]]})
-    return jsonify({"branches": branches, "discontinuities": []})
+    # if infinite_discont:
+    #     my_data = {"branches": base64.b64encode(branches.tobytes()).decode('utf-8'), "discontinuities": [[0, "infinite"]],
+    #     'numpy_dtype': str(branches.dtype)}
+    # else:
+    #     my_data = {"branches": base64.b64encode(branches.tobytes()).decode('utf-8'), "discontinuities": [],'numpy_dtype': str(branches.dtype)}
+
+    # if infinite_discont:
+    #     return jsonify({"branches": branches.tolist(), "discontinuities": [[0, "infinite"]]})
+    # return jsonify({"branches": branches.tolist(), "discontinuities": []})
     # return jsonify({"branches": [[[0, 0], [10, 10]]], "discontinuities": []})
 
+    # json_string = json.dumps(my_data, default=custom_serializer)
+
+    # return Response(json_string, mimetype='application/json')
+
+
+    # Create the response
+    # response = make_response(my_data)
+    # # Create the response
     
+    # # Set the appropriate content type header for binary data
+    # response.headers.set('Content-Type', 'application/octet-stream')
+    
+    # Optional: You can also add a Content-Disposition header if you want 
+    # the browser to prompt for a file download
+    # response.headers.set('Content-Disposition', 'attachment; filename=data.bin')
+
+    # Encode bytes to Base64 string
+
+    type_ = str(branches[0][0][0].dtype)
+    
+    if infinite_discont:
+        return jsonify({"branches": _branches,'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})
+    return jsonify({"branches": _branches, 'numpy_dtype': type_,"discontinuities": []})
 
 
 @app.route("/turningPoints", methods=['POST'])

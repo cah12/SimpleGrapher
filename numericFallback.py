@@ -78,8 +78,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    _x = np.linspace(x_min, x_max, 450, dtype=np.float32)
-    _y = np.linspace(y_min, y_max, 900, dtype=np.float32)
+    _x = np.linspace(x_min, x_max, 450)
+    _y = np.linspace(y_min, y_max, 900)
 
     X, Y = np.meshgrid(_x, _y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
@@ -126,10 +126,10 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
                     pass
 
 
-                all_points.append(segment.tolist())
-                segment = None  # Clear reference to segment to free memory
-        all_segments = None  # Clear reference to all_segments to free memory    
-
+                all_points.append(segment.astype(np.float32))
+                # segment = None  # Clear reference to segment to free memory
+        # all_segments = None  # Clear reference to all_segments to free memory    
+        # all_points = np.array(all_points)
         all_points = sanitize_contour_segments(expr, all_points, x_min, x_max, has_discontinuity)
         # del CS
         plt.clf()

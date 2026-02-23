@@ -9,7 +9,7 @@ from sympy.functions.elementary.trigonometric import TrigonometricFunction
 
 
 def unique_x(segment):
-    if abs(segment[0][1])==1e300 or abs(segment[len(segment)-1][1])==1e300:
+    if abs(segment[0][1])==3.4e38 or abs(segment[len(segment)-1][1])==3.4e38:
         return segment
     result = []
     for i in range(len(segment)-1):
@@ -55,6 +55,7 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
 
     for segment in allsegs:
         if segment is None or len(segment) < 40:
+            segment = None
             continue
 
         # Remove NaN values
@@ -64,12 +65,12 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
 
         # segment = segment[valid_mask]
 
-        if len(segment) < 2:
-            continue
+        
 
         # Check for degenerate segments (all points identical or too close)
         distances = np.sqrt(np.sum(np.diff(segment, axis=0)**2, axis=1))
         if np.all(distances < threshold_distance):
+            segment = None
             continue
 
         # Handle trigonometric discontinuities and large jumps
@@ -84,8 +85,8 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
             sanitized.append(segment)  # unique_rows = np.unique(segment)
 
     del allsegs
+    # return np.array(sanitized, dtype=np.float32)  # sanitized
     return sanitized
-    # return cleaned_segment
 
 
 def _handle_discontinuities(expr, segment: np.ndarray, x_min: float = -1e6, x_max: float = 1e6,
@@ -358,8 +359,8 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
     """
 
     # Use large numeric sentinels for infinity markers so arrays remain numeric
-    POS_INF = 1e300
-    NEG_INF = -1e300
+    POS_INF = 3.4e38
+    NEG_INF = -3.4e38
     THRESHOLD_SLOPE = 8.5
     if len(segment) < 2:
         return segment
@@ -459,8 +460,8 @@ def _mark_infinity_at_endpoints(expr, segment: np.ndarray) -> np.ndarray:
     """
 
     # Use large numeric sentinels for infinity markers so arrays remain numeric
-    POS_INF = 1e300
-    NEG_INF = -1e300
+    POS_INF = 3.4e38
+    NEG_INF = -3.4e38
     THRESHOLD_SLOPE = 300
 
     if len(segment) < 2:
