@@ -15,6 +15,7 @@ from sympy.calculus.util import periodicity
 from sympy.simplify.fu import TR2
 
 import base64
+# import psutil
 
 from degree_radian import trig_substitutions, set_mode, get_mode
 from discontinuity_finder import find_discontinuities
@@ -26,6 +27,58 @@ from sympy.parsing.sympy_parser import parse_expr, convert_xor, standard_transfo
 from numericFallback import generate_implicit_plot_points
 # Combine the standard transformations with convert_xor
 custom_transformations = standard_transformations + (convert_xor,)
+
+# --- Memory Management Utility ---
+import os
+
+def release_memory_to_os(threshold_mb=200):
+    """
+    Releases memory back to the OS if the process memory usage exceeds the given threshold (in MB).
+    Works on most Unix and Windows systems (Python 3.8+ recommended for best effect).
+    """
+    try:
+        import psutil
+    except ImportError:
+        psutil = None
+    process = None
+    if psutil:
+        process = psutil.Process(os.getpid())
+        mem_mb = process.memory_info().rss / (1024 * 1024)
+        if mem_mb > threshold_mb:
+            gc.collect()
+            # On Linux, can use malloc_trim if available
+            try:
+                import ctypes
+                if hasattr(ctypes, 'CDLL') and hasattr(ctypes.CDLL(None), 'malloc_trim'):
+                    ctypes.CDLL(None).malloc_trim(0)
+            except Exception:
+                pass
+            # On Windows, empty working set
+            if os.name == 'nt':
+                try:
+                    import ctypes
+                    ctypes.windll.kernel32.SetProcessWorkingSetSize(-1, -1, -1)
+                except Exception:
+                    pass
+            return True
+        return False
+    else:
+        # Fallback: just run gc.collect if psutil not available
+        gc.collect()
+        return None
+
+# Example usage in a Flask route:
+# app = Flask(__name__)
+
+# @app.route('/free_memory', methods=['POST'])
+# def free_memory():
+#     """Endpoint to manually trigger memory release if threshold exceeded."""
+#     threshold = request.json.get('threshold_mb', 500)
+#     result = release_memory_to_os(threshold_mb=threshold)
+#     return jsonify({'memory_released': result})
+
+# Example: Call periodically in your server loop or after heavy operations
+# release_memory_to_os(threshold_mb=1000)  # Call with your desired threshold
 
 
 # The Degree To Radian Code
@@ -849,6 +902,8 @@ def numeric():
     # Encode bytes to Base64 string
 
     type_ = str(branches[0][0][0].dtype)
+
+    release_memory_to_os()
     
     if infinite_discont:
         return jsonify({"branches": _branches,'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})
