@@ -1,3 +1,4 @@
+import os
 from domain_finder import closer_boundary
 from ast import expr
 import math
@@ -29,9 +30,9 @@ from numericFallback import generate_implicit_plot_points
 custom_transformations = standard_transformations + (convert_xor,)
 
 # --- Memory Management Utility ---
-import os
 
-def release_memory_to_os(threshold_mb=200):
+
+def release_memory_to_os(threshold_mb=100):
     """
     Releases memory back to the OS if the process memory usage exceeds the given threshold (in MB).
     Works on most Unix and Windows systems (Python 3.8+ recommended for best effect).
@@ -738,7 +739,7 @@ def discontinuity():
 #     if infinite_discont:
 #         tmp.write(', "discontinuities": [[0, "infinite"]]')
 #     else:
-#         tmp.write(', "discontinuities": []')   
+#         tmp.write(', "discontinuities": []')
 #     tmp.write('}')
 #     tmp.close()
 
@@ -812,7 +813,9 @@ def custom_serializer(obj):
         # Convert bytes to base64 encoded string
         return base64.b64encode(obj).decode('utf-8')
     # Let the default encoder handle other types
-    raise TypeError(f'Object of type {obj.__class__.__name__} is not JSON serializable')
+    raise TypeError(
+        f'Object of type {obj.__class__.__name__} is not JSON serializable')
+
 
 """ my_data = {
     "text": "hello",
@@ -823,6 +826,7 @@ def custom_serializer(obj):
 json_string = json.dumps(my_data, default=custom_serializer)
 print(json_string)
 # Output: "{"text": "hello", "binary": "AAE="}" """
+
 
 @app.route("/numeric", methods=['POST'])
 def numeric():
@@ -862,16 +866,15 @@ def numeric():
 
     branches = generate_implicit_plot_points(
         eq, lower, upper, has_discontinuity)
-    
+
     infinite_discont = False
     _branches = []
     for branch in branches:
-        if infinite_discont == False and abs(branch[0][1]) == 3.4e+38 or abs(branch[len(branch)-1][1])== -3.4e+38:
-            infinite_discont =True
+        if infinite_discont == False and abs(branch[0][1]) == 3.4e+38 or abs(branch[len(branch)-1][1]) == -3.4e+38:
+            infinite_discont = True
         branch = np.array(branch, dtype=np.float32)
         _branches.append(base64.b64encode(branch.tobytes()).decode('utf-8'))
 
-    
     # if infinite_discont:
     #     my_data = {"branches": base64.b64encode(branches.tobytes()).decode('utf-8'), "discontinuities": [[0, "infinite"]],
     #     'numpy_dtype': str(branches.dtype)}
@@ -887,15 +890,14 @@ def numeric():
 
     # return Response(json_string, mimetype='application/json')
 
-
     # Create the response
     # response = make_response(my_data)
     # # Create the response
-    
+
     # # Set the appropriate content type header for binary data
     # response.headers.set('Content-Type', 'application/octet-stream')
-    
-    # Optional: You can also add a Content-Disposition header if you want 
+
+    # Optional: You can also add a Content-Disposition header if you want
     # the browser to prompt for a file download
     # response.headers.set('Content-Disposition', 'attachment; filename=data.bin')
 
@@ -904,10 +906,10 @@ def numeric():
     type_ = str(branches[0][0][0].dtype)
 
     release_memory_to_os()
-    
+
     if infinite_discont:
-        return jsonify({"branches": _branches,'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})
-    return jsonify({"branches": _branches, 'numpy_dtype': type_,"discontinuities": []})
+        return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})
+    return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": []})
 
 
 @app.route("/turningPoints", methods=['POST'])
