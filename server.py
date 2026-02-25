@@ -32,7 +32,7 @@ custom_transformations = standard_transformations + (convert_xor,)
 # --- Memory Management Utility ---
 
 
-def release_memory_to_os(threshold_mb=100):
+def release_memory_to_os(threshold_mb=5):
     """
     Releases memory back to the OS if the process memory usage exceeds the given threshold (in MB).
     Works on most Unix and Windows systems (Python 3.8+ recommended for best effect).
