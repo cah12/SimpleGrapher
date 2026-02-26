@@ -9,7 +9,7 @@ from sympy.functions.elementary.trigonometric import TrigonometricFunction
 
 
 def unique_x(segment):
-    if abs(segment[0][1])==3.4e38 or abs(segment[len(segment)-1][1])==3.4e38:
+    if abs(segment[0][1]) == 3.4e38 or abs(segment[len(segment)-1][1]) == 3.4e38:
         return segment
     result = []
     for i in range(len(segment)-1):
@@ -19,8 +19,9 @@ def unique_x(segment):
             result.append([x0, y0])
     return result
 
+
 def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
-                               x_min: float = -1e6, x_max: float = 1e6, has_discontinuity: bool = False, threshold_distance: float = 1e-6,
+                              x_min: float = -1e6, x_max: float = 1e6, has_discontinuity: bool = False, threshold_distance: float = 1e-6,
                               max_segment_length: float = 1e6) -> List[np.ndarray]:
     """
     Sanitize contour segments by removing spurious and rogue lines.
@@ -46,9 +47,10 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
     """
 
     sanitized = []
-    
+
     if not has_discontinuity:
-        has_discontinuity = has_infinite_discontinuity_in_xrange(expr, x_min, x_max)
+        has_discontinuity = has_infinite_discontinuity_in_xrange(
+            expr, x_min, x_max)
 
     # if has_infinite_discontinuity_in_xrange(expr, x_min, x_max):
     #     has_discontinuity = True
@@ -65,8 +67,6 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
 
         # segment = segment[valid_mask]
 
-        
-
         # Check for degenerate segments (all points identical or too close)
         distances = np.sqrt(np.sum(np.diff(segment, axis=0)**2, axis=1))
         if np.all(distances < threshold_distance):
@@ -75,11 +75,13 @@ def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
 
         # Handle trigonometric discontinuities and large jumps
         if has_discontinuity:
-            cleaned_segment = _handle_discontinuities(expr, segment, x_min, x_max, max_segment_length)
+            segment = unique_x(segment)
+            cleaned_segment = _handle_discontinuities(
+                expr, segment, x_min, x_max, max_segment_length)
             if cleaned_segment is not None:
-                cleaned_segment = unique_x(cleaned_segment)
+                # cleaned_segment = unique_x(cleaned_segment)
                 sanitized.append(cleaned_segment)
-                
+
         else:
             segment = unique_x(segment)
             sanitized.append(segment)  # unique_rows = np.unique(segment)
@@ -109,11 +111,10 @@ def _handle_discontinuities(expr, segment: np.ndarray, x_min: float = -1e6, x_ma
     np.ndarray or List
         Cleaned segment, possibly with "##" markers for infinity.
     """
-    
 
     if len(segment) < 2:
         return None
-    
+
     # if not has_infinite_discontinuity_in_xrange(expr, x_min, x_max):
     #     return segment
 
@@ -200,9 +201,6 @@ def _is_asymptote_jump(point1: np.ndarray, point2: np.ndarray,
     return False
 
 
-
-
-
 def has_infinite_discontinuity_in_xrange(implicit_expr, x_min, x_max) -> bool:
     """
     Symbolically detect vertical/infinite discontinuities for f(x,y)=0
@@ -229,7 +227,8 @@ def has_infinite_discontinuity_in_xrange(implicit_expr, x_min, x_max) -> bool:
             try:
                 return float(val)
             except Exception:
-                raise ValueError("Cannot extract x coordinate from boundary values")
+                raise ValueError(
+                    "Cannot extract x coordinate from boundary values")
 
     x0 = x_min
     x1 = x_max
@@ -267,12 +266,13 @@ def has_infinite_discontinuity_in_xrange(implicit_expr, x_min, x_max) -> bool:
         if deg is not None and deg >= 1:
             leading = polyN.LC()
             # Solve leading(x) == 0 on reals
-            solset = sp.solveset(sp.Eq(sp.simplify(sp.factor(leading)), 0), x, domain=sp.S.Reals)
+            solset = sp.solveset(
+                sp.Eq(sp.simplify(sp.factor(leading)), 0), x, domain=sp.S.Reals)
             # If solution set intersects the interval, report True
             if isinstance(solset, sp.Set):
                 interval = sp.Interval(float(xmin), float(xmax))
                 inter = solset.intersect(interval)
-                if not inter.is_EmptySet:
+                if not inter.is_empty:
                     return True
             else:
                 # fallback: iterate finite solutions
@@ -292,7 +292,8 @@ def has_infinite_discontinuity_in_xrange(implicit_expr, x_min, x_max) -> bool:
     try:
         lim_expr = sp.limit(expr_sym, y, sp.oo)
         # Solve lim_expr == 0 over reals
-        solset2 = sp.solveset(sp.Eq(sp.simplify(sp.factor(lim_expr)), 0), x, domain=sp.S.Reals)
+        solset2 = sp.solveset(
+            sp.Eq(sp.simplify(sp.factor(lim_expr)), 0), x, domain=sp.S.Reals)
         if isinstance(solset2, sp.Set):
             interval = sp.Interval(float(xmin), float(xmax))
             inter2 = solset2.intersect(interval)
@@ -343,6 +344,7 @@ def has_infinite_discontinuity_in_xrange(implicit_expr, x_min, x_max) -> bool:
 
 #     return np.array(result, dtype=float)
 
+
 def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
     """
     Identify and mark points near infinity in a segment.
@@ -364,53 +366,54 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
     THRESHOLD_SLOPE = 8.5
     if len(segment) < 2:
         return segment
-    
+
     # _max_y = segment.max(axis=0)[1]
     # _min_y = segment.min(axis=0)[1]
     try:
         x_0, y_0 = segment[0]
         x_1, y_1 = segment[1]
 
-
         THRESHOLD_SLOPE_MIN = 40
         THRESHOLD_SLOPE_MAX = 400
 
-        THRESHOLD_SLOPE = THRESHOLD_SLOPE_MIN+((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*abs(y_0/3)
+        THRESHOLD_SLOPE = THRESHOLD_SLOPE_MIN + \
+            ((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*abs(y_0/3)
 
         if ("_mode" in str(expr)):
             x_0 = np.deg2rad(x_0)
             x_1 = np.deg2rad(x_1)
-        
+
         slope = (y_1 - y_0)/(x_1 - x_0)
         if abs(slope) > THRESHOLD_SLOPE:
             if np.sign(y_0) == -1:
-                segment[0][1] = NEG_INF             
+                segment[0][1] = NEG_INF
             else:
-                segment[0][1] = POS_INF 
+                segment[0][1] = POS_INF
             # if np.sign(y_0) == -1 and y_1 > y_0:
-            #     segment[0,1] = NEG_INF             
+            #     segment[0,1] = NEG_INF
             # elif np.sign(y_0) == 1 and y_1 < y_0:
-            #     segment[0,1] = POS_INF 
-            
+            #     segment[0,1] = POS_INF
+
         x_0, y_0 = segment[len(segment)-1]
         x_1, y_1 = segment[len(segment)-2]
-        THRESHOLD_SLOPE = THRESHOLD_SLOPE_MIN+((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*abs(y_0/3)
+        THRESHOLD_SLOPE = THRESHOLD_SLOPE_MIN + \
+            ((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*abs(y_0/3)
         if ("_mode" in str(expr)):
             x_0 = np.deg2rad(x_0)
             x_1 = np.deg2rad(x_1)
         slope = (y_1 - y_0)/(x_1 - x_0)
         if abs(slope) > THRESHOLD_SLOPE:
             if np.sign(y_0) == -1:
-                segment[len(segment)-1][1] = NEG_INF 
+                segment[len(segment)-1][1] = NEG_INF
             else:
-                segment[len(segment)-1][1] = POS_INF 
+                segment[len(segment)-1][1] = POS_INF
             # if np.sign(y_0) == -1 and y_1 > y_0:
-            #     segment[len(segment)-1,1] = NEG_INF 
+            #     segment[len(segment)-1,1] = NEG_INF
             # elif np.sign(y_0) == 1 and y_1 < y_0:
-            #     segment[len(segment)-1,1] = POS_INF 
+            #     segment[len(segment)-1,1] = POS_INF
     except Exception:
         pass
-    return segment        
+    return segment
 
 
 # def _mark_infinity_at_endpoints(segment: np.ndarray) -> np.ndarray:
@@ -466,26 +469,26 @@ def _mark_infinity_at_endpoints(expr, segment: np.ndarray) -> np.ndarray:
 
     if len(segment) < 2:
         return segment
-    
+
     x_0, y_0 = segment[0]
     x_1, y_1 = segment[1]
     new_row = None
     slope = (y_1 - y_0)/(x_1 - x_0)
     if abs(slope) > THRESHOLD_SLOPE:
         if np.sign(y_0) == -1:
-            segment[0,1] = NEG_INF             
+            segment[0, 1] = NEG_INF
         else:
-            segment[0,1] = POS_INF 
-        
+            segment[0, 1] = POS_INF
+
     x_0, y_0 = segment[len(segment)-1]
     x_1, y_1 = segment[len(segment)-2]
     slope = (y_1 - y_0)/(x_1 - x_0)
     if abs(slope) > THRESHOLD_SLOPE:
         if np.sign(y_0) == -1:
-            segment[len(segment)-1,1] = NEG_INF 
+            segment[len(segment)-1, 1] = NEG_INF
         else:
-            segment[len(segment)-1,1] = POS_INF 
-    return segment  
+            segment[len(segment)-1, 1] = POS_INF
+    return segment
 
 
 # Example usage and testing
@@ -524,9 +527,6 @@ if __name__ == "__main__":
     for i, seg in enumerate(sanitized3):
         print(f"Segment {i}:")
         print(seg)
-
-
-
 
 
 def estimate_y_bounds(implicit_func, lower_x: float, upper_x: float,
