@@ -72,8 +72,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    num_points = 1200
-    _x = np.linspace(x_min, x_max,num_points)
+    num_points = 2000
+    _x = np.linspace(x_min, x_max,np.round(num_points*0.9).astype(int))
     _y = np.linspace(y_min, y_max, num_points)
 
     X, Y = np.meshgrid(_x, _y)
@@ -93,15 +93,14 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     # z_val = 10
     # z_val = np.percentile(z[~np.isnan(z)], 99)
     # z_val = np.nanmean(z)+3*np.nanstd(z)
-    # z_val = np.nanmax(z)*0.90
+    z_val = np.minimum(np.nanmax(z)*0.10, 45)
     # print(z_val)
-    z[np.abs(z) > z_val] = np.nan
+    # z[np.abs(z) > z_val] = np.nan
     try:
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring
         z[np.isinf(z)] = np.nan
-        CS = plt.contour(X, Y, np.ma.masked_invalid(
-            # Use _legacy_new_subsegments=False for use_legacy_contour=True)
+        CS = plt.contour(X, Y, np.ma.masked_where(z>z_val,
             z), levels=[0])
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)

@@ -297,7 +297,7 @@ def has_infinite_discontinuity_in_xrange(implicit_expr, x_min, x_max) -> bool:
         if isinstance(solset2, sp.Set):
             interval = sp.Interval(float(xmin), float(xmax))
             inter2 = solset2.intersect(interval)
-            if not inter2.is_EmptySet:
+            if not inter2.is_empty:
                 return True
         else:
             for s in solset2:
