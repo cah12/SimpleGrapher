@@ -73,7 +73,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     y_max = max(y_max, _y_max)
 
     num_points = 2000
-    _x = np.linspace(x_min, x_max,np.round(num_points*0.9).astype(int))
+    _x = np.linspace(x_min, x_max,np.round(num_points*0.88).astype(int))
     _y = np.linspace(y_min, y_max, num_points)
 
     X, Y = np.meshgrid(_x, _y)
