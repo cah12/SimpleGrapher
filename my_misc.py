@@ -33,9 +33,82 @@ def unique_x(segment):
     return unique_rows
 
 
-def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
+def sanitize_contour_segments(expr, segment: np.ndarray,
                               x_min: float = -1e6, x_max: float = 1e6, has_discontinuity: bool = False, threshold_distance: float = 1e-6,
                               max_segment_length: float = 1e6) -> List[np.ndarray]:
+    """
+    Sanitize contour segments by removing spurious and rogue lines.
+
+    Handles complex implicit functions f(x, y)=0, trigonometric discontinuities,
+    and marks infinity with "##" at y-values.
+
+    Parameters
+    ----------
+    allsegs : List[np.ndarray]
+        Contour segments from contour level 0, where each segment is an (N, 2) array
+        of (x, y) coordinates.
+    threshold_distance : float, optional
+        Minimum distance for a segment to be considered valid (default: 1e-6).
+    max_segment_length : float, optional
+        Maximum allowed segment length before flagging as potentially spurious (default: 1e6).
+
+    Returns
+    -------
+    List[np.ndarray] or List[Tuple/List]
+        Sanitized segments with infinity marked as "##" in y-value where appropriate.
+        Each segment is either a numpy array of valid coordinates or contains "##" markers.
+    """
+
+    sanitized = []
+
+    if not has_discontinuity:
+        has_discontinuity = has_infinite_discontinuity_in_xrange(
+            expr, x_min, x_max)
+
+    # if has_infinite_discontinuity_in_xrange(expr, x_min, x_max):
+    #     has_discontinuity = True
+
+    # for segment in allsegs:
+    if segment is None or len(segment) < 40:
+        segment = None
+        return segment
+
+    # Remove NaN values
+    # valid_mask = ~np.isnan(segment).any(axis=1)
+    # if not np.any(valid_mask):
+    #     continue
+
+    # segment = segment[valid_mask]
+
+    # Check for degenerate segments (all points identical or too close)
+    distances = np.sqrt(np.sum(np.diff(segment, axis=0)**2, axis=1))
+    if np.all(distances < threshold_distance):
+        segment = None
+        return segment
+
+    # Handle trigonometric discontinuities and large jumps
+    if has_discontinuity:
+        segment = unique_x(segment)
+        cleaned_segment = _handle_discontinuities(
+            expr, segment, x_min, x_max, max_segment_length)
+        if cleaned_segment is not None:
+            # cleaned_segment = unique_x(cleaned_segment)
+            # sanitized.append(cleaned_segment)
+            return cleaned_segment
+
+    else:
+        segment = unique_x(segment)
+        # sanitized.append(segment)  # unique_rows = np.unique(segment)
+        return segment
+
+    # del allsegs
+    # return np.array(sanitized, dtype=np.float32)  # sanitized
+    return sanitized
+
+
+def sanitize_contour_segments2(expr, allsegs: List[np.ndarray],
+                               x_min: float = -1e6, x_max: float = 1e6, has_discontinuity: bool = False, threshold_distance: float = 1e-6,
+                               max_segment_length: float = 1e6) -> List[np.ndarray]:
     """
     Sanitize contour segments by removing spurious and rogue lines.
 

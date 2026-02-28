@@ -828,6 +828,28 @@ print(json_string)
 # Output: "{"text": "hello", "binary": "AAE="}" """
 
 
+def read_temp_file_and_create_list(file_path):
+    lines_list = []
+    try:
+        # Open the file for reading (default mode 'r')
+        with open(file_path, 'r') as f:
+            for line in f:
+                # Append the stripped line (removing trailing newlines/whitespace) to the list
+                lines_list.append([line.strip()])
+        return lines_list
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+        return None
+    except Exception as e:
+        print(f"An error occurred while reading the file: {e}")
+        return None
+    finally:
+        # Manually delete the file after reading
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"File deleted: {file_path}")
+
+
 @app.route("/numeric", methods=['POST'])
 def numeric():
     data = request.get_json()
@@ -864,15 +886,20 @@ def numeric():
     arr1 = TR2(arr1)
     eq = trig_substitutions(arr0 - arr1)
 
-    branches = generate_implicit_plot_points(
+    # branches = generate_implicit_plot_points(
+    #     eq, lower, upper, has_discontinuity)
+
+    # infinite_discont = False
+    # _branches = []
+    # for branch in branches:
+    #     if infinite_discont == False and abs(branch[0][1]) == 3.4e+38 or abs(branch[len(branch)-1][1]) == -3.4e+38:
+    #         infinite_discont = True
+    #     _branches.append(base64.b64encode(branch.tobytes()).decode('utf-8'))
+
+    temp_file_name, has_discontinuity = generate_implicit_plot_points(
         eq, lower, upper, has_discontinuity)
 
-    infinite_discont = False
-    _branches = []
-    for branch in branches:
-        if infinite_discont == False and abs(branch[0][1]) == 3.4e+38 or abs(branch[len(branch)-1][1]) == -3.4e+38:
-            infinite_discont = True
-        _branches.append(base64.b64encode(branch.tobytes()).decode('utf-8'))
+    _branches = read_temp_file_and_create_list(temp_file_name)
 
     # if infinite_discont:
     #     my_data = {"branches": base64.b64encode(branches.tobytes()).decode('utf-8'), "discontinuities": [[0, "infinite"]],
@@ -902,13 +929,17 @@ def numeric():
 
     # Encode bytes to Base64 string
 
-    type_ = str(branches[0][0][0].dtype)
+    # type_ = str(branches[0][0][0].dtype)
+    type_ = "float32"
 
     # release_memory_to_os()
 
-    if infinite_discont:
+    if has_discontinuity:
         return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})
     return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": []})
+    # if infinite_discont:
+    #     return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})
+    # return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": []})
 
 
 @app.route("/turningPoints", methods=['POST'])
