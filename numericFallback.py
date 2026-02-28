@@ -207,7 +207,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         line = 0
         has_discontinuity = has_infinite_discontinuity_in_xrange(
             expr, x_min, x_max)
-        with tempfile.NamedTemporaryFile(mode='w+', dir= "/tmp", delete=False, suffix=".txt") as temp_file:
+        with tempfile.NamedTemporaryFile( mode='w+',  delete=False, suffix=".txt") as temp_file:
             for sanitized_branch in get_sanitized_branches(expr, x_min, x_max, has_discontinuity, cs.allsegs):
                 if sanitized_branch is None:
                     continue
@@ -218,6 +218,16 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
             temp_file.flush() # Ensure all data is written to disk
             print(f"Branches written to: {temp_file.name} ({temp_file.tell()} bytes) ({line} lines)")
             temp_file.close()
+
+        plt.clf()
+        plt.cla()
+        # gc.collect()
+        # plt.close()
+        # Mandatory cleanup
+
+        plt.close('all')
+        del cs
+        gc.collect()
         return temp_file.name, has_discontinuity
     except Exception as e:
         print(f"Error generating implicit plot points: {e}")
