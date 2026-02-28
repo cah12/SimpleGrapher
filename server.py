@@ -872,7 +872,6 @@ def numeric():
     for branch in branches:
         if infinite_discont == False and abs(branch[0][1]) == 3.4e+38 or abs(branch[len(branch)-1][1]) == -3.4e+38:
             infinite_discont = True
-        branch = np.array(branch, dtype=np.float32)
         _branches.append(base64.b64encode(branch.tobytes()).decode('utf-8'))
 
     # if infinite_discont:
@@ -905,7 +904,7 @@ def numeric():
 
     type_ = str(branches[0][0][0].dtype)
 
-    release_memory_to_os()
+    # release_memory_to_os()
 
     if infinite_discont:
         return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})

@@ -9,15 +9,28 @@ from sympy.functions.elementary.trigonometric import TrigonometricFunction
 
 
 def unique_x(segment):
-    if abs(segment[0][1]) == 3.4e38 or abs(segment[len(segment)-1][1]) == 3.4e38:
+    if np.abs(segment[0][1]) == 3.4e38 or np.abs(segment[len(segment)-1][1]) == 3.4e38:
         return segment
-    result = []
-    for i in range(len(segment)-1):
-        x0, y0 = segment[i]
-        x1, y1 = segment[i+1]
-        if abs(x1-x0) > 0:
-            result.append([x0, y0])
-    return result
+    x_values = segment[:, 0]
+    if np.abs(np.max(x_values) - np.min(x_values)) < 1e-6:
+        return segment
+    # result = []
+    # for i in range(len(segment)-1):
+    #     x0, y0 = segment[i]
+    #     x1, y1 = segment[i+1]
+    #     if np.abs(x1-x0) > 0:
+    #         result.append([x0, y0])
+    # return result
+
+    # 1. Get unique 'x' values and their first occurrence indices
+    #    The `return_index=True` parameter gives the indices in the original array.
+    unique_x_values, unique_indices = np.unique(
+        segment[:, 0], return_index=True)
+
+    # 2. Use the indices to select the corresponding rows from the original array
+    unique_rows = segment[unique_indices]
+
+    return unique_rows
 
 
 def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
@@ -377,14 +390,14 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
         THRESHOLD_SLOPE_MAX = 400
 
         THRESHOLD_SLOPE = THRESHOLD_SLOPE_MIN + \
-            ((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*abs(y_0/3)
+            ((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*np.abs(y_0/3)
 
         if ("_mode" in str(expr)):
             x_0 = np.deg2rad(x_0)
             x_1 = np.deg2rad(x_1)
 
         slope = (y_1 - y_0)/(x_1 - x_0)
-        if abs(slope) > THRESHOLD_SLOPE:
+        if np.abs(slope) > THRESHOLD_SLOPE:
             if np.sign(y_0) == -1:
                 segment[0][1] = NEG_INF
             else:
@@ -397,12 +410,12 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
         x_0, y_0 = segment[len(segment)-1]
         x_1, y_1 = segment[len(segment)-2]
         THRESHOLD_SLOPE = THRESHOLD_SLOPE_MIN + \
-            ((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*abs(y_0/3)
+            ((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*np.abs(y_0/3)
         if ("_mode" in str(expr)):
             x_0 = np.deg2rad(x_0)
             x_1 = np.deg2rad(x_1)
         slope = (y_1 - y_0)/(x_1 - x_0)
-        if abs(slope) > THRESHOLD_SLOPE:
+        if np.abs(slope) > THRESHOLD_SLOPE:
             if np.sign(y_0) == -1:
                 segment[len(segment)-1][1] = NEG_INF
             else:
