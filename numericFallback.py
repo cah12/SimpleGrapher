@@ -12,7 +12,7 @@ from sympy.functions.elementary.trigonometric import TrigonometricFunction
 import numpy as np
 from sympy import symbols, solve, plot_implicit
 import sympy as sp
-from domain_finder import closer_boundary
+# from domain_finder import closer_boundary
 from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
 from my_misc import estimate_y_bounds, has_infinite_discontinuity_in_xrange, sanitize_contour_segments
 import gc

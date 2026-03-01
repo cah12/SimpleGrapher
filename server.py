@@ -1,5 +1,4 @@
 import os
-from domain_finder import closer_boundary
 from ast import expr
 import math
 from flask import Flask, Response, json, render_template, request, jsonify, make_response, after_this_request
