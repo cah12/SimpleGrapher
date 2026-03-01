@@ -886,18 +886,18 @@ def numeric():
     arr1 = TR2(arr1)
     eq = trig_substitutions(arr0 - arr1)
 
-    # branches = generate_implicit_plot_points(
-    #     eq, lower, upper, has_discontinuity)
-
-    # infinite_discont = False
-    # _branches = []
-    # for branch in branches:
-    #     if infinite_discont == False and abs(branch[0][1]) == 3.4e+38 or abs(branch[len(branch)-1][1]) == -3.4e+38:
-    #         infinite_discont = True
-    #     _branches.append(base64.b64encode(branch.tobytes()).decode('utf-8'))
-
-    _branches, has_discontinuity = generate_implicit_plot_points(
+    branches = generate_implicit_plot_points(
         eq, lower, upper, has_discontinuity)
+
+    infinite_discont = False
+    _branches = []
+    for branch in branches:
+        if infinite_discont == False and abs(branch[0][1]) == 3.4e+38 or abs(branch[len(branch)-1][1]) == -3.4e+38:
+            infinite_discont = True
+        _branches.append(base64.b64encode(branch.tobytes()).decode('utf-8'))
+
+    # _branches, has_discontinuity = generate_implicit_plot_points(
+    #     eq, lower, upper, has_discontinuity)
 
     # _branches = read_temp_file_and_create_list(temp_file_name)
 
@@ -934,12 +934,12 @@ def numeric():
 
     # release_memory_to_os()
 
-    if has_discontinuity:
-        return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})
-    return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": []})
-    # if infinite_discont:
+    # if has_discontinuity:
     #     return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})
     # return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": []})
+    if infinite_discont:
+        return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})
+    return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": []})
 
 
 @app.route("/turningPoints", methods=['POST'])

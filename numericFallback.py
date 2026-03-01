@@ -67,7 +67,7 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
     return (y_min, y_max)
 
 
-def generate_implicit_plot_points2(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
+def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
 
     (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
     # (_y_min, _y_max) = (x_min, x_max)
@@ -231,7 +231,7 @@ def generate_implicit_plot_points3(expr, x_min=-10.0, x_max=10.0, has_discontinu
         print(f"Error generating implicit plot points: {e}")
         return []
 
-def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
+def generate_implicit_plot_points4(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
 
     (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
     # (_y_min, _y_max) = (x_min, x_max)
