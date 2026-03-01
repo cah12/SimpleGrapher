@@ -896,10 +896,10 @@ def numeric():
     #         infinite_discont = True
     #     _branches.append(base64.b64encode(branch.tobytes()).decode('utf-8'))
 
-    temp_file_name, has_discontinuity = generate_implicit_plot_points(
+    _branches, has_discontinuity = generate_implicit_plot_points(
         eq, lower, upper, has_discontinuity)
 
-    _branches = read_temp_file_and_create_list(temp_file_name)
+    # _branches = read_temp_file_and_create_list(temp_file_name)
 
     # if infinite_discont:
     #     my_data = {"branches": base64.b64encode(branches.tobytes()).decode('utf-8'), "discontinuities": [[0, "infinite"]],
