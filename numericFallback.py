@@ -75,7 +75,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    num_points = 1700
+    num_points = 1200
     _x = np.linspace(x_min, x_max, num_points)
     _y = np.linspace(y_min, y_max, num_points)
 
