@@ -163,136 +163,136 @@ def get_sanitized_branches(expr, x_min, x_max, has_discontinuity,allsegs):
 
 
 
-def generate_implicit_plot_points3(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
+# def generate_implicit_plot_points3(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
 
-    (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
-    # (_y_min, _y_max) = (x_min, x_max)
+#     (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
+#     # (_y_min, _y_max) = (x_min, x_max)
 
-    y_min = min(y_min, _y_min)
-    y_max = max(y_max, _y_max)
+#     y_min = min(y_min, _y_min)
+#     y_max = max(y_max, _y_max)
 
-    num_points = 1600
-    _x = np.linspace(x_min, x_max,np.round(num_points*0.88).astype(int))
-    _y = np.linspace(y_min, y_max, num_points)
+#     num_points = 1600
+#     _x = np.linspace(x_min, x_max,np.round(num_points*0.88).astype(int))
+#     _y = np.linspace(y_min, y_max, num_points)
 
-    X, Y = np.meshgrid(_x, _y)
-    # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
-    f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
-    z = f(X, Y)
-    z_val = 0.03*y_max
-    # Convert the expression to a string
-    expr_str = str(expr)
-    if expr.has(TrigonometricFunction):
-        z_val = np.maximum(z_val, 10)
-    if ("_mode" in expr_str):
-        z_val = np.maximum(z_val, 13)
-    else:
-        z_val = np.maximum(z_val, 15)
-    # if abs(z_val) >= 1e100:
-    # z_val = 10
-    # z_val = np.percentile(z[~np.isnan(z)], 99)
-    # z_val = np.nanmean(z)+3*np.nanstd(z)
-    z_val = np.minimum(np.nanmax(z)*0.10, 45)
-    # print(z_val)
-    # z[np.abs(z) > z_val] = np.nan
-    try:
-        # Z = np.round(z, 2)  # Adjust precision as necessary
-        # Replace inf with nan to avoid issues in contouring
-        z[np.isinf(z)] = np.nan
-        cs = plt.contour(X, Y, np.ma.masked_where(z>z_val,
-            z), levels=[0])
+#     X, Y = np.meshgrid(_x, _y)
+#     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
+#     f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
+#     z = f(X, Y)
+#     z_val = 0.03*y_max
+#     # Convert the expression to a string
+#     expr_str = str(expr)
+#     if expr.has(TrigonometricFunction):
+#         z_val = np.maximum(z_val, 10)
+#     if ("_mode" in expr_str):
+#         z_val = np.maximum(z_val, 13)
+#     else:
+#         z_val = np.maximum(z_val, 15)
+#     # if abs(z_val) >= 1e100:
+#     # z_val = 10
+#     # z_val = np.percentile(z[~np.isnan(z)], 99)
+#     # z_val = np.nanmean(z)+3*np.nanstd(z)
+#     z_val = np.minimum(np.nanmax(z)*0.10, 45)
+#     # print(z_val)
+#     # z[np.abs(z) > z_val] = np.nan
+#     try:
+#         # Z = np.round(z, 2)  # Adjust precision as necessary
+#         # Replace inf with nan to avoid issues in contouring
+#         z[np.isinf(z)] = np.nan
+#         cs = plt.contour(X, Y, np.ma.masked_where(z>z_val,
+#             z), levels=[0])
 
-        # 3. Write to temporary file
-        line = 0
-        has_discontinuity = has_infinite_discontinuity_in_xrange(
-            expr, x_min, x_max)
-        with tempfile.NamedTemporaryFile( mode='w+',  delete=False, suffix=".txt") as temp_file:
-            for sanitized_branch in get_sanitized_branches(expr, x_min, x_max, has_discontinuity, cs.allsegs):
-                if sanitized_branch is None:
-                    continue
-                # Convert segment to bytes and base64
-                encoded_branch = base64.b64encode(sanitized_branch.tobytes()).decode('utf-8')
-                temp_file.write(encoded_branch + "\n")
-                line += 1
-            temp_file.flush() # Ensure all data is written to disk
-            print(f"Branches written to: {temp_file.name} ({temp_file.tell()} bytes) ({line} lines)")
-            temp_file.close()
+#         # 3. Write to temporary file
+#         line = 0
+#         has_discontinuity = has_infinite_discontinuity_in_xrange(
+#             expr, x_min, x_max)
+#         with tempfile.NamedTemporaryFile( mode='w+',  delete=False, suffix=".txt") as temp_file:
+#             for sanitized_branch in get_sanitized_branches(expr, x_min, x_max, has_discontinuity, cs.allsegs):
+#                 if sanitized_branch is None:
+#                     continue
+#                 # Convert segment to bytes and base64
+#                 encoded_branch = base64.b64encode(sanitized_branch.tobytes()).decode('utf-8')
+#                 temp_file.write(encoded_branch + "\n")
+#                 line += 1
+#             temp_file.flush() # Ensure all data is written to disk
+#             print(f"Branches written to: {temp_file.name} ({temp_file.tell()} bytes) ({line} lines)")
+#             temp_file.close()
 
-        plt.clf()
-        plt.cla()
-        # gc.collect()
-        # plt.close()
-        # Mandatory cleanup
+#         plt.clf()
+#         plt.cla()
+#         # gc.collect()
+#         # plt.close()
+#         # Mandatory cleanup
 
-        plt.close('all')
-        del cs
-        gc.collect()
-        return temp_file.name, has_discontinuity
-    except Exception as e:
-        print(f"Error generating implicit plot points: {e}")
-        return []
+#         plt.close('all')
+#         del cs
+#         gc.collect()
+#         return temp_file.name, has_discontinuity
+#     except Exception as e:
+#         print(f"Error generating implicit plot points: {e}")
+#         return []
 
-def generate_implicit_plot_points4(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
+# def generate_implicit_plot_points4(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
 
-    (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
-    # (_y_min, _y_max) = (x_min, x_max)
+#     (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
+#     # (_y_min, _y_max) = (x_min, x_max)
 
-    y_min = min(y_min, _y_min)
-    y_max = max(y_max, _y_max)
+#     y_min = min(y_min, _y_min)
+#     y_max = max(y_max, _y_max)
 
-    num_points = 1600
-    _x = np.linspace(x_min, x_max,np.round(num_points*0.88).astype(int))
-    _y = np.linspace(y_min, y_max, num_points)
+#     num_points = 1600
+#     _x = np.linspace(x_min, x_max,np.round(num_points*0.88).astype(int))
+#     _y = np.linspace(y_min, y_max, num_points)
 
-    X, Y = np.meshgrid(_x, _y)
-    # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
-    f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
-    z = f(X, Y)
-    z_val = 0.03*y_max
-    # Convert the expression to a string
-    expr_str = str(expr)
-    if expr.has(TrigonometricFunction):
-        z_val = np.maximum(z_val, 10)
-    if ("_mode" in expr_str):
-        z_val = np.maximum(z_val, 13)
-    else:
-        z_val = np.maximum(z_val, 15)
-    # if abs(z_val) >= 1e100:
-    # z_val = 10
-    # z_val = np.percentile(z[~np.isnan(z)], 99)
-    # z_val = np.nanmean(z)+3*np.nanstd(z)
-    z_val = np.minimum(np.nanmax(z)*0.10, 45)
-    # print(z_val)
-    # z[np.abs(z) > z_val] = np.nan
-    try:
-        # Z = np.round(z, 2)  # Adjust precision as necessary
-        # Replace inf with nan to avoid issues in contouring
-        z[np.isinf(z)] = np.nan
-        cs = plt.contour(X, Y, np.ma.masked_where(z>z_val,
-            z), levels=[0])
+#     X, Y = np.meshgrid(_x, _y)
+#     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
+#     f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
+#     z = f(X, Y)
+#     z_val = 0.03*y_max
+#     # Convert the expression to a string
+#     expr_str = str(expr)
+#     if expr.has(TrigonometricFunction):
+#         z_val = np.maximum(z_val, 10)
+#     if ("_mode" in expr_str):
+#         z_val = np.maximum(z_val, 13)
+#     else:
+#         z_val = np.maximum(z_val, 15)
+#     # if abs(z_val) >= 1e100:
+#     # z_val = 10
+#     # z_val = np.percentile(z[~np.isnan(z)], 99)
+#     # z_val = np.nanmean(z)+3*np.nanstd(z)
+#     z_val = np.minimum(np.nanmax(z)*0.10, 45)
+#     # print(z_val)
+#     # z[np.abs(z) > z_val] = np.nan
+#     try:
+#         # Z = np.round(z, 2)  # Adjust precision as necessary
+#         # Replace inf with nan to avoid issues in contouring
+#         z[np.isinf(z)] = np.nan
+#         cs = plt.contour(X, Y, np.ma.masked_where(z>z_val,
+#             z), levels=[0])
 
-        # 3. Write to temporary file
-        line = 0
-        has_discontinuity = has_infinite_discontinuity_in_xrange(
-            expr, x_min, x_max)
-        branches = []
-        for sanitized_branch in get_sanitized_branches(expr, x_min, x_max, has_discontinuity, cs.allsegs):
-            if sanitized_branch is None:
-                continue
-            # Convert segment to bytes and base64
-            branches.append( base64.b64encode(sanitized_branch.tobytes()).decode('utf-8') )
-            line += 1
+#         # 3. Write to temporary file
+#         line = 0
+#         has_discontinuity = has_infinite_discontinuity_in_xrange(
+#             expr, x_min, x_max)
+#         branches = []
+#         for sanitized_branch in get_sanitized_branches(expr, x_min, x_max, has_discontinuity, cs.allsegs):
+#             if sanitized_branch is None:
+#                 continue
+#             # Convert segment to bytes and base64
+#             branches.append( base64.b64encode(sanitized_branch.tobytes()).decode('utf-8') )
+#             line += 1
 
-        plt.clf()
-        plt.cla()
-        # gc.collect()
-        # plt.close()
-        # Mandatory cleanup
+#         plt.clf()
+#         plt.cla()
+#         # gc.collect()
+#         # plt.close()
+#         # Mandatory cleanup
 
-        plt.close('all')
-        del cs
-        gc.collect()
-        return branches, has_discontinuity
-    except Exception as e:
-        print(f"Error generating implicit plot points: {e}")
-        return []
+#         plt.close('all')
+#         del cs
+#         gc.collect()
+#         return branches, has_discontinuity
+#     except Exception as e:
+#         print(f"Error generating implicit plot points: {e}")
+#         return []
