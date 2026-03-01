@@ -143,7 +143,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
             all_points.append(base64.b64encode(segment.astype(np.float32).tobytes()).decode('utf-8'))
             del segment           
 
-        # gc.collect()  # Force garbage collection
+        gc.collect()  # Force garbage collection
         return all_points, has_discontinuity
 
     except Exception as e:
