@@ -3,7 +3,7 @@ import numpy as np
 from typing import List, Tuple
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
-from domain_finder import is_x_in_domain_numerical, closer_boundary
+# from domain_finder import is_x_in_domain_numerical, closer_boundary
 from custom import custom
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
 
