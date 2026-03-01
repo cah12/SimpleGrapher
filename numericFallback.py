@@ -8,7 +8,7 @@ import base64
 from custom import custom
 from sympy import lambdify
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
-from scipy.optimize import fsolve, root, root_scalar
+# from scipy.optimize import fsolve, root, root_scalar
 import numpy as np
 from sympy import symbols, solve, plot_implicit
 import sympy as sp
@@ -75,7 +75,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    num_points = 1200
+    num_points = 2000
     _x = np.linspace(x_min, x_max, num_points)
     _y = np.linspace(y_min, y_max, num_points)
 
