@@ -932,7 +932,7 @@ def numeric():
     # type_ = str(branches[0][0][0].dtype)
     type_ = "float32"
 
-    release_memory_to_os()
+    # release_memory_to_os()
 
     if has_discontinuity:
         return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})

@@ -153,15 +153,13 @@ def generate_implicit_plot_points2(expr, x_min=-10.0, x_max=10.0, has_discontinu
 def get_sanitized_branches(expr, x_min, x_max, has_discontinuity,allsegs):
     for level_segments in allsegs:
         for branch in level_segments:
-            _branch = sanitize_contour_segments(
+            branch = sanitize_contour_segments(
                  expr, branch, x_min, x_max, has_discontinuity)
-            yield _branch.astype(np.float32)
-            # if branch is None:
-            #     yield None
-            # else:
-            #     # Convert segment to bytes and base64
-            #     encoded = base64.b64encode(branch.tobytes()).decode('utf-8')
-            #     yield encoded
+            yield branch.astype(np.float32)
+            del branch
+        del level_segments
+        # gc.collect()
+
 
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
