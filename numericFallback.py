@@ -108,9 +108,11 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
 
+        has_discontinuity = has_infinite_discontinuity_in_xrange(
+            expr, x_min, x_max)
+
         all_points = []
-        all_segments = CS.allsegs  # Get the list of segments for the first contour level
-        for level_segments in all_segments:
+        for level_segments in CS.allsegs:
             for segment in level_segments:
                 # segment is a NumPy array of shape (n_points, 2), where each row is [x, y]
                 # all_points.append(segment)
@@ -127,12 +129,19 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
                     # continue
                     pass
 
-                all_points.append(segment.astype(np.float32))
+                # all_points.append(segment.astype(np.float32))
+                segment = sanitize_contour_segments(
+            expr, segment, x_min, x_max, has_discontinuity)
+                all_points.append(base64.b64encode(segment.astype(np.float32).tobytes()).decode('utf-8'))
+                del segment
+
+            del level_segments
+
                 # segment = None  # Clear reference to segment to free memory
         # all_segments = None  # Clear reference to all_segments to free memory
         # all_points = np.array(all_points)
-        all_points = sanitize_contour_segments(
-            expr, all_points, x_min, x_max, has_discontinuity)
+        # all_points = sanitize_contour_segments(
+        #     expr, all_points, x_min, x_max, has_discontinuity)
         # del CS
         plt.clf()
         plt.cla()

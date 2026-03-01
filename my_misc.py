@@ -33,9 +33,9 @@ def unique_x(segment):
     return unique_rows
 
 
-def sanitize_contour_segments2(expr, segment: np.ndarray,
-                               x_min: float = -1e6, x_max: float = 1e6, has_discontinuity: bool = False, threshold_distance: float = 1e-6,
-                               max_segment_length: float = 1e6) -> List[np.ndarray]:
+def sanitize_contour_segments(expr, segment: np.ndarray,
+                              x_min: float = -1e6, x_max: float = 1e6, has_discontinuity: bool = False, threshold_distance: float = 1e-6,
+                              max_segment_length: float = 1e6) -> List[np.ndarray]:
     """
     Sanitize contour segments by removing spurious and rogue lines.
 
@@ -106,9 +106,9 @@ def sanitize_contour_segments2(expr, segment: np.ndarray,
     return sanitized
 
 
-def sanitize_contour_segments(expr, allsegs: List[np.ndarray],
-                              x_min: float = -1e6, x_max: float = 1e6, has_discontinuity: bool = False, threshold_distance: float = 1e-6,
-                              max_segment_length: float = 1e6) -> List[np.ndarray]:
+def sanitize_contour_segments2(expr, allsegs: List[np.ndarray],
+                               x_min: float = -1e6, x_max: float = 1e6, has_discontinuity: bool = False, threshold_distance: float = 1e-6,
+                               max_segment_length: float = 1e6) -> List[np.ndarray]:
     """
     Sanitize contour segments by removing spurious and rogue lines.
 
