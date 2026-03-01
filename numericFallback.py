@@ -1,10 +1,10 @@
 # fmt: off
 import base64
-import tempfile
+# import tempfile
 
-import matplotlib 
-matplotlib.use('Agg') 
-import matplotlib.pyplot as plt
+# import matplotlib 
+# matplotlib.use('Agg') 
+# import matplotlib.pyplot as plt
 from custom import custom
 from sympy import lambdify
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
@@ -17,7 +17,7 @@ from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_
 from my_misc import estimate_y_bounds, has_infinite_discontinuity_in_xrange, sanitize_contour_segments
 import gc
 
-
+from contourpy import contour_generator
 
 
 # Define variables
@@ -75,8 +75,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    num_points = 1600
-    _x = np.linspace(x_min, x_max,np.round(num_points*0.88).astype(int))
+    num_points = 1500
+    _x = np.linspace(x_min, x_max, num_points)
     _y = np.linspace(y_min, y_max, num_points)
 
     X, Y = np.meshgrid(_x, _y)
@@ -103,56 +103,48 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring
         z[np.isinf(z)] = np.nan
-        CS = plt.contour(X, Y, np.ma.masked_where(z>z_val,
-            z), levels=[0])
+        # CS = plt.contour(X, Y, np.ma.masked_where(z>z_val,
+        #     z), levels=[0])
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
+
+        cont_gen = contour_generator(X, Y, np.ma.masked_where(z>z_val,
+         z), name="serial")
+        # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
+        lines = cont_gen.lines(0) 
 
         has_discontinuity = has_infinite_discontinuity_in_xrange(
             expr, x_min, x_max)
 
         all_points = []
-        for level_segments in CS.allsegs:
-            for segment in level_segments:
-                # segment is a NumPy array of shape (n_points, 2), where each row is [x, y]
-                # all_points.append(segment)
+        # for level_segments in CS.allsegs:
+        # for level_segments in lines:
+        for segment in lines:
+            # segment is a NumPy array of shape (n_points, 2), where each row is [x, y]
+            # all_points.append(segment)
 
-                try:
-                    # Remove NaN values
-                    valid_mask = ~np.isnan(segment).any(axis=1)
-                    if not np.any(valid_mask):
-                        segment = None  # Clear reference to segment to free memory
-                        continue
-                    segment = segment[valid_mask]
-                except Exception:
-                    # segment = None  # Clear reference to segment to free memory
-                    # continue
-                    pass
-
-                # all_points.append(segment.astype(np.float32))
-                segment = sanitize_contour_segments(
-            expr, segment, x_min, x_max, has_discontinuity)
-                all_points.append(base64.b64encode(segment.astype(np.float32).tobytes()).decode('utf-8'))
-                del segment
-
-            del level_segments
-
+            try:
+                # Remove NaN values
+                valid_mask = ~np.isnan(segment).any(axis=1)
+                if not np.any(valid_mask):
+                    segment = None  # Clear reference to segment to free memory
+                    continue
+                segment = segment[valid_mask]
+            except Exception:
                 # segment = None  # Clear reference to segment to free memory
-        # all_segments = None  # Clear reference to all_segments to free memory
-        # all_points = np.array(all_points)
-        # all_points = sanitize_contour_segments(
-        #     expr, all_points, x_min, x_max, has_discontinuity)
-        # del CS
-        plt.clf()
-        plt.cla()
-        # gc.collect()
-        # plt.close()
-        # Mandatory cleanup
+                # continue
+                pass
 
-        plt.close('all')
-        del CS
-        gc.collect()  # Force garbage collection
-        return all_points
+            # all_points.append(segment.astype(np.float32))
+            segment = sanitize_contour_segments(
+        expr, segment, x_min, x_max, has_discontinuity)
+            if segment is None:
+                continue
+            all_points.append(base64.b64encode(segment.astype(np.float32).tobytes()).decode('utf-8'))
+            del segment           
+
+        # gc.collect()  # Force garbage collection
+        return all_points, has_discontinuity
 
     except Exception as e:
         print(f"Error generating implicit plot points: {e}")
