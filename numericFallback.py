@@ -21,27 +21,27 @@ import gc
 from contourpy import contour_generator
 
 
-def custom_sqrt(x):
-    """
-    Calculates sqrt(abs(x)) for non-negative x, and -sqrt(abs(x)) for negative x.
-    """
-    # Convert input to a NumPy array for element-wise operations if it isn't already one
-    x = np.array(x)
+# def custom_sqrt(x):
+#     """
+#     Calculates sqrt(abs(x)) for non-negative x, and -sqrt(abs(x)) for negative x.
+#     """
+#     # Convert input to a NumPy array for element-wise operations if it isn't already one
+#     x = np.array(x)
 
-    # Condition: elements less than 0
-    is_negative = x < 0
+#     # Condition: elements less than 0
+#     is_negative = x < 0
 
-    # Calculate the desired values for both cases
-    # For all elements, calculate -sqrt(abs(x))
-    negative_result = -np.sqrt(np.abs(x))
-    # For positive elements, calculate sqrt(x) which is also sqrt(abs(x))
-    positive_result = np.sqrt(x)
+#     # Calculate the desired values for both cases
+#     # For all elements, calculate -sqrt(abs(x))
+#     negative_result = -np.sqrt(np.abs(x))
+#     # For positive elements, calculate sqrt(x) which is also sqrt(abs(x))
+#     positive_result = np.sqrt(x)
 
-    # Use np.where to select from the two results based on the condition
-    # If is_negative is True, use the value from negative_result
-    # Otherwise, use the value from positive_result
-    result = np.where(is_negative, negative_result, positive_result)
-    return result
+#     # Use np.where to select from the two results based on the condition
+#     # If is_negative is True, use the value from negative_result
+#     # Otherwise, use the value from positive_result
+#     result = np.where(is_negative, negative_result, positive_result)
+#     return result
 
 
 # def custom_sqrt(x):
@@ -182,17 +182,17 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
             # segment is a NumPy array of shape (n_points, 2), where each row is [x, y]
             # all_points.append(segment)
 
-            # try:
-            #     # Remove NaN values
-            #     valid_mask = ~np.isnan(segment).any(axis=1)
-            #     if not np.any(valid_mask):
-            #         segment = None  # Clear reference to segment to free memory
-            #         continue
-            #     segment = segment[valid_mask]
-            # except Exception:
-            #     # segment = None  # Clear reference to segment to free memory
-            #     # continue
-            #     pass
+            try:
+                # Remove NaN values
+                valid_mask = ~np.isnan(segment).any(axis=1)
+                if not np.any(valid_mask):
+                    segment = None  # Clear reference to segment to free memory
+                    continue
+                segment = segment[valid_mask]
+            except Exception:
+                # segment = None  # Clear reference to segment to free memory
+                # continue
+                pass
 
             # all_points.append(segment.astype(np.float32))
             segment = sanitize_contour_segments(

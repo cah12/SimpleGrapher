@@ -9,6 +9,7 @@ from sympy.functions.elementary.trigonometric import TrigonometricFunction
 
 
 def unique_x(segment):
+    return segment
     if np.abs(segment[0][1]) == 3.4e38 or np.abs(segment[len(segment)-1][1]) == 3.4e38:
         return segment
     x_values = segment[:, 0]
