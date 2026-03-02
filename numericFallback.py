@@ -1,5 +1,6 @@
 # %%fmt: off
 import base64
+import math
 # import tempfile
 
 # import matplotlib
@@ -14,10 +15,58 @@ from sympy import symbols, solve, plot_implicit
 import sympy as sp
 # from domain_finder import closer_boundary
 from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
-from my_misc import estimate_y_bounds, has_infinite_discontinuity_in_xrange, sanitize_contour_segments
+from my_misc import has_infinite_discontinuity_in_xrange, sanitize_contour_segments
 import gc
 
 from contourpy import contour_generator
+
+
+def custom_sqrt(x):
+    """
+    Calculates sqrt(abs(x)) for non-negative x, and -sqrt(abs(x)) for negative x.
+    """
+    # Convert input to a NumPy array for element-wise operations if it isn't already one
+    x = np.array(x)
+
+    # Condition: elements less than 0
+    is_negative = x < 0
+
+    # Calculate the desired values for both cases
+    # For all elements, calculate -sqrt(abs(x))
+    negative_result = -np.sqrt(np.abs(x))
+    # For positive elements, calculate sqrt(x) which is also sqrt(abs(x))
+    positive_result = np.sqrt(x)
+
+    # Use np.where to select from the two results based on the condition
+    # If is_negative is True, use the value from negative_result
+    # Otherwise, use the value from positive_result
+    result = np.where(is_negative, negative_result, positive_result)
+    return result
+
+
+# def custom_sqrt(x):
+#     """
+#     Calculates sqrt(abs(x)) for non-negative x, and -sqrt(abs(x)) for negative x.
+#     """
+#     # Convert input to a NumPy array for element-wise operations if it isn't already one
+#     x = np.array(x)
+#     # Condition: elements less than 0
+#     is_negative = x < 0
+
+#     # Calculate the desired values for both cases
+#     # For all elements, calculate -sqrt(abs(x))
+#     negative_result = -np.sqrt(np.abs(x))
+#     # For positive elements, calculate sqrt(x) which is also sqrt(abs(x))
+#     positive_result = np.sqrt(x)
+
+#     # Use np.where to select from the two results based on the condition
+#     # If is_negative is True, use the value from negative_result
+#     # Otherwise, use the value from positive_result
+#     result = np.where(is_negative, negative_result, positive_result)
+#     return result
+
+
+# np.sqrt = custom_sqrt
 
 
 # Define variables
@@ -69,21 +118,26 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
 
+    # if "sqrt" in str(expr):
+    #     expr = str(expr).replace("sqrt", "custom_sqrt")
+    #     expr = sp.sympify(expr)
+
     (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
     # (_y_min, _y_max) = (x_min, x_max)
 
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    num_points = 2000
-    _x = np.linspace(x_min, x_max, num_points)
-    _y = np.linspace(y_min, y_max, num_points)
+    num_points = 500
+    _x = np.linspace(x_min, x_max, num_points).astype(np.float32)
+    _y = np.linspace(y_min, y_max, num_points).astype(np.float32)
 
     X, Y = np.meshgrid(_x, _y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
-    f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
+    f = lambdify((x, y), expr, modules=["numpy", custom])
+    # z = z.astype(np.float32)
     z = f(X, Y)
-    z = z.astype(np.float32)
+    # z = z.astype(np.float32)
     z_val = 0.03*y_max
     # Convert the expression to a string
     expr_str = str(expr)
@@ -109,8 +163,10 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
 
-        cont_gen = contour_generator(X, Y, np.ma.masked_where(z > z_val,
-                                                              z), quad_as_tri=True, name="serial")
+        z_masked = np.ma.masked_where(z > z_val, z)
+
+        cont_gen = contour_generator(X, Y, z=z_masked)
+        # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, name="serial")
         del X, Y, z, _x, _y
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
         lines = cont_gen.lines(0)
@@ -125,17 +181,17 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
             # segment is a NumPy array of shape (n_points, 2), where each row is [x, y]
             # all_points.append(segment)
 
-            try:
-                # Remove NaN values
-                valid_mask = ~np.isnan(segment).any(axis=1)
-                if not np.any(valid_mask):
-                    segment = None  # Clear reference to segment to free memory
-                    continue
-                segment = segment[valid_mask]
-            except Exception:
-                # segment = None  # Clear reference to segment to free memory
-                # continue
-                pass
+            # try:
+            #     # Remove NaN values
+            #     valid_mask = ~np.isnan(segment).any(axis=1)
+            #     if not np.any(valid_mask):
+            #         segment = None  # Clear reference to segment to free memory
+            #         continue
+            #     segment = segment[valid_mask]
+            # except Exception:
+            #     # segment = None  # Clear reference to segment to free memory
+            #     # continue
+            #     pass
 
             # all_points.append(segment.astype(np.float32))
             segment = sanitize_contour_segments(

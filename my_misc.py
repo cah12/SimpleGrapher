@@ -615,80 +615,80 @@ if __name__ == "__main__":
         print(seg)
 
 
-def estimate_y_bounds(implicit_func, lower_x: float, upper_x: float,
-                      num_samples: int = 50, y_search_range: Tuple[float, float] = (-1e100, 1e100)) -> Tuple[float, float]:
-    """
-    Estimate the Y bounds for an implicit function over a given X range.
+# def estimate_y_bounds(implicit_func, lower_x: float, upper_x: float,
+#                       num_samples: int = 50, y_search_range: Tuple[float, float] = (-1e100, 1e100)) -> Tuple[float, float]:
+#     """
+#     Estimate the Y bounds for an implicit function over a given X range.
 
-    For an implicit function f(x, y) = 0, this function samples x values across
-    [lower_x, upper_x] and finds the corresponding y values that satisfy the equation.
+#     For an implicit function f(x, y) = 0, this function samples x values across
+#     [lower_x, upper_x] and finds the corresponding y values that satisfy the equation.
 
-    Parameters
-    ----------
-    implicit_func : callable
-        A function f(x, y) that should equal 0 at solution points. Signature: f(x, y) -> float
-    lower_x : float
-        The lower bound of the X range to search.
-    upper_x : float
-        The upper bound of the X range to search.
-    num_samples : int, optional
-        Number of x values to sample in the range (default: 50).
-    y_search_range : Tuple[float, float], optional
-        The range [min_y, max_y] to search for y solutions (default: (-1e6, 1e6)).
+#     Parameters
+#     ----------
+#     implicit_func : callable
+#         A function f(x, y) that should equal 0 at solution points. Signature: f(x, y) -> float
+#     lower_x : float
+#         The lower bound of the X range to search.
+#     upper_x : float
+#         The upper bound of the X range to search.
+#     num_samples : int, optional
+#         Number of x values to sample in the range (default: 50).
+#     y_search_range : Tuple[float, float], optional
+#         The range [min_y, max_y] to search for y solutions (default: (-1e6, 1e6)).
 
-    Returns
-    -------
-    Tuple[float, float]
-        A tuple (lower_y, upper_y) representing the estimated bounds of y values.
+#     Returns
+#     -------
+#     Tuple[float, float]
+#         A tuple (lower_y, upper_y) representing the estimated bounds of y values.
 
-    Examples
-    --------
-    >>> # Circle: x^2 + y^2 - 1 = 0
-    >>> circle = lambda x, y: x**2 + y**2 - 1
-    >>> lower_y, upper_y = estimate_y_bounds(circle, -1, 1)
-    >>> print(f"Y range for circle: ({lower_y:.2f}, {upper_y:.2f})")
-    Y range for circle: (-1.00, 1.00)
-    """
-    from scipy.optimize import brentq, fsolve
+#     Examples
+#     --------
+#     >>> # Circle: x^2 + y^2 - 1 = 0
+#     >>> circle = lambda x, y: x**2 + y**2 - 1
+#     >>> lower_y, upper_y = estimate_y_bounds(circle, -1, 1)
+#     >>> print(f"Y range for circle: ({lower_y:.2f}, {upper_y:.2f})")
+#     Y range for circle: (-1.00, 1.00)
+#     """
+#     from scipy.optimize import brentq, fsolve
 
-    y_values = []
-    x_samples = np.linspace(lower_x, upper_x, num_samples)
-    min_y, max_y = y_search_range
+#     y_values = []
+#     x_samples = np.linspace(lower_x, upper_x, num_samples)
+#     min_y, max_y = y_search_range
 
-    for x in x_samples:
-        # Define function for this specific x
-        def f_y(y):
-            return implicit_func(x, y)
+#     for x in x_samples:
+#         # Define function for this specific x
+#         def f_y(y):
+#             return implicit_func(x, y)
 
-        # Try to find roots using brentq (requires bracketing interval)
-        try:
-            # First check if there's a sign change to bracket a root
-            if f_y(min_y) * f_y(max_y) < 0:  # Sign change indicates a root
-                root = brentq(f_y, min_y, max_y)
-                y_values.append(root)
-        except (ValueError, RuntimeError):
-            pass
+#         # Try to find roots using brentq (requires bracketing interval)
+#         try:
+#             # First check if there's a sign change to bracket a root
+#             if f_y(min_y) * f_y(max_y) < 0:  # Sign change indicates a root
+#                 root = brentq(f_y, min_y, max_y)
+#                 y_values.append(root)
+#         except (ValueError, RuntimeError):
+#             pass
 
-        # Also try fsolve for additional roots
-        try:
-            # Try multiple starting points to find different roots
-            for y_start in np.linspace(min_y, max_y, 10):
-                root = fsolve(f_y, y_start, full_output=True)
-                if root[2] == 1:  # Solution found
-                    y_val = root[0][0]
-                    # Check if this is a valid solution and not already found
-                    if abs(f_y(y_val)) < 1e-6 and not any(abs(y_val - yv) < 1e-3 for yv in y_values):
-                        y_values.append(y_val)
-        except:
-            pass
+#         # Also try fsolve for additional roots
+#         try:
+#             # Try multiple starting points to find different roots
+#             for y_start in np.linspace(min_y, max_y, 10):
+#                 root = fsolve(f_y, y_start, full_output=True)
+#                 if root[2] == 1:  # Solution found
+#                     y_val = root[0][0]
+#                     # Check if this is a valid solution and not already found
+#                     if abs(f_y(y_val)) < 1e-6 and not any(abs(y_val - yv) < 1e-3 for yv in y_values):
+#                         y_values.append(y_val)
+#         except:
+#             pass
 
-    if not y_values:
-        # If no solutions found, return the search range
-        # return (min_y, max_y)
-        return (-10, 10)
+#     if not y_values:
+#         # If no solutions found, return the search range
+#         # return (min_y, max_y)
+#         return (-10, 10)
 
-    y_values = np.array(y_values)
-    lower_y = float(np.min(y_values))
-    upper_y = float(np.max(y_values))
+#     y_values = np.array(y_values)
+#     lower_y = float(np.min(y_values))
+#     upper_y = float(np.max(y_values))
 
-    return (lower_y, upper_y)
+#     return (lower_y, upper_y)

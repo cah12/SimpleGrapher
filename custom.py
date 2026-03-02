@@ -1,6 +1,46 @@
 
+# import math
+
 import numpy as np
 import sympy as sp
+
+
+# def custom_sqrt_func(x):
+#     """Calculates the square root of a single value.
+#     Handles negative numbers by returning a complex number."""
+#     if x >= 0:
+#         return math.sqrt(x)
+#     else:
+#         return math.sqrt(abs(x)) * -1
+
+
+# # custom_sqrt_ufunc is now a universal function
+# custom_sqrt_ufunc = np.frompyfunc(custom_sqrt_func, 1, 1)
+
+# np.sqrt = custom_sqrt_ufunc
+
+def custom_sqrt(x):
+    """
+    Calculates sqrt(abs(x)) for non-negative x, and -sqrt(abs(x)) for negative x.
+    """
+    # Convert input to a NumPy array for element-wise operations if it isn't already one
+    x = np.array(x)
+
+    # Condition: elements less than 0
+    is_negative = x < 0
+
+    # Calculate the desired values for both cases
+    # For all elements, calculate -sqrt(abs(x))
+    negative_result = -np.sqrt(np.abs(x))
+    # For positive elements, calculate sqrt(x) which is also sqrt(abs(x))
+    positive_result = np.sqrt(x)
+
+    # Use np.where to select from the two results based on the condition
+    # If is_negative is True, use the value from negative_result
+    # Otherwise, use the value from positive_result
+    result = np.where(is_negative, negative_result, positive_result)
+    return result
+
 
 def custom_sin_mode(arg):
     return np.sin(np.deg2rad(arg))
@@ -62,5 +102,6 @@ custom = {
     "atan_mode": custom_atan_mode,
     "acot_mode": custom_acot_mode,
     "asec_mode": custom_asec_mode,
-    "acsc_mode": custom_acsc_mode
+    "acsc_mode": custom_acsc_mode,
+    "sqrt": custom_sqrt
 }
