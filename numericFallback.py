@@ -1,9 +1,9 @@
-# fmt: off
+# %%fmt: off
 import base64
 # import tempfile
 
-# import matplotlib 
-# matplotlib.use('Agg') 
+# import matplotlib
+# matplotlib.use('Agg')
 # import matplotlib.pyplot as plt
 from custom import custom
 from sympy import lambdify
@@ -83,6 +83,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
     f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
     z = f(X, Y)
+    z = z.astype(np.float32)
     z_val = 0.03*y_max
     # Convert the expression to a string
     expr_str = str(expr)
@@ -108,10 +109,11 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
 
-        cont_gen = contour_generator(X, Y, np.ma.masked_where(z>z_val,
-         z), name="serial")
+        cont_gen = contour_generator(X, Y, np.ma.masked_where(z > z_val,
+                                                              z), name="serial")
+        z = None
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
-        lines = cont_gen.lines(0) 
+        lines = cont_gen.lines(0)
 
         has_discontinuity = has_infinite_discontinuity_in_xrange(
             expr, x_min, x_max)
@@ -137,11 +139,12 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
 
             # all_points.append(segment.astype(np.float32))
             segment = sanitize_contour_segments(
-        expr, segment, x_min, x_max, has_discontinuity)
+                expr, segment, x_min, x_max, has_discontinuity)
             if segment is None:
                 continue
-            all_points.append(base64.b64encode(segment.astype(np.float32).tobytes()).decode('utf-8'))
-            del segment           
+            all_points.append(base64.b64encode(
+                segment.astype(np.float32).tobytes()).decode('utf-8'))
+            del segment
 
         gc.collect()  # Force garbage collection
         return all_points, has_discontinuity
@@ -151,16 +154,15 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         return []
 
 
-def get_sanitized_branches(expr, x_min, x_max, has_discontinuity,allsegs):
+def get_sanitized_branches(expr, x_min, x_max, has_discontinuity, allsegs):
     for level_segments in allsegs:
         for branch in level_segments:
             branch = sanitize_contour_segments(
-                 expr, branch, x_min, x_max, has_discontinuity)
+                expr, branch, x_min, x_max, has_discontinuity)
             yield branch.astype(np.float32)
             del branch
         del level_segments
         gc.collect()
-
 
 
 # def generate_implicit_plot_points3(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
