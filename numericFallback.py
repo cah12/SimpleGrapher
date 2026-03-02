@@ -110,8 +110,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         #     z), levels=[0], colors='blue', alpha=0)
 
         cont_gen = contour_generator(X, Y, np.ma.masked_where(z > z_val,
-                                                              z), name="serial")
-        z = None
+                                                              z), quad_as_tri=True, name="serial")
+        del X, Y, z, _x, _y
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
         lines = cont_gen.lines(0)
 
