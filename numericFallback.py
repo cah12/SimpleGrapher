@@ -168,7 +168,13 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         cont_gen = contour_generator(
             X, Y, z=z_masked, quad_as_tri=True, name="serial")
         # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, name="serial")
-        del X, Y, z, _x, _y
+        del z
+        del z_masked
+        del X
+        del Y
+        del _x
+        del _y
+
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
         lines = cont_gen.lines(0)
 
@@ -202,6 +208,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
             all_points.append(base64.b64encode(
                 segment.astype(np.float32).tobytes()).decode('utf-8'))
             del segment
+
+        del lines
 
         gc.collect()  # Force garbage collection
         return all_points, has_discontinuity
