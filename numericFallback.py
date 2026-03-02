@@ -128,7 +128,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    num_points = 500
+    num_points = 2000
     _x = np.linspace(x_min, x_max, num_points).astype(np.float32)
     _y = np.linspace(y_min, y_max, num_points).astype(np.float32)
 
@@ -165,7 +165,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
 
         z_masked = np.ma.masked_where(z > z_val, z)
 
-        cont_gen = contour_generator(X, Y, z=z_masked)
+        cont_gen = contour_generator(
+            X, Y, z=z_masked, quad_as_tri=True, name="serial")
         # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, name="serial")
         del X, Y, z, _x, _y
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
