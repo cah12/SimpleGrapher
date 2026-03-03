@@ -128,9 +128,9 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
-    num_points = 2000
-    _x = np.linspace(x_min, x_max, num_points).astype(np.float32)
-    _y = np.linspace(y_min, y_max, num_points).astype(np.float32)
+    num_points = 800
+    _x = np.linspace(x_min, x_max, num_points)
+    _y = np.linspace(y_min, y_max, num_points)
 
     X, Y = np.meshgrid(_x, _y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
@@ -163,10 +163,10 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
 
-        z_masked = np.ma.masked_where(z > z_val, z)
+        z_masked = np.ma.masked_where(z > z_val/4, z)
 
         cont_gen = contour_generator(
-            X, Y, z=z_masked, quad_as_tri=True, name="serial")
+            X, Y, z=z_masked, name="serial")
         # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, name="serial")
         del z
         del z_masked
@@ -206,7 +206,9 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
             if segment is None:
                 continue
             all_points.append(base64.b64encode(
-                segment.astype(np.float32).tobytes()).decode('utf-8'))
+                segment.tobytes()).decode('utf-8'))
+            # all_points.append(base64.b64encode(
+            #     segment.astype(np.float32).tobytes()).decode('utf-8'))
             del segment
 
         del lines

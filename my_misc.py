@@ -446,10 +446,11 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
     np.ndarray or List
         Segment with "##" marking y-values of points at infinity.
     """
+    # return segment
 
     # Use large numeric sentinels for infinity markers so arrays remain numeric
-    POS_INF = 3.4e38
-    NEG_INF = -3.4e38
+    POS_INF = 1e300
+    NEG_INF = -1e300
     THRESHOLD_SLOPE = 8.5
     if len(segment) < 2:
         return segment
@@ -472,7 +473,8 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
 
         slope = (y_1 - y_0)/(x_1 - x_0)
         if np.abs(slope) > THRESHOLD_SLOPE:
-            if np.sign(y_0) == -1:
+            # if np.sign(y_0) == -1:
+            if y_1 > y_0:
                 segment[0][1] = NEG_INF
             else:
                 segment[0][1] = POS_INF
@@ -490,7 +492,8 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
             x_1 = np.deg2rad(x_1)
         slope = (y_1 - y_0)/(x_1 - x_0)
         if np.abs(slope) > THRESHOLD_SLOPE:
-            if np.sign(y_0) == -1:
+            # if np.sign(y_0) == -1:
+            if y_1 > y_0:
                 segment[len(segment)-1][1] = NEG_INF
             else:
                 segment[len(segment)-1][1] = POS_INF

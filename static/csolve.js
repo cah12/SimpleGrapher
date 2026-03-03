@@ -37,7 +37,7 @@ function base64ToArrayBuffer(base64) {
   }
   // Assume the numpy array is float32 and 2D, shape (N, 2)
   // Each pair is [x, y] as float32
-  const floatArray = new Float32Array(bytes.buffer);
+  const floatArray = new Float64Array(bytes.buffer);
   const result = [];
   for (let i = 0; i < floatArray.length; i += 2) {
     // result.push([floatArray[i], floatArray[i + 1]]);
