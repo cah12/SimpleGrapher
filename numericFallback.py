@@ -128,7 +128,16 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
 
+    # if the power of y == 1
     num_points = 800
+    d = 4
+
+    d_p = sp.degree(expr, gen=y)
+    # if the power of y > 1
+    if d_p > 1:
+        num_points = 2000
+        d = 1
+
     _x = np.linspace(x_min, x_max, num_points)
     _y = np.linspace(y_min, y_max, num_points)
 
@@ -163,7 +172,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
 
-        z_masked = np.ma.masked_where(z > z_val/4, z)
+        z_masked = np.ma.masked_where(z > z_val/d, z)
 
         cont_gen = contour_generator(
             X, Y, z=z_masked, name="serial")

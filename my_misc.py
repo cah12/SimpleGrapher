@@ -463,9 +463,12 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
 
         THRESHOLD_SLOPE_MIN = 40
         THRESHOLD_SLOPE_MAX = 400
+        s = 1.5
 
         THRESHOLD_SLOPE = THRESHOLD_SLOPE_MIN + \
             ((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*np.abs(y_0/3)
+
+        THRESHOLD_SLOPE /= s
 
         if ("_mode" in str(expr)):
             x_0 = np.deg2rad(x_0)
@@ -487,6 +490,7 @@ def _mark_infinity_points(expr, segment: np.ndarray) -> np.ndarray:
         x_1, y_1 = segment[len(segment)-2]
         THRESHOLD_SLOPE = THRESHOLD_SLOPE_MIN + \
             ((THRESHOLD_SLOPE_MAX-THRESHOLD_SLOPE_MIN)/(100-9))*np.abs(y_0/3)
+        THRESHOLD_SLOPE /= s
         if ("_mode" in str(expr)):
             x_0 = np.deg2rad(x_0)
             x_1 = np.deg2rad(x_1)
