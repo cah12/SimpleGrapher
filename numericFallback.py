@@ -174,6 +174,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         del Y
         del _x
         del _y
+        gc.collect()  # Force garbage collection
 
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
         lines = cont_gen.lines(0)
