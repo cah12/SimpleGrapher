@@ -116,6 +116,84 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
     return (y_min, y_max)
 
 
+# def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None, y_samples=400, match_tol=None, f_tol=1e-15):
+#     if (equation.has(TrigonometricFunction)) or ("_mode" in str(equation)):
+#         return (-300, 300)
+
+#     # Estimate y-range from symbolic solutions if possible
+#     x_vals = np.linspace(x_min, x_max, num_x)
+#     if y_min is None or y_max is None:
+#         try:
+#             y_sols = solve(equation, y)
+#         except Exception:
+#             y_sols = []
+
+#         if y_sols:
+#             y_vals_est = []
+#             for ys in y_sols:
+#                 try:
+#                     y_fun = lambdify(x, ys, modules=[custom, 'numpy'])
+#                     y_eval = y_fun(x_vals)
+#                     y_eval = np.asarray(y_eval)
+#                     valid = ~np.isnan(y_eval) & np.isreal(y_eval)
+#                     if np.any(valid):
+#                         y_vals_est.append(np.real(y_eval[valid]))
+#                 except Exception:
+#                     pass
+#             if y_vals_est:
+#                 all_est = np.hstack(y_vals_est)
+#                 est_min, est_max = float(
+#                     np.min(all_est)), float(np.max(all_est))
+#                 padding = max(1.0, 0.1 * (est_max - est_min))
+#                 if y_min is None:
+#                     y_min = est_min - padding
+#                 if y_max is None:
+#                     y_max = est_max + padding
+
+#     # Fallback heuristic if still not set
+#     if y_min is None or y_max is None:
+#         y_guess = max(1.0, abs(x_min), abs(x_max)) * 10.0
+#         y_min = -y_guess if y_min is None else y_min
+#         y_max = y_guess if y_max is None else y_max
+
+#     return (y_min, y_max)
+
+
+def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
+    # 2. Convert to a SymPy polynomial object to extract coefficients
+    # 'domain="QQ"' specifies rational coefficients; "RR" for floats
+    poly_obj = sp.Poly(expr, x)
+
+    # # arr = np.array(poly_obj.terms())
+    # print("Coefficients:", arr)
+
+    # # Get terms as (exponent_tuple, coefficient)
+    # # Output: [((3,), 3), ((2,), 5), ((0,), -7)]
+    # print("Terms:", poly_obj.terms())
+
+    len_ = len(poly_obj.terms())
+    d = sp.degree(expr, x)
+    if len_ < 3 and d < 3:
+        # x^2 = y, x^2-40 = y, x^2-40x = y, x^2-40x^2+10 = y
+        num_x = 200
+        num_y = 200
+        z_val = 10
+
+    elif 3 > len_ > 2 and d < 3:
+        # x^3 = y, x^3-40 = y, x^3-40x = y, x^3-40x+10 = y
+        num_x = 300
+        num_y = 300
+        z_val = 20
+
+    else:
+        # x^3 = y, x^3-40 = y, x^3-40x^2 = y, x^3-40x+10 = y
+        num_x = 1000
+        num_y = 1000
+        z_val = 20
+
+    return num_x, num_y, z_val
+
+
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
 
     # if "sqrt" in str(expr):
@@ -138,8 +216,12 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         num_points = 2000
         d = 1
 
-    _x = np.linspace(x_min, x_max, num_points)
-    _y = np.linspace(y_min, y_max, num_points)
+    num_x, num_y, z_val = grid_x_y_z_val(expr, x_min, x_max, y_min, y_max)
+
+    _x = np.linspace(x_min, x_max, num_x)
+    _y = np.linspace(y_min, y_max, num_y)
+    # _x = np.linspace(x_min, x_max, num_points)
+    # _y = np.linspace(y_min, y_max, num_points)
 
     X, Y = np.meshgrid(_x, _y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
@@ -147,20 +229,20 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     # z = z.astype(np.float32)
     z = f(X, Y)
     # z = z.astype(np.float32)
-    z_val = 0.03*y_max
-    # Convert the expression to a string
-    expr_str = str(expr)
-    if expr.has(TrigonometricFunction):
-        z_val = np.maximum(z_val, 10)
-    if ("_mode" in expr_str):
-        z_val = np.maximum(z_val, 13)
-    else:
-        z_val = np.maximum(z_val, 15)
-    # if abs(z_val) >= 1e100:
-    # z_val = 10
-    # z_val = np.percentile(z[~np.isnan(z)], 99)
-    # z_val = np.nanmean(z)+3*np.nanstd(z)
-    z_val = np.minimum(np.nanmax(z)*0.10, 45)
+    # z_val = 0.03*y_max
+    # # Convert the expression to a string
+    # expr_str = str(expr)
+    # if expr.has(TrigonometricFunction):
+    #     z_val = np.maximum(z_val, 10)
+    # if ("_mode" in expr_str):
+    #     z_val = np.maximum(z_val, 13)
+    # else:
+    #     z_val = np.maximum(z_val, 15)
+    # # if abs(z_val) >= 1e100:
+    # # z_val = 10
+    # # z_val = np.percentile(z[~np.isnan(z)], 99)
+    # # z_val = np.nanmean(z)+3*np.nanstd(z)
+    # z_val = np.minimum(np.nanmax(z)*0.10, 45)
     # print(z_val)
     # z[np.abs(z) > z_val] = np.nan
     try:
@@ -172,7 +254,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
 
-        z_masked = np.ma.masked_where(z > z_val/d, z)
+        z_masked = np.ma.masked_where(z > z_val, z)
 
         cont_gen = contour_generator(
             X, Y, z=z_masked, name="serial")
@@ -183,10 +265,13 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         del Y
         del _x
         del _y
-        gc.collect()  # Force garbage collection
+        # gc.collect()  # Force garbage collection
 
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
         lines = cont_gen.lines(0)
+
+        cont_gen = None
+        gc.collect()
 
         has_discontinuity = has_infinite_discontinuity_in_xrange(
             expr, x_min, x_max)
