@@ -203,9 +203,9 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
 
     else:
         # x^3 = y, x^3-40 = y, x^3-40x^2 = y, x^3-40x+10 = y
-        num_x = 2000
-        num_y = 2000
-        z_val = 40
+        num_x = 400
+        num_y = 400
+        z_val = 10
 
     return num_x, num_y, z_val, has_discontinuity
 
