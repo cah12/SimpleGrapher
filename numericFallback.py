@@ -226,11 +226,11 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     num_points = 800
     d = 4
 
-    d_p = sp.degree(expr, gen=y)
-    # if the power of y > 1
-    if d_p > 1:
-        num_points = 2000
-        d = 1
+    # d_p = sp.degree(expr, gen=y)
+    # # if the power of y > 1
+    # if d_p > 1:
+    #     num_points = 2000
+    #     d = 1
 
     num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
         expr, x_min, x_max, y_min, y_max)
