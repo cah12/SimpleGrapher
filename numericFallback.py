@@ -185,7 +185,8 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
             d_y = 7
         if d_y < 1:
             d_y = 1
-        d_y *= 2
+        if d_y > 3:
+            d_y *= 1.8
         # round to nearest integer
         d_y = int(d_y)
         if len_ < 3 and d_x < 3:
