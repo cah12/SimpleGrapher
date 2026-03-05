@@ -160,30 +160,45 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
 
 
 def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
-    # 2. Convert to a SymPy polynomial object to extract coefficients
-    # 'domain="QQ"' specifies rational coefficients; "RR" for floats
-    poly_obj = sp.Poly(expr, x)
+    has_discontinuity = has_infinite_discontinuity_in_xrange(
+        expr, x_min, x_max)
 
-    # # arr = np.array(poly_obj.terms())
-    # print("Coefficients:", arr)
-
-    # # Get terms as (exponent_tuple, coefficient)
-    # # Output: [((3,), 3), ((2,), 5), ((0,), -7)]
-    # print("Terms:", poly_obj.terms())
-
-    len_ = len(poly_obj.terms())
-    d = sp.degree(expr, x)
-    if len_ < 3 and d < 3:
-        # x^2 = y, x^2-40 = y, x^2-40x = y, x^2-40x^2+10 = y
+    if has_discontinuity or "/sin" in str(expr) or "/cos" in str(expr):
+        num_x = 800
+        num_y = 800
+        z_val = 10
+        return num_x, num_y, z_val, has_discontinuity
+    if (expr.has(TrigonometricFunction) or "_mode" in str(expr)):
         num_x = 200
         num_y = 200
-        z_val = 10
-
-    elif 3 > len_ > 2 and d < 3:
-        # x^3 = y, x^3-40 = y, x^3-40x = y, x^3-40x+10 = y
-        num_x = 300
-        num_y = 300
         z_val = 20
+        return num_x, num_y, z_val, has_discontinuity
+
+    if expr.is_polynomial(x):
+        poly_obj = sp.Poly(expr, x)
+        len_ = len(poly_obj.terms())
+        d_x = sp.degree(expr, x)
+        d_y = 1
+        if expr.is_polynomial(y):
+            d_y = sp.degree(expr, y)
+        if d_y > 7:
+            d_y = 7
+        if d_y < 1:
+            d_y = 1
+        d_y *= 2
+        # round to nearest integer
+        d_y = int(d_y)
+        if len_ < 3 and d_x < 3:
+            # x^2 = y, x^2-40 = y, x^2-40x = y, x^2-40x^2+10 = y
+            num_x = 300
+            num_y = 300*d_y
+            z_val = 12
+
+        elif 3 > len_ > 2 and d_x < 3:
+            # x^3 = y, x^3-40 = y, x^3-40x = y, x^3-40x+10 = y
+            num_x = 300*d_y
+            num_y = 300*d_y
+            z_val = 20
 
     else:
         # x^3 = y, x^3-40 = y, x^3-40x^2 = y, x^3-40x+10 = y
@@ -191,7 +206,7 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
         num_y = 1000
         z_val = 20
 
-    return num_x, num_y, z_val
+    return num_x, num_y, z_val, has_discontinuity
 
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
@@ -216,7 +231,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         num_points = 2000
         d = 1
 
-    num_x, num_y, z_val = grid_x_y_z_val(expr, x_min, x_max, y_min, y_max)
+    num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
+        expr, x_min, x_max, y_min, y_max)
 
     _x = np.linspace(x_min, x_max, num_x)
     _y = np.linspace(y_min, y_max, num_y)
@@ -273,8 +289,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         cont_gen = None
         gc.collect()
 
-        has_discontinuity = has_infinite_discontinuity_in_xrange(
-            expr, x_min, x_max)
+        # has_discontinuity = has_infinite_discontinuity_in_xrange(
+        #     expr, x_min, x_max)
 
         all_points = []
         # for level_segments in CS.allsegs:
