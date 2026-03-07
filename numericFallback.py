@@ -160,52 +160,94 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
 
 
 def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
+    z_val = 8
     has_discontinuity = has_infinite_discontinuity_in_xrange(
         expr, x_min, x_max)
 
-    if has_discontinuity or "/sin" in str(expr) or "/cos" in str(expr):
-        num_x = 800
-        num_y = 800
-        z_val = 10
+    num_x = 100
+    density = 1000000
+
+    # if has_discontinuity or "/sin" in str(expr) or "/cos" in str(expr):
+    #     num_x = 1000
+    # density = 1000000
+
+    num_y_max = 1000
+    num_y = num_y_max
+
+    try:
+        num_y = np.minimum(num_y_max, int(num_x*(y_max-y_min)/(x_max-x_min)))
+    except Exception:
+        pass
+
+    if num_y == num_y_max:
+        num_x = int(num_y_max*2)
+        num_y = num_x
+        # num_x = int(density/(num_y_max*2))
+
+    while num_y*num_x < density/50:
+        num_x *= 2
+        num_y = int(num_x*(y_max-y_min)/(x_max-x_min))
+
+    # if has_discontinuity or "/sin" in str(expr) or "/cos" in str(expr):
+    if "/sin" in str(expr) or "/cos" in str(expr):
+        # if expr has 1 y and degree of poly in x is less than 3
+        # num_x = 1000
+        # num_y = 1000
+        # z_val = 15
+
+        # if expr has 1 y and degree of poly in x is greater than 2
+        num_x = 1000
+        num_y = 1000
+        z_val = 15
+
         return num_x, num_y, z_val, has_discontinuity
     if (expr.has(TrigonometricFunction) or "_mode" in str(expr)):
-        num_x = 200
-        num_y = 200
+        # num_x = 200
+        # num_y = 200
         z_val = 20
         return num_x, num_y, z_val, has_discontinuity
 
-    if expr.is_polynomial(x):
-        poly_obj = sp.Poly(expr, x)
-        len_ = len(poly_obj.terms())
-        d_x = sp.degree(expr, x)
-        d_y = 1
-        if expr.is_polynomial(y):
-            d_y = sp.degree(expr, y)
-        if d_y > 7:
-            d_y = 7
-        if d_y < 1:
-            d_y = 1
-        if d_y > 3:
-            d_y *= 1.8
-        # round to nearest integer
-        d_y = int(d_y)
-        if len_ < 3 and d_x < 3:
-            # x^2 = y, x^2-40 = y, x^2-40x = y, x^2-40x^2+10 = y
-            num_x = 300
-            num_y = 300*d_y
-            z_val = 12
+    # if expr.is_polynomial(x):
+    #     poly_obj = sp.Poly(expr, x)
+    #     len_ = len(poly_obj.terms())
+    #     d_x = sp.degree(expr, x)
+    #     d_y = 1
+    #     if expr.is_polynomial(y):
+    #         d_y = sp.degree(expr, y)
+    #     if d_y > 7:
+    #         d_y = 7
+    #     if d_y < 1:
+    #         d_y = 1
+    #     if d_y > 3:
+    #         d_y *= 1.8
+    #     # round to nearest integer
+    #     d_y = int(d_y)
+    #     if len_ < 3 and d_x < 3:
+    #         # x^2 = y, x^2-40 = y, x^2-40x = y, x^2-40x^2+10 = y
+    #         # num_x = 300
+    #         # num_y = 300*d_y
+    #         z_val = 12
 
-        elif 3 > len_ > 2 and d_x < 3:
-            # x^3 = y, x^3-40 = y, x^3-40x = y, x^3-40x+10 = y
-            num_x = 300*d_y
-            num_y = 300*d_y
-            z_val = 20
+    #     elif 3 > len_ > 2 and d_x < 3:
+    #         # x^3 = y, x^3-40 = y, x^3-40x = y, x^3-40x+10 = y
+    #         # num_x = 300*d_y
+    #         # num_y = 300*d_y
+    #         z_val = 20
 
     else:
         # x^3 = y, x^3-40 = y, x^3-40x^2 = y, x^3-40x+10 = y
-        num_x = 400
-        num_y = 400
-        z_val = 10
+        # num_x = 400
+        # num_y = 400
+        z_val = np.finfo(np.float64).max
+
+    # num_x = 100
+    # num_y = int(num_x*(y_max-y_min)/(x_max-x_min))
+    # while num_y*num_x < 20000:
+    #     num_x *= 2
+    #     num_y = int(num_x*(y_max-y_min)/(x_max-x_min))
+
+    # num_x = 4000
+    # num_y = 4000
 
     return num_x, num_y, z_val, has_discontinuity
 
@@ -221,6 +263,13 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
 
     y_min = min(y_min, _y_min)
     y_max = max(y_max, _y_max)
+
+    _max = np.max([np.abs(y_min), np.abs(y_max)])
+    y_min = -_max
+    y_max = _max
+
+    # if the power of y > 1
+    # d_p = sp.degree(expr, gen=y
 
     # if the power of y == 1
     num_points = 800
@@ -274,7 +323,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         z_masked = np.ma.masked_where(z > z_val, z)
 
         cont_gen = contour_generator(
-            X, Y, z=z_masked, name="serial")
+            X, Y, z=z_masked, corner_mask=True, name="serial")
         # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, name="serial")
         del z
         del z_masked
