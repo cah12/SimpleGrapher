@@ -164,7 +164,7 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     has_discontinuity = has_infinite_discontinuity_in_xrange(
         expr, x_min, x_max)
 
-    num_x = 200
+    num_x = 500
     density = 1000000
 
     # if has_discontinuity or "/sin" in str(expr) or "/cos" in str(expr):
@@ -195,14 +195,15 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     if has_discontinuity:
         # if "/sin" in str(expr) or "/cos" in str(expr):
         # if expr has 1 y and degree of poly in x is less than 3
-        # num_x = 1000
-        # num_y = 1000
-        # z_val = 15
+        num_x = 1000
+        num_y = 1000
+        z_val = 8
 
         # if expr has 1 y and degree of poly in x is greater than 2
-        num_x = 2000
-        num_y = 2000
-        z_val = 15
+        if expr.has(TrigonometricFunction):
+            num_x = 2000
+            num_y = 2000
+            z_val = 54
         # if "_mode" in str(expr):
         #     z_val = 15
 
@@ -219,19 +220,19 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
         # num_y = 400
         z_val = np.finfo(np.float64).max
 
-    d_y = 1
-    if expr.is_polynomial(y):
-        d_y = sp.degree(expr, y)
-    if 5 >= d_y >= 3:
-        num_y = np.maximum(num_y, 1000)
-    elif 30 >= d_y > 5:
-        num_y = np.maximum(num_y, 2500)
-    elif d_y > 30:
-        num_y = np.maximum(num_y, 3000)
-        # num_x = np.maximum(num_x, 2000)
+    # d_y = 1
+    # if expr.is_polynomial(y):
+    #     d_y = sp.degree(expr, y)
+    # if 5 >= d_y >= 3:
+    #     num_y = np.maximum(num_y, 1000)
+    # elif 30 >= d_y > 5:
+    #     num_y = np.maximum(num_y, 2500)
+    # elif d_y > 30:
+    #     num_y = np.maximum(num_y, 3000)
+    #     # num_x = np.maximum(num_x, 2000)
 
-    if num_y <= num_x and d_y > 10:
-        num_y = int(2*num_x)
+    # if num_y <= num_x and d_y > 10:
+    #     num_y = int(2*num_x)
 
     return num_x, num_y, z_val, has_discontinuity
 
@@ -241,6 +242,10 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     # if "sqrt" in str(expr):
     #     expr = str(expr).replace("sqrt", "custom_sqrt")
     #     expr = sp.sympify(expr)
+
+    # width = x_max - x_min
+    # x_min = x_min - 1 * width
+    # x_max = x_max + 1 * width
 
     (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
     # (_y_min, _y_max) = (x_min, x_max)
