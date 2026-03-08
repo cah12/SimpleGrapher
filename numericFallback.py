@@ -164,7 +164,7 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     has_discontinuity = has_infinite_discontinuity_in_xrange(
         expr, x_min, x_max)
 
-    num_x = 100
+    num_x = 200
     density = 1000000
 
     # if has_discontinuity or "/sin" in str(expr) or "/cos" in str(expr):
@@ -248,6 +248,18 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
 
     # num_x = 4000
     # num_y = 4000
+    d_y = 1
+    if expr.is_polynomial(y):
+        d_y = sp.degree(expr, y)
+    if 9 >= d_y > 3:
+        num_y = np.maximum(num_y, 500)
+    elif 30 >= d_y > 9:
+        num_y = np.maximum(num_y, 1000)
+    else:
+        num_y = np.maximum(num_y, 2000)
+
+    if num_y <= num_x and d_y > 10:
+        num_y = int(2*num_x)
 
     return num_x, num_y, z_val, has_discontinuity
 
