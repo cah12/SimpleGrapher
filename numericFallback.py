@@ -174,12 +174,15 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     num_y_max = 1000
     num_y = num_y_max
 
+    excpt = False
+
     try:
         num_y = np.minimum(num_y_max, int(num_x*(y_max-y_min)/(x_max-x_min)))
     except Exception:
+        excpt = True
         pass
 
-    if num_y == num_y_max:
+    if excpt == True:
         num_x = int(num_y_max*2)
         num_y = num_x
         # num_x = int(density/(num_y_max*2))
@@ -189,50 +192,26 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
         num_y = int(num_x*(y_max-y_min)/(x_max-x_min))
 
     # if has_discontinuity or "/sin" in str(expr) or "/cos" in str(expr):
-    if "/sin" in str(expr) or "/cos" in str(expr):
+    if has_discontinuity:
+        # if "/sin" in str(expr) or "/cos" in str(expr):
         # if expr has 1 y and degree of poly in x is less than 3
         # num_x = 1000
         # num_y = 1000
         # z_val = 15
 
         # if expr has 1 y and degree of poly in x is greater than 2
-        num_x = 1000
-        num_y = 1000
+        num_x = 2000
+        num_y = 2000
         z_val = 15
+        # if "_mode" in str(expr):
+        #     z_val = 15
 
-        return num_x, num_y, z_val, has_discontinuity
-    if (expr.has(TrigonometricFunction) or "_mode" in str(expr)):
+        # return num_x, num_y, z_val, has_discontinuity
+    elif (expr.has(TrigonometricFunction) or "_mode" in str(expr)):
         # num_x = 200
         # num_y = 200
         z_val = 20
-        return num_x, num_y, z_val, has_discontinuity
-
-    # if expr.is_polynomial(x):
-    #     poly_obj = sp.Poly(expr, x)
-    #     len_ = len(poly_obj.terms())
-    #     d_x = sp.degree(expr, x)
-    #     d_y = 1
-    #     if expr.is_polynomial(y):
-    #         d_y = sp.degree(expr, y)
-    #     if d_y > 7:
-    #         d_y = 7
-    #     if d_y < 1:
-    #         d_y = 1
-    #     if d_y > 3:
-    #         d_y *= 1.8
-    #     # round to nearest integer
-    #     d_y = int(d_y)
-    #     if len_ < 3 and d_x < 3:
-    #         # x^2 = y, x^2-40 = y, x^2-40x = y, x^2-40x^2+10 = y
-    #         # num_x = 300
-    #         # num_y = 300*d_y
-    #         z_val = 12
-
-    #     elif 3 > len_ > 2 and d_x < 3:
-    #         # x^3 = y, x^3-40 = y, x^3-40x = y, x^3-40x+10 = y
-    #         # num_x = 300*d_y
-    #         # num_y = 300*d_y
-    #         z_val = 20
+        # return num_x, num_y, z_val, has_discontinuity
 
     else:
         # x^3 = y, x^3-40 = y, x^3-40x^2 = y, x^3-40x+10 = y
@@ -240,23 +219,16 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
         # num_y = 400
         z_val = np.finfo(np.float64).max
 
-    # num_x = 100
-    # num_y = int(num_x*(y_max-y_min)/(x_max-x_min))
-    # while num_y*num_x < 20000:
-    #     num_x *= 2
-    #     num_y = int(num_x*(y_max-y_min)/(x_max-x_min))
-
-    # num_x = 4000
-    # num_y = 4000
     d_y = 1
     if expr.is_polynomial(y):
         d_y = sp.degree(expr, y)
-    if 9 >= d_y > 3:
-        num_y = np.maximum(num_y, 500)
-    elif 30 >= d_y > 9:
+    if 5 >= d_y >= 3:
         num_y = np.maximum(num_y, 1000)
-    else:
-        num_y = np.maximum(num_y, 2000)
+    elif 30 >= d_y > 5:
+        num_y = np.maximum(num_y, 2500)
+    elif d_y > 30:
+        num_y = np.maximum(num_y, 3000)
+        # num_x = np.maximum(num_x, 2000)
 
     if num_y <= num_x and d_y > 10:
         num_y = int(2*num_x)
