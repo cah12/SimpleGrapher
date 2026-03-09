@@ -283,14 +283,17 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
         default_value *= 10
     if has_discontinuity:
         default_value *= 10
-    return default_value*factor, default_value*factor, z_val, has_discontinuity
+
+    if d_x > 3:
+        z_val = np.finfo(np.float64).max
+    return default_value, default_value, z_val, has_discontinuity
 
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
 
     # if "sqrt" in str(expr):
-    #     expr = str(expr).replace("sqrt", "custom_sqrt")
-    #     expr = sp.sympify(expr)
+    # expr = str(expr).replace("sin", "np.sin")
+    # expr = sp.sympify(expr)
 
     # width = x_max - x_min
     # x_min = x_min - 1 * width
@@ -358,7 +361,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
         #     z), levels=[0], colors='blue', alpha=0)
 
-        z_masked = np.ma.masked_where(z > z_val, z)
+        z_masked = np.ma.masked_where(z < -z_val, z)
 
         cont_gen = contour_generator(
             X, Y, z=z_masked, corner_mask=True, name="serial")

@@ -7,7 +7,7 @@ from waitress import serve
 
 import numpy as np
 import sympy as sp
-from sympy import ceiling, symbols, solve, fraction, oo, S, preorder_traversal, sin, cos, tan, cot, sec, csc, Abs
+from sympy import ceiling, symbols, solve, fraction, oo, S, preorder_traversal
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
 from sympy.core.function import _mexpand as flat
 from typing import List, Union, Tuple
