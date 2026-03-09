@@ -17,6 +17,7 @@ import sympy as sp
 from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
 from my_misc import has_infinite_discontinuity_in_xrange, sanitize_contour_segments
 import gc
+import re
 
 from contourpy import contour_generator
 
@@ -74,8 +75,8 @@ x, y = symbols('x y')
 
 
 def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None, y_samples=400, match_tol=None, f_tol=1e-15):
-    if (equation.has(TrigonometricFunction)) or ("_mode" in str(equation)):
-        return (-300, 300)
+    # if (equation.has(TrigonometricFunction)) or ("_mode" in str(equation)):
+    #     return (-300, 300)
 
     # Estimate y-range from symbolic solutions if possible
     x_vals = np.linspace(x_min, x_max, num_x)
@@ -164,7 +165,7 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     has_discontinuity = has_infinite_discontinuity_in_xrange(
         expr, x_min, x_max)
 
-    num_x = 500
+    num_x = 200
     density = 1000000
 
     # if has_discontinuity or "/sin" in str(expr) or "/cos" in str(expr):
@@ -176,8 +177,26 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
 
     excpt = False
 
+    # Pattern for common trig functions
+    pattern = r"\b(sin|cos|tan|asin|acos|atan|sin_mode|cos_mode|tan_mode|asin_mode|acos_mode|atan_mode)\b"
+
+    # Replace all matched trig functions with '1'
+    str_expr = re.sub(pattern, "0*", str(expr))
+    str_expr = sp.sympify(str_expr)
+
+    d_x = 1
+
+    if str_expr.is_polynomial(x):
+        d_x = int(sp.degree(str_expr, x))
+
+    d_y = 1
+
+    if str_expr.is_polynomial(y):
+        d_y = int(sp.degree(str_expr, y))
+
     try:
-        num_y = np.minimum(num_y_max, int(num_x*(y_max-y_min)/(x_max-x_min)))
+        # num_y = np.minimum(num_y_max, int(num_x*(y_max-y_min)/(x_max-x_min)))
+        num_y = int(num_x*(y_max-y_min)/(x_max-x_min))
     except Exception:
         excpt = True
         pass
@@ -195,15 +214,23 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     if has_discontinuity:
         # if "/sin" in str(expr) or "/cos" in str(expr):
         # if expr has 1 y and degree of poly in x is less than 3
-        num_x = 1000
-        num_y = 1000
+        # num_x = 1000
+        # num_y = 1000
         z_val = 8
 
         # if expr has 1 y and degree of poly in x is greater than 2
         if expr.has(TrigonometricFunction):
-            num_x = 2000
-            num_y = 2000
-            z_val = 54
+            # num_x = 400
+            # num_y = 400
+            d_y = np.minimum(d_y, 6)
+            if d_x == 1:
+                z_val = 8*d_y
+            elif d_y == 1:
+                z_val = 8*d_x
+            else:
+                z_val = 8*d_x*d_y
+
+            z_val = 10
         # if "_mode" in str(expr):
         #     z_val = 15
 
@@ -211,7 +238,7 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     elif (expr.has(TrigonometricFunction) or "_mode" in str(expr)):
         # num_x = 200
         # num_y = 200
-        z_val = 20
+        z_val = 8
         # return num_x, num_y, z_val, has_discontinuity
 
     else:
@@ -234,7 +261,29 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     # if num_y <= num_x and d_y > 10:
     #     num_y = int(2*num_x)
 
-    return num_x, num_y, z_val, has_discontinuity
+    # return num_x, num_y, z_val, has_discontinuity
+    factor = 1
+    default_value = 50
+    if 7 >= d_x >= 3:
+        factor = 2
+    elif 15 >= d_x > 7:
+        factor = 3
+    elif 20 >= d_x > 15:
+        factor = 4
+    elif 30 >= d_x > 20:
+        factor = 5
+    elif 40 >= d_x > 30:
+        factor = 6
+    elif 50 >= d_x > 40:
+        factor = 7
+    elif d_x > 50:
+        factor = 8
+
+    if has_discontinuity == False and expr.has(TrigonometricFunction):
+        default_value *= 10
+    if has_discontinuity:
+        default_value *= 10
+    return default_value*factor, default_value*factor, z_val, has_discontinuity
 
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
