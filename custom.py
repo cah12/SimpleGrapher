@@ -90,6 +90,54 @@ def custom_acsc_mode(arg):
     return np.rad2deg(np.arcsin(1/arg))
 
 
+def custom_sin(arg):
+    return np.sin(arg)
+
+
+def custom_cos(arg):
+    return np.cos(arg)
+
+
+def custom_tan(arg):
+    return np.tan(arg)
+
+
+def custom_cot(arg):
+    return 1 / np.tan(arg)
+
+
+def custom_sec(arg):
+    return 1 / np.cos(arg)
+
+
+def custom_csc(arg):
+    return 1 / np.sin(arg)
+
+
+def custom_asin(arg):
+    return np.arcsin(arg)
+
+
+def custom_acos(arg):
+    return np.arccos(arg)
+
+
+def custom_atan(arg):
+    return np.arctan(arg)
+
+
+def custom_acot(arg):
+    return np.arccot(arg)
+
+
+def custom_asec(arg):
+    return np.arccos(1/arg)
+
+
+def custom_acsc(arg):
+    return np.arcsin(1/arg)
+
+
 custom = {
     "sin_mode": custom_sin_mode,
     "cos_mode": custom_cos_mode,
@@ -102,5 +150,17 @@ custom = {
     "atan_mode": custom_atan_mode,
     "acot_mode": custom_acot_mode,
     "asec_mode": custom_asec_mode,
-    "acsc_mode": custom_acsc_mode
+    "acsc_mode": custom_acsc_mode,
+    "sin": custom_sin,
+    "cos": custom_cos,
+    "tan": custom_tan,
+    "cot": custom_cot,
+    "sec": custom_sec,
+    "csc": custom_csc,
+    "asin": custom_asin,
+    "acos": custom_acos,
+    "atan": custom_atan,
+    "acot": custom_acot,
+    "asec": custom_asec,
+    "acsc": custom_acsc
 }
