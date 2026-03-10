@@ -335,6 +335,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
     f = lambdify((x, y), expr, modules=["numpy", custom])
     # z = z.astype(np.float32)
     z = f(X, Y)
+
     # z = z.astype(np.float32)
     # z_val = 0.03*y_max
     # # Convert the expression to a string
