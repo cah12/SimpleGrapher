@@ -264,20 +264,37 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     # return num_x, num_y, z_val, has_discontinuity
     factor = 1
     default_value = 50
-    if 7 >= d_x >= 3 or 7 >= d_y >= 3:
+    if 7 >= d_x >= 3:
         factor = 2
-    elif 15 >= d_x > 7 or 15 >= d_y > 7:
+    elif 15 >= d_x > 7:
         factor = 3
-    elif 20 >= d_x > 15 or 20 >= d_y > 15:
+    elif 20 >= d_x > 15:
         factor = 4
-    elif 30 >= d_x > 20 or 30 >= d_y > 20:
+    elif 30 >= d_x > 20:
         factor = 5
-    elif 40 >= d_x > 30 or 40 >= d_y > 30:
+    elif 40 >= d_x > 30:
         factor = 6
-    elif 50 >= d_x > 40 or 50 >= d_y > 40:
+    elif 50 >= d_x > 40:
         factor = 7
-    elif d_x > 50 or d_y > 50:
+    elif d_x > 50:
         factor = 8
+
+    factor_y = 1
+
+    if 7 >= d_y >= 3:
+        factor_y = 2
+    elif 15 >= d_y > 7:
+        factor_y = 3
+    elif 20 >= d_y > 15:
+        factor_y = 5
+    elif 30 >= d_y > 20:
+        factor_y = 6
+    elif 40 >= d_y > 30:
+        factor_y = 7
+    elif 50 >= d_y > 40:
+        factor_y = 8
+    elif d_y > 50:
+        factor_y = 9
 
     if has_discontinuity == False and expr.has(TrigonometricFunction):
         default_value *= 10
@@ -286,7 +303,7 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
 
     if d_x > 3:
         z_val = np.finfo(np.float64).max
-    return default_value, default_value, z_val, has_discontinuity
+    return default_value*factor_y*2, default_value*factor_y*2, z_val, has_discontinuity
 
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
