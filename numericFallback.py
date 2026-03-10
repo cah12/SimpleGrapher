@@ -264,19 +264,19 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     # return num_x, num_y, z_val, has_discontinuity
     factor = 1
     default_value = 50
-    if 7 >= d_x >= 3:
+    if 7 >= d_x >= 3 or 7 >= d_y >= 3:
         factor = 2
-    elif 15 >= d_x > 7:
+    elif 15 >= d_x > 7 or 15 >= d_y > 7:
         factor = 3
-    elif 20 >= d_x > 15:
+    elif 20 >= d_x > 15 or 20 >= d_y > 15:
         factor = 4
-    elif 30 >= d_x > 20:
+    elif 30 >= d_x > 20 or 30 >= d_y > 20:
         factor = 5
-    elif 40 >= d_x > 30:
+    elif 40 >= d_x > 30 or 40 >= d_y > 30:
         factor = 6
-    elif 50 >= d_x > 40:
+    elif 50 >= d_x > 40 or 50 >= d_y > 40:
         factor = 7
-    elif d_x > 50:
+    elif d_x > 50 or d_y > 50:
         factor = 8
 
     if has_discontinuity == False and expr.has(TrigonometricFunction):
