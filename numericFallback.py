@@ -382,8 +382,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinui
         z_masked = np.ma.masked_where(z < -z_val, z)
 
         cont_gen = contour_generator(
-            X, Y, z=z_masked, corner_mask=True, name="serial")
-        # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, name="serial")
+            X, Y, z=z_masked, name="serial")
+        # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, corner_as_point=True, name="serial")
         del z
         del z_masked
         del X
