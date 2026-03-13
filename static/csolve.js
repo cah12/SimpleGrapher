@@ -54,6 +54,9 @@ async function numeric(
   exp,
   lower,
   upper,
+  lowerY,
+  upperY,
+  autoScale,
   indepVar,
   numOfPoints = 200,
   has_discontinuity = false,
@@ -65,6 +68,9 @@ async function numeric(
         exp: exp,
         lower: lower,
         upper: upper,
+        lowerY: lowerY,
+        upperY: upperY,
+        autoScale: autoScale,
         var: indepVar,
         numOfPoints: numOfPoints,
         has_discontinuity: has_discontinuity,
@@ -85,6 +91,7 @@ async function numeric(
     return {
       branches: _array_of_branches,
       discontinuities: data.discontinuities,
+      large_range_span: data.large_range_span,
     };
   } catch (error) {
     console.error(error);

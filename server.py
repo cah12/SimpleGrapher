@@ -856,6 +856,9 @@ def numeric():
     _var = data["var"]
     lower = data["lower"]
     upper = data["upper"]
+    lowerY = data["lowerY"]
+    upperY = data["upperY"]
+    autoScale = data["autoScale"]
     numOfPoints = data["numOfPoints"]
     has_discontinuity = data["has_discontinuity"]
 
@@ -885,8 +888,15 @@ def numeric():
     arr1 = TR2(arr1)
     eq = trig_substitutions(arr0 - arr1)
 
-    _branches, has_discontinuity = generate_implicit_plot_points(
-        eq, lower, upper, has_discontinuity)
+    # def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
+
+    y1 = lowerY
+    y2 = upperY
+    # if autoScale:
+    #     y1 = -6
+    #     y2 = 6
+    _branches, has_discontinuity, large_range_span = generate_implicit_plot_points(
+        eq, lower, upper, autoScale, has_discontinuity, y1, y2)
 
     # infinite_discont = True
     # _branches = []
@@ -934,8 +944,8 @@ def numeric():
     release_memory_to_os()
 
     if has_discontinuity:
-        return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})
-    return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": []})
+        return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]], "large_range_span": large_range_span})
+    return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [], "large_range_span": large_range_span})
     # if infinite_discont:
     #     return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]]})
     # return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": []})
