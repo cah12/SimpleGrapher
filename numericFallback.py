@@ -103,10 +103,14 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
                 est_min, est_max = float(
                     np.min(all_est)), float(np.max(all_est))
                 padding = max(1.0, 0.1 * (est_max - est_min))
+                # if y_min is None:
+                #     y_min = est_min - padding
+                # if y_max is None:
+                #     y_max = est_max + padding
                 if y_min is None:
-                    y_min = est_min - padding
+                    y_min = est_min - 0.1*abs(est_min)
                 if y_max is None:
-                    y_max = est_max + padding
+                    y_max = est_max + 0.1*abs(est_max)
 
     # Fallback heuristic if still not set
     if y_min is None or y_max is None:
@@ -230,7 +234,7 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
             else:
                 z_val = 8*d_x*d_y
 
-            z_val = 10
+            # z_val = 10
         # if "_mode" in str(expr):
         #     z_val = 15
 
@@ -407,20 +411,20 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # x_min = x_min - 1 * width
     # x_max = x_max + 1 * width
 
-    if autoScale:
-        (y_min, y_max) = estimate_y_bounds2(expr, x_min, x_max)
-        # (_y_min, _y_max) = (x_min, x_max)
+    # if autoScale:
+    (y_min, y_max) = estimate_y_bounds2(expr, x_min, x_max)
+    # (_y_min, _y_max) = (x_min, x_max)
 
-        # y_min = min(y_min, _y_min)
-        # y_max = max(y_max, _y_max)
+    # y_min = min(y_min, _y_min)
+    # y_max = max(y_max, _y_max)
 
-        _max = np.max([np.abs(y_min), np.abs(y_max)])
+    _max = np.max([np.abs(y_min), np.abs(y_max)])
 
-        # if expr.has(TrigonometricFunction):
-        # _max = np.minimum(_max, 1e16)
+    # if expr.has(TrigonometricFunction):
+    # _max = np.minimum(_max, 1e16)
 
-        y_min = -_max
-        y_max = _max
+    y_min = -_max
+    y_max = _max
 
     # if the power of y > 1
     # d_p = sp.degree(expr, gen=y
@@ -442,7 +446,17 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # num_y = 500
 
     _x = np.linspace(x_min, x_max, num_x)
-    _y = np.linspace(y_min, y_max, num_y)
+    if y_max > 1e16:
+        f = 0.095
+        _y = np.linspace(y_min, -1e12, int(num_y*f), endpoint=False)
+        _y = np.append(_y, np.linspace(-1e12, 1e12,
+                       int(num_y*(1-2*f)), endpoint=False))
+        _y = np.append(_y, np.linspace(1e12, y_max, int(num_y*f)))
+    else:
+        _y = np.linspace(y_min, y_max, num_y)
+
+    # _y = np.linspace(y_min, y_max, num_y)
+    # _y = np.geomspace(y_min, y_max, num_y)
     # _x = np.linspace(x_min, x_max, num_points)
     # _y = np.linspace(y_min, y_max, num_points)
 
