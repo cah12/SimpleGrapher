@@ -340,7 +340,7 @@ def estimate_z_val(expr, x_min, x_max, y_min, y_max):
         return 1e-100
 
     # Otherwise, return 10% of the maximum absolute value as the estimated z_val
-    return max_abs_val * 0.07
+    return max_abs_val * 0.08
 
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False, has_discontinuity=False, y_min=-10.0, y_max=10.0):
