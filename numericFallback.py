@@ -227,12 +227,14 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
             # num_x = 400
             # num_y = 400
             d_y = np.minimum(d_y, 6)
-            if d_x == 1:
-                z_val = 8*d_y
+            if d_x == 0:
+                pass
+            elif d_x == 1:
+                z_val = 7*d_y
             elif d_y == 1:
-                z_val = 8*d_x
+                z_val = 8*(d_x+0.8)
             else:
-                z_val = 8*d_x*d_y
+                z_val = 8*(d_x+0.8)*d_y
 
             # z_val = 10
         # if "_mode" in str(expr):
@@ -305,100 +307,40 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     if has_discontinuity:
         default_value *= 10
 
-    if d_x > 3:
+    if d_x > 3 and not (expr.has(TrigonometricFunction) or "_mode" in str(expr)):
         z_val = np.finfo(np.float64).max
     return default_value*factor_y*2, default_value*factor_y*2, z_val, has_discontinuity
 
 
-# class QuadTreeNode:
-#     def __init__(self, value, x_start, x_end, y_start, y_end):
-#         self.value = value
-#         self.x_start = x_start
-#         self.x_end = x_end
-#         self.y_start = y_start
-#         self.y_end = y_end
-#         self.children = [None, None, None, None]
+def estimate_z_val(expr, x_min, x_max, y_min, y_max):
+    """
+    Estimate a reasonable z_val for an implicit function given the domain (x_min, x_max).
 
-#     def split(self):
-#         x_mid = (self.x_start + self.x_end) / 2
-#         y_mid = (self.y_start + self.y_end) / 2
-#         self.children[0] = QuadTreeNode(
-#             self.value, self.x_start, x_mid, self.y_start, y_mid)
-#         self.children[1] = QuadTreeNode(
-#             self.value, x_mid, self.x_end, self.y_start, y_mid)
-#         self.children[2] = QuadTreeNode(
-#             self.value, self.x_start, x_mid, y_mid, self.y_end)
-#         self.children[3] = QuadTreeNode(
-#             self.value, x_mid, self.x_end, y_mid, self.y_end)
+    This function computes the maximum absolute value of the function over the domain and
+    returns 10% of that value as the estimated z_val. If the maximum absolute value is
+    less than 1e-100, then the function returns 1e-100.
 
-#     def update(self, value):
-#         self.value = value
+    Args:
+        expr (sympy expression): The implicit function to estimate z_val for.
+        x_min (float): The minimum x-value of the domain.
+        x_max (float): The maximum x-value of the domain.
 
+    Returns:
+        float: The estimated z_val value.
+    """
+    # Compute the maximum absolute value of the function over the domain
+    x = sp.Symbol('x')
+    f = sp.lambdify((x, y), expr, modules=['numpy'])
+    x_vals = np.linspace(x_min, x_max, 500)
+    y_vals = np.linspace(y_min, y_max, 500)
+    max_abs_val = np.max(np.abs(f(x_vals, y_vals)))
 
-# def adaptive_patch(f, Z, patch_size, threshold=0.1):
-#     root = QuadTreeNode(np.mean(Z), 0, 1, 0, 1)
-#     root.split()
-#     queue = [root]
-#     Z_array = np.zeros((patch_size, patch_size))
+    # If the maximum absolute value is less than 1e-100, return 1e-100
+    if max_abs_val < 1e-100:
+        return 1e-100
 
-#     while queue:
-#         node = queue.pop(0)
-#         if node.value is not None:
-#             cell_vals = [
-#                 node.value] + [child.value for child in node.children if child is not None]
-#             if min(cell_vals) < threshold and max(cell_vals) > -threshold:
-#                 x_start, x_end = node.x_start, node.x_end
-#                 y_start, y_end = node.y_start, node.y_end
-#                 x_sub = np.linspace(x_start, x_end, patch_size)
-#                 y_sub = np.linspace(y_start, y_end, patch_size)
-#                 sub_patch = f(x_sub, y_sub)
-#                 node.update(np.mean(sub_patch))
-#                 for i, child in enumerate(node.children):
-#                     if child is None:
-#                         child = QuadTreeNode(np.mean(Z[node.y_start:node.y_end, node.x_start:node.x_end]),
-#                                              node.x_start + i/4 *
-#                                              (node.x_end - node.x_start),
-#                                              node.x_start +
-#                                              (i+1)/4 * (node.x_end - node.x_start),
-#                                              node.y_start + i/4 *
-#                                              (node.y_end - node.y_start),
-#                                              node.y_start + (i+1)/4 * (node.y_end - node.y_start))
-#                         node.children[i] = child
-#                     queue.append(child)
-#                 Z[node.y_start:node.y_end, node.x_start:node.x_end] = sub_patch
-#         else:
-#             queue.insert(0, node)
-#     return Z
-
-def adaptive_patch(f, Z, patch_size, n_base_x, n_base_y, x_coarse, y_coarse, threshold=0.01):
-    for i in range(0, n_base_y - 1):
-        for j in range(0, n_base_x - 1):
-            # Check if this cell boundary crosses 0
-            cell_vals = [Z[i, j], Z[i+1, j], Z[i, j+1], Z[i+1, j+1]]
-            if min(cell_vals) < threshold and max(cell_vals) > -threshold:
-                # Calculate physical boundaries for this cell
-                x_start, x_end = x_coarse[j], x_coarse[j+1]
-                y_start, y_end = y_coarse[i], y_coarse[i+1]
-
-                # 3. Create High-Resolution Subarray
-                x_sub = np.linspace(x_start, x_end, patch_size)
-                y_sub = np.linspace(y_start, y_end, patch_size)
-                xx, yy = np.meshgrid(x_sub, y_sub)
-                sub_patch = f(xx, yy)
-
-                # 4. Patch the main array (using coarse indices to map)
-                # This example demonstrates placing the patch.
-                # Real adaptive mesh often uses a separate data structure.
-                # To keep z as one array, we must map patch_size to the
-                # pixel density of the main array.
-
-                # Dummy placement for illustration (usually handled by quadtrees)
-                # For simplicity, we just update a region of the coarse mesh
-                # with the average of the patch here.
-                # z[i:i+4, j:j+4] = patch
-                if i < n_base_y - patch_size and j < n_base_x - patch_size:
-                    Z[i:i+patch_size, j:j+patch_size] = sub_patch
-    return Z
+    # Otherwise, return 10% of the maximum absolute value as the estimated z_val
+    return max_abs_val * 0.07
 
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False, has_discontinuity=False, y_min=-10.0, y_max=10.0):
@@ -413,6 +355,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
     # if autoScale:
     (y_min, y_max) = estimate_y_bounds2(expr, x_min, x_max)
+
     # (_y_min, _y_max) = (x_min, x_max)
 
     # y_min = min(y_min, _y_min)
@@ -425,6 +368,11 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
     y_min = -_max
     y_max = _max
+
+    # y_min = -100
+    # y_max = 100
+
+    # print(y_min, y_max)
 
     # if the power of y > 1
     # d_p = sp.degree(expr, gen=y
@@ -441,6 +389,18 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
     num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
         expr, x_min, x_max, y_min, y_max)
+
+    # num_x = 2000
+    # num_y = 2000
+    # z_val = 8*20
+    # z_val = 8*200  # x^6
+
+    z_val = estimate_z_val(expr, x_min, x_max, y_min, y_max)
+
+    print("z_val", z_val, num_x, num_y)
+
+    if has_discontinuity:
+        num_x = 1000
 
     # num_x = 500
     # num_y = 500
@@ -483,8 +443,9 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # z_val = np.minimum(np.nanmax(z)*0.10, 45)
     # print(z_val)
     # z[np.abs(z) > z_val] = np.nan
-    large_range_span = False
+    # large_range_span = False
     try:
+        z[np.abs(z) > z_val] = np.nan
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring
         z[np.isinf(z)] = np.nan
@@ -496,15 +457,15 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
         # z = adaptive_patch(f, z, 10, num_x, num_y, _x, _y)
         # z = adaptive_patch(f, z, 4)
 
-        z_masked = np.ma.masked_where(z < -z_val, z)
+        # z_masked = np.ma.masked_where(z < -z_val, z)
 
         # z[np.abs(z) < 1e-4] = 0.0
 
         cont_gen = contour_generator(
-            X, Y, z=z_masked, name="serial")
+            X, Y, z, name="serial")
         # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, corner_as_point=True, name="serial")
         del z
-        del z_masked
+        # del z_masked
         del X
         del Y
         del _x
@@ -544,11 +505,11 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
                 expr, segment, x_min, x_max, has_discontinuity)
             if segment is None:
                 continue
-            if not large_range_span:
-                max_y = np.max(segment[:, 1])
-                min_y = np.min(segment[:, 1])
-                if np.abs(max_y - min_y) > 1e16:
-                    large_range_span = True
+            # if not large_range_span:
+            #     max_y = np.max(segment[:, 1])
+            #     min_y = np.min(segment[:, 1])
+                # if np.abs(max_y - min_y) > 1e16:
+                #     large_range_span = True
 
             all_points.append(base64.b64encode(
                 segment.tobytes()).decode('utf-8'))
@@ -559,7 +520,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
         del lines
 
         gc.collect()  # Force garbage collection
-        return all_points, has_discontinuity, large_range_span
+        return all_points, has_discontinuity, None
 
     except Exception as e:
         print(f"Error generating implicit plot points: {e}")

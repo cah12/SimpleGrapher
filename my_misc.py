@@ -70,7 +70,8 @@ def sanitize_contour_segments(expr, segment: np.ndarray,
     #     has_discontinuity = True
 
     # for segment in allsegs:
-    if segment is None or len(segment) < 60:
+    if segment is None or len(segment) < 30:
+        # print("segment too short", len(segment))
         segment = None
         return segment
 
