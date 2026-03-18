@@ -397,7 +397,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
     z_val = estimate_z_val(expr, x_min, x_max, y_min, y_max)
 
-    print("z_val", z_val, num_x, num_y)
+    # print("z_val", z_val, num_x, num_y)
 
     if has_discontinuity:
         num_x = 1000
