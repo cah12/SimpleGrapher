@@ -79,20 +79,8 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
     # if (equation.has(TrigonometricFunction)) or ("_mode" in str(equation)):
     #     return (-300, 300)
 
-    filenameX = 'x123_mesh_data.dat'
-    dtype = 'float64'
-    shape = (num_x,)
-    # Clean up previous run
-    if os.path.exists(filenameX):
-        os.remove(filenameX)
-
-    # 2. Create/Open the Memory Map
-    # 'w+' creates or overwrites; use 'r+' to open existing
-    x_vals = np.memmap(filenameX, dtype=dtype, mode='w+', shape=shape)
-    x_vals[:] = np.linspace(x_min, x_max, num_x)
-
     # Estimate y-range from symbolic solutions if possible
-    # x_vals = np.linspace(x_min, x_max, num_x)
+    x_vals = np.linspace(x_min, x_max, num_x)
     if y_min is None or y_max is None:
         try:
             y_sols = solve(equation, y)
@@ -130,7 +118,7 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
         y_guess = max(1.0, abs(x_min), abs(x_max)) * 10.0
         y_min = -y_guess if y_min is None else y_min
         y_max = y_guess if y_max is None else y_max
-    del x_vals
+    x_vals = None
     return (y_min, y_max)
 
 
@@ -325,57 +313,36 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     return default_value*factor_y*2, default_value*factor_y*2, z_val, has_discontinuity
 
 
-# def estimate_z_val(expr, x_min, x_max, y_min, y_max):
-#     """
-#     Estimate a reasonable z_val for an implicit function given the domain (x_min, x_max).
+def estimate_z_val(expr, x_min, x_max, y_min, y_max):
+    """
+    Estimate a reasonable z_val for an implicit function given the domain (x_min, x_max).
 
-#     This function computes the maximum absolute value of the function over the domain and
-#     returns 10% of that value as the estimated z_val. If the maximum absolute value is
-#     less than 1e-100, then the function returns 1e-100.
+    This function computes the maximum absolute value of the function over the domain and
+    returns 10% of that value as the estimated z_val. If the maximum absolute value is
+    less than 1e-100, then the function returns 1e-100.
 
-#     Args:
-#         expr (sympy expression): The implicit function to estimate z_val for.
-#         x_min (float): The minimum x-value of the domain.
-#         x_max (float): The maximum x-value of the domain.
+    Args:
+        expr (sympy expression): The implicit function to estimate z_val for.
+        x_min (float): The minimum x-value of the domain.
+        x_max (float): The maximum x-value of the domain.
 
-#     Returns:
-#         float: The estimated z_val value.
-#     """
+    Returns:
+        float: The estimated z_val value.
+    """
 
-#     filenameX = 'x123_mesh_data.dat'
-#     filenameY = 'y123_mesh_data.dat'
-#     dtype = 'float64'
-#     # shape = (_y.shape[0], _x.shape[0])
-#     # Clean up previous run
-#     if os.path.exists(filenameX):
-#         os.remove(filenameX)
-#     if os.path.exists(filenameY):
-#         os.remove(filenameY)
+    # Compute the maximum absolute value of the function over the domain
+    x = sp.Symbol('x')
+    f = sp.lambdify((x, y), expr, modules=['numpy'])
+    x_val = np.linspace(x_min, x_max, 500)
+    y_val = np.linspace(y_min, y_max, 500)
+    max_abs_val = np.max(np.abs(f(x_val, y_val)))
 
-#     shape = (500,)
+    # If the maximum absolute value is less than 1e-100, return 1e-100
+    if max_abs_val < 1e-100:
+        return 1e-100
 
-#     # 2. Create/Open the Memory Map
-#     # 'w+' creates or overwrites; use 'r+' to open existing
-#     mmap_x = np.memmap(filenameX, dtype=dtype, mode='w+', shape=shape)
-#     mmap_y = np.memmap(filenameY, dtype=dtype, mode='w+', shape=shape)
-
-#     # Compute the maximum absolute value of the function over the domain
-#     x = sp.Symbol('x')
-#     f = sp.lambdify((x, y), expr, modules=['numpy'])
-#     mmap_x[:] = np.linspace(x_min, x_max, 500)
-#     mmap_y[:] = np.linspace(y_min, y_max, 500)
-#     max_abs_val = np.max(np.abs(f(mmap_x, mmap_y)))
-
-#     # Close the Memory Map
-#     del mmap_x
-#     del mmap_y
-
-#     # If the maximum absolute value is less than 1e-100, return 1e-100
-#     if max_abs_val < 1e-100:
-#         return 1e-100
-
-#     # Otherwise, return 10% of the maximum absolute value as the estimated z_val
-#     return max_abs_val * 0.08
+    # Otherwise, return 10% of the maximum absolute value as the estimated z_val
+    return max_abs_val * 0.08
 
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False, has_discontinuity=False, y_min=-10.0, y_max=10.0):
@@ -430,7 +397,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # z_val = 8*20
     # z_val = 8*200  # x^6
 
-    # z_val = estimate_z_val(expr, x_min, x_max, y_min, y_max)
+    z_val = np.maximum(z_val, estimate_z_val(expr, x_min, x_max, y_min, y_max))
 
     # print("z_val", z_val, num_x, num_y)
 
@@ -441,60 +408,62 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # num_y = 500
 
     # 1. Configuration
-    filename = 'mesh_data.dat'
-    filename_x = 'x_mesh_data.dat'
-    filename_y = 'y_mesh_data.dat'
-    filename_xx = 'xx_mesh_data.dat'
-    filename_yy = 'yy_mesh_data.dat'
-    dtype = 'float64'
-    # shape = (_y.shape[0], _x.shape[0])
-    # Clean up previous run
-    if os.path.exists(filename):
-        os.remove(filename)
-    if os.path.exists(filename_x):
-        os.remove(filename_x)
-    if os.path.exists(filename_y):
-        os.remove(filename_y)
-    if os.path.exists(filename_xx):
-        os.remove(filename_xx)
-    if os.path.exists(filename_yy):
-        os.remove(filename_yy)
+    # filename = 'mesh_data.dat'
+    # filename_x = 'x_mesh_data.dat'
+    # filename_y = 'y_mesh_data.dat'
+    # filename_xx = 'xx_mesh_data.dat'
+    # filename_yy = 'yy_mesh_data.dat'
+    # dtype = 'float64'
+    # # shape = (_y.shape[0], _x.shape[0])
+    # # Clean up previous run
+    # if os.path.exists(filename):
+    #     os.remove(filename)
+    # if os.path.exists(filename_x):
+    #     os.remove(filename_x)
+    # if os.path.exists(filename_y):
+    #     os.remove(filename_y)
+    # if os.path.exists(filename_xx):
+    #     os.remove(filename_xx)
+    # if os.path.exists(filename_yy):
+    #     os.remove(filename_yy)
 
-    # _x = np.linspace(x_min, x_max, num_x)
-    # if y_max > 1e16:
-    #     f = 0.095
-    #     _y = np.linspace(y_min, -1e12, int(num_y*f), endpoint=False)
-    #     _y = np.append(_y, np.linspace(-1e12, 1e12,
-    #                    int(num_y*(1-2*f)), endpoint=False))
-    #     _y = np.append(_y, np.linspace(1e12, y_max, int(num_y*f)))
-    # else:
-    #     _y = np.linspace(y_min, y_max, num_y)
+    _x = np.linspace(x_min, x_max, num_x)
+    if y_max > 1e16:
+        f = 0.095
+        _y = np.linspace(y_min, -1e12, int(num_y*f), endpoint=False)
+        _y = np.append(_y, np.linspace(-1e12, 1e12,
+                       int(num_y*(1-2*f)), endpoint=False))
+        _y = np.append(_y, np.linspace(1e12, y_max, int(num_y*f)))
+    else:
+        _y = np.linspace(y_min, y_max, num_y)
 
-    shape_x = (num_x,)
-    shape_y = (num_y,)
-    shape = (num_y, num_x)
+    X, Y = np.meshgrid(_x, _y)
+
+    # shape_x = (num_x,)
+    # shape_y = (num_y,)
+    # shape = (num_y, num_x)
 
     # 2. Create/Open the Memory Map
     # 'w+' creates or overwrites; use 'r+' to open existing
-    mmap_x = np.memmap(filename_x, dtype=dtype, mode='w+', shape=shape_x)
-    # mmap_y = np.memmap(filename_y, dtype=dtype, mode='w+', shape=shape_y)
+    # mmap_x = np.memmap(filename_x, dtype=dtype, mode='w+', shape=shape_x)
+    # # mmap_y = np.memmap(filename_y, dtype=dtype, mode='w+', shape=shape_y)
 
-    mmap_x[:] = np.linspace(x_min, x_max, num_x)
+    # mmap_x[:] = np.linspace(x_min, x_max, num_x)
 
-    if y_max > 1e16:
-        f = 0.095
-        n1 = int(num_y*f)
-        n2 = int(num_y*(1-2*f))
-        n3 = int(num_y*f)
-        shape_c = (n1+n2+n3,)
-        mmap_y = np.memmap(filename_y, dtype=dtype, mode='w+', shape=shape_c)
-        mmap_y[0:n1] = np.linspace(y_min, -1e12, n1, endpoint=False)
-        mmap_y[n1:n1+n2:] = np.linspace(-1e12, 1e12,
-                                        n2, endpoint=False)
-        mmap_y[n1+n2:] = np.linspace(1e12, y_max, n3)
-    else:
-        mmap_y = np.memmap(filename_y, dtype=dtype, mode='w+', shape=shape_y)
-        mmap_y[:] = np.linspace(y_min, y_max, num_y)
+    # if y_max > 1e16:
+    #     f = 0.095
+    #     n1 = int(num_y*f)
+    #     n2 = int(num_y*(1-2*f))
+    #     n3 = int(num_y*f)
+    #     shape_c = (n1+n2+n3,)
+    #     mmap_y = np.memmap(filename_y, dtype=dtype, mode='w+', shape=shape_c)
+    #     mmap_y[0:n1] = np.linspace(y_min, -1e12, n1, endpoint=False)
+    #     mmap_y[n1:n1+n2:] = np.linspace(-1e12, 1e12,
+    #                                     n2, endpoint=False)
+    #     mmap_y[n1+n2:] = np.linspace(1e12, y_max, n3)
+    # else:
+    #     mmap_y = np.memmap(filename_y, dtype=dtype, mode='w+', shape=shape_y)
+    #     mmap_y[:] = np.linspace(y_min, y_max, num_y)
 
     # mmap_y[:] = np.linspace(y_min, y_max, num_y)
 
@@ -505,17 +474,17 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
     # 2. Create/Open the Memory Map
     # 'w+' creates or overwrites; use 'r+' to open existing
-    mmap_z = np.memmap(filename, dtype=dtype, mode='w+', shape=shape)
+    # mmap_z = np.memmap(filename, dtype=dtype, mode='w+', shape=shape)
 
-    mmap_xx = np.memmap(filename_xx, dtype=dtype, mode='w+', shape=shape)
-    mmap_yy = np.memmap(filename_yy, dtype=dtype, mode='w+', shape=shape)
+    # mmap_xx = np.memmap(filename_xx, dtype=dtype, mode='w+', shape=shape)
+    # mmap_yy = np.memmap(filename_yy, dtype=dtype, mode='w+', shape=shape)
 
-    mmap_xx[:], mmap_yy[:] = np.meshgrid(mmap_x, mmap_y)
+    # mmap_xx[:], mmap_yy[:] = np.meshgrid(mmap_x, mmap_y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
     f = lambdify((x, y), expr, modules=["numpy", custom])
     # z = z.astype(np.float32)
-    # z = f(X, Y)
-    mmap_z[:] = f(mmap_xx, mmap_yy)
+    z = f(X, Y)
+    # mmap_z[:] = f(mmap_xx, mmap_yy)
 
     # z = z.astype(np.float32)
     # z_val = 0.03*y_max
@@ -536,11 +505,11 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # z[np.abs(z) > z_val] = np.nan
     # large_range_span = False
     try:
-        # z[np.abs(z) > z_val] = np.nan
-        mmap_z[np.abs(mmap_z) > z_val] = np.nan
+        z[np.abs(z) > z_val] = np.nan
+        # mmap_z[np.abs(mmap_z) > z_val] = np.nan
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring
-        mmap_z[np.isinf(mmap_z)] = np.nan
+        z[np.isinf(z)] = np.nan
         # CS = plt.contour(X, Y, np.ma.masked_where(z>z_val,
         #     z), levels=[0])
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
@@ -560,25 +529,25 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
         # In reality, you'd fill this from your data source
         # mmap_z[:] = z
         cont_gen = contour_generator(
-            mmap_x, mmap_y, mmap_z, name="serial")
+            X, Y, z, name="serial")
         # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, corner_as_point=True, name="serial")
-        # del z
+        del z
         # del z_masked
-        # del X
-        # del Y
-        # del _x
-        # del _y
-        # gc.collect()  # Force garbage collection
+        del X
+        del Y
+        del _x
+        del _y
+        gc.collect()  # Force garbage collection
 
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
         lines = cont_gen.lines(0)
 
         # 5. Clean up
-        del mmap_z  # Closes the file
-        del mmap_x  # Closes the file
-        del mmap_y  # Closes the file
-        del mmap_xx  # Closes the file
-        del mmap_yy  # Closes the file
+        # del mmap_z  # Closes the file
+        # del mmap_x  # Closes the file
+        # del mmap_y  # Closes the file
+        # del mmap_xx  # Closes the file
+        # del mmap_yy  # Closes the file
 
         cont_gen = None
         gc.collect()
