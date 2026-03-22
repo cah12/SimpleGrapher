@@ -308,8 +308,11 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     if has_discontinuity:
         default_value *= 10
 
-    if d_x > 3 and not (expr.has(TrigonometricFunction) or "_mode" in str(expr)):
-        z_val = np.finfo(np.float64).max
+    if d_x > 3:
+        if not (expr.has(TrigonometricFunction) or "_mode" in str(expr)) or d_x > 10:
+            z_val = np.finfo(np.float64).max
+        else:
+            z_val = z_val**d_x
     return default_value*factor_y*2, default_value*factor_y*2, z_val, has_discontinuity
 
 
@@ -397,9 +400,10 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # z_val = 8*20
     # z_val = 8*200  # x^6
 
-    z_val = np.maximum(z_val, estimate_z_val(expr, x_min, x_max, y_min, y_max))
+    # z_val = np.maximum(z_val, estimate_z_val(expr, x_min, x_max, y_min, y_max))
 
     # print("z_val", z_val, num_x, num_y)
+    # z_val = 2
 
     if has_discontinuity:
         num_x = 1000
