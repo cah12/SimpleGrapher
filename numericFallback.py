@@ -18,6 +18,7 @@ from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_
 from my_misc import has_infinite_discontinuity_in_xrange, sanitize_contour_segments
 import gc
 import re
+import os
 
 from contourpy import contour_generator
 
@@ -420,11 +421,24 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # _x = np.linspace(x_min, x_max, num_points)
     # _y = np.linspace(y_min, y_max, num_points)
 
+    # 1. Configuration
+    filename = 'mesh_data.dat'
+    dtype = 'float64'
+    shape = (_y.shape[0], _x.shape[0])
+    # Clean up previous run
+    if os.path.exists(filename):
+        os.remove(filename)
+
+    # 2. Create/Open the Memory Map
+    # 'w+' creates or overwrites; use 'r+' to open existing
+    mmap_z = np.memmap(filename, dtype=dtype, mode='w+', shape=shape)
+
     X, Y = np.meshgrid(_x, _y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
     f = lambdify((x, y), expr, modules=["numpy", custom])
     # z = z.astype(np.float32)
-    z = f(X, Y)
+    # z = f(X, Y)
+    mmap_z[:] = f(X, Y)
 
     # z = z.astype(np.float32)
     # z_val = 0.03*y_max
@@ -445,10 +459,11 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # z[np.abs(z) > z_val] = np.nan
     # large_range_span = False
     try:
-        z[np.abs(z) > z_val] = np.nan
+        # z[np.abs(z) > z_val] = np.nan
+        mmap_z[np.abs(mmap_z) > z_val] = np.nan
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring
-        z[np.isinf(z)] = np.nan
+        mmap_z[np.isinf(mmap_z)] = np.nan
         # CS = plt.contour(X, Y, np.ma.masked_where(z>z_val,
         #     z), levels=[0])
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
@@ -461,10 +476,16 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
         # z[np.abs(z) < 1e-4] = 0.0
 
+        # cont_gen = contour_generator(
+        #     X, Y, z, name="serial")
+
+        # 3. Populate with large data (example)
+        # In reality, you'd fill this from your data source
+        # mmap_z[:] = z
         cont_gen = contour_generator(
-            X, Y, z, name="serial")
+            X, Y, mmap_z, name="serial")
         # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, corner_as_point=True, name="serial")
-        del z
+        # del z
         # del z_masked
         del X
         del Y
@@ -474,6 +495,9 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
         lines = cont_gen.lines(0)
+
+        # 5. Clean up
+        del mmap_z  # Closes the file
 
         cont_gen = None
         gc.collect()
