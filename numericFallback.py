@@ -406,39 +406,66 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # num_x = 500
     # num_y = 500
 
-    _x = np.linspace(x_min, x_max, num_x)
-    if y_max > 1e16:
-        f = 0.095
-        _y = np.linspace(y_min, -1e12, int(num_y*f), endpoint=False)
-        _y = np.append(_y, np.linspace(-1e12, 1e12,
-                       int(num_y*(1-2*f)), endpoint=False))
-        _y = np.append(_y, np.linspace(1e12, y_max, int(num_y*f)))
-    else:
-        _y = np.linspace(y_min, y_max, num_y)
+    # 1. Configuration
+    filename = 'mesh_data.dat'
+    filename_x = 'x_mesh_data.dat'
+    filename_y = 'y_mesh_data.dat'
+    filename_xx = 'xx_mesh_data.dat'
+    filename_yy = 'yy_mesh_data.dat'
+    dtype = 'float64'
+    # shape = (_y.shape[0], _x.shape[0])
+    # Clean up previous run
+    if os.path.exists(filename):
+        os.remove(filename)
+    if os.path.exists(filename_x):
+        os.remove(filename_x)
+    if os.path.exists(filename_y):
+        os.remove(filename_y)
+    if os.path.exists(filename_xx):
+        os.remove(filename_xx)
+    if os.path.exists(filename_yy):
+        os.remove(filename_yy)
+
+    # _x = np.linspace(x_min, x_max, num_x)
+    # if y_max > 1e16:
+    #     f = 0.095
+    #     _y = np.linspace(y_min, -1e12, int(num_y*f), endpoint=False)
+    #     _y = np.append(_y, np.linspace(-1e12, 1e12,
+    #                    int(num_y*(1-2*f)), endpoint=False))
+    #     _y = np.append(_y, np.linspace(1e12, y_max, int(num_y*f)))
+    # else:
+    #     _y = np.linspace(y_min, y_max, num_y)
+
+    shape_x = (num_x,)
+    shape_y = (num_y,)
+    shape = (num_y, num_x)
+
+    # 2. Create/Open the Memory Map
+    # 'w+' creates or overwrites; use 'r+' to open existing
+    mmap_x = np.memmap(filename_x, dtype=dtype, mode='w+', shape=shape_x)
+    mmap_y = np.memmap(filename_y, dtype=dtype, mode='w+', shape=shape_y)
+
+    mmap_x[:] = np.linspace(x_min, x_max, num_x)
+    mmap_y[:] = np.linspace(y_min, y_max, num_y)
 
     # _y = np.linspace(y_min, y_max, num_y)
     # _y = np.geomspace(y_min, y_max, num_y)
     # _x = np.linspace(x_min, x_max, num_points)
     # _y = np.linspace(y_min, y_max, num_points)
 
-    # 1. Configuration
-    filename = 'mesh_data.dat'
-    dtype = 'float64'
-    shape = (_y.shape[0], _x.shape[0])
-    # Clean up previous run
-    if os.path.exists(filename):
-        os.remove(filename)
-
     # 2. Create/Open the Memory Map
     # 'w+' creates or overwrites; use 'r+' to open existing
     mmap_z = np.memmap(filename, dtype=dtype, mode='w+', shape=shape)
 
-    X, Y = np.meshgrid(_x, _y)
+    mmap_xx = np.memmap(filename_xx, dtype=dtype, mode='w+', shape=shape)
+    mmap_yy = np.memmap(filename_yy, dtype=dtype, mode='w+', shape=shape)
+
+    mmap_xx[:], mmap_yy[:] = np.meshgrid(mmap_x, mmap_y)
     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
     f = lambdify((x, y), expr, modules=["numpy", custom])
     # z = z.astype(np.float32)
     # z = f(X, Y)
-    mmap_z[:] = f(X, Y)
+    mmap_z[:] = f(mmap_xx, mmap_yy)
 
     # z = z.astype(np.float32)
     # z_val = 0.03*y_max
@@ -483,14 +510,14 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
         # In reality, you'd fill this from your data source
         # mmap_z[:] = z
         cont_gen = contour_generator(
-            X, Y, mmap_z, name="serial")
+            mmap_x, mmap_y, mmap_z, name="serial")
         # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, corner_as_point=True, name="serial")
         # del z
         # del z_masked
-        del X
-        del Y
-        del _x
-        del _y
+        # del X
+        # del Y
+        # del _x
+        # del _y
         # gc.collect()  # Force garbage collection
 
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
@@ -498,6 +525,10 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
         # 5. Clean up
         del mmap_z  # Closes the file
+        del mmap_x  # Closes the file
+        del mmap_y  # Closes the file
+        del mmap_xx  # Closes the file
+        del mmap_yy  # Closes the file
 
         cont_gen = None
         gc.collect()
