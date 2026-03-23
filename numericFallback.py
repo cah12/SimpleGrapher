@@ -231,7 +231,7 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
             if d_x == 0:
                 pass
             elif d_x == 1:
-                z_val = 7*d_y
+                z_val = 2.5*d_y
             elif d_y == 1:
                 z_val = 8*(d_x+0.8)
             else:
@@ -313,7 +313,7 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
             z_val = np.finfo(np.float64).max
         else:
             z_val = z_val**d_x
-    return default_value*factor_y*2, default_value*factor_y*2, z_val, has_discontinuity
+    return default_value*factor_y, default_value*factor_y, z_val, has_discontinuity
 
 
 def estimate_z_val(expr, x_min, x_max, y_min, y_max):
