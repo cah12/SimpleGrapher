@@ -177,7 +177,7 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     #     num_x = 1000
     # density = 1000000
 
-    num_y_max = 1000
+    num_y_max = 500
     num_y = num_y_max
 
     excpt = False
@@ -405,8 +405,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # print("z_val", z_val, num_x, num_y)
     # z_val = 2
 
-    if has_discontinuity:
-        num_x = 1000
+    # if has_discontinuity:
+    #     num_x = 1000
 
     # num_x = 500
     # num_y = 500
