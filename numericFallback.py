@@ -22,6 +22,9 @@ import os
 
 from contourpy import contour_generator
 
+# Enable saving of uncollectable objects
+# gc.set_debug(gc.DEBUG_SAVEALL)
+
 
 # def custom_sqrt(x):
 #     """
@@ -231,7 +234,7 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
             if d_x == 0:
                 pass
             elif d_x == 1:
-                z_val = 2.5*d_y
+                z_val = 8.0*d_y
             elif d_y == 1:
                 z_val = 8*(d_x+0.8)
             else:
@@ -395,8 +398,8 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
         expr, x_min, x_max, y_min, y_max)
 
-    # num_x = 2000
-    # num_y = 2000
+    num_x = 500
+    num_y = 500
     # z_val = 8*20
     # z_val = 8*200  # x^6
 
@@ -598,6 +601,21 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
         del lines
 
         gc.collect()  # Force garbage collection
+
+        # Check gc.garbage for uncollectable objects
+        # print(f"Uncollectable objects: {gc.garbage}")
+
+        # for obj in gc.garbage:
+        #     print(f"Leaking object: {obj}, Type: {type(obj)}")
+        # Optional: further inspect referrers
+        # print(f"Referrers: {gc.get_referrers(obj)}")
+
+        # Clear the garbage list for future collections if needed
+        # gc.garbage.clear()
+
+        # # Disable debugging
+        # gc.set_debug(0)
+
         return all_points, has_discontinuity, None
 
     except Exception as e:

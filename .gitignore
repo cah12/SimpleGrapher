@@ -9,4 +9,5 @@ discontinuity_finder copy.py
 numericFallback copy.py
 numericFallback copy 2.py
 my_misc copy.py
+solveset_thread.py
 

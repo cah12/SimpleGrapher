@@ -1,7 +1,7 @@
 import sympy as sp
 from sympy import lambdify, Symbol, Interval, Piecewise, EmptySet, limit, oo, nan, S, FiniteSet, Union, singularities
 from degree_radian import get_mode
-from solveset_thread import limit_with_timeout
+# from solveset_thread import limit_with_timeout
 import numpy as np
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
 

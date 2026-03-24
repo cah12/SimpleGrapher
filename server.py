@@ -20,7 +20,7 @@ import base64
 from degree_radian import trig_substitutions, set_mode, get_mode
 from discontinuity_finder import find_discontinuities
 
-from solveset_thread import solve_with_timeout
+# from solveset_thread import solve_with_timeout
 
 from sympy.parsing.sympy_parser import parse_expr, convert_xor, standard_transformations
 
@@ -158,7 +158,9 @@ def turning_points2(expr, lower, upper, var):
     try:
         d = sp.diff(sp.parse_expr(
             expr, transformations=custom_transformations), sp.Symbol(var))
-        dis = solve_with_timeout(d, var, sp.Interval(
+        # dis = solve_with_timeout(d, var, sp.Interval(
+        #     lower, upper, left_open=True, right_open=True))
+        dis = sp.solve_set(d, var, sp.Interval(
             lower, upper, left_open=True, right_open=True))
         return list(map(float, dis))
     except:
@@ -186,8 +188,10 @@ def turning_points(expression, dependent_variable, lower_limit, upper_limit):
     points = []
 
     try:
-        critical_points = solve_with_timeout(f_prime, var, sp.Interval(
+        critical_points = sp.solve_set(f_prime, var, sp.Interval(
             lower_limit, upper_limit, left_open=True, right_open=True))
+        # critical_points = solve_with_timeout(f_prime, var, sp.Interval(
+        #     lower_limit, upper_limit, left_open=True, right_open=True))
 
         # critical_points = sp.solveset(f_prime, var, sp.Interval(
         #     lower_limit, upper_limit, left_open=True, right_open=True))
@@ -218,7 +222,8 @@ def inflection_points(expr, lower, upper, var):
         x = sp.Symbol(var)
         d = sp.diff(sp.parse_expr(
             expr, transformations=custom_transformations), x, x)
-        dis = solve_with_timeout(d, var, sp.Interval(lower, upper))
+        # dis = solve_with_timeout(d, var, sp.Interval(lower, upper))
+        dis = sp.solve_set(d, var, sp.Interval(lower, upper))
         return list(map(float, dis))
     except:
         return []
@@ -382,8 +387,10 @@ def find_discontinuities_in_range(
         numer, denom = fraction(expr)
         if denom != 1:
             # Solve for where denominator equals zero
-            zeros = solve_with_timeout(denom, var, sp.Interval(
+            zeros = sp.solve_set(denom, var, sp.Interval(
                 x_min, x_max, left_open=True, right_open=True))
+            # zeros = solve_with_timeout(denom, var, sp.Interval(
+            #     x_min, x_max, left_open=True, right_open=True))
 
             # zeros = solve(denom, var)
             for zero in zeros:
@@ -396,8 +403,10 @@ def find_discontinuities_in_range(
     for log_expr in expr.atoms(sp.log):
         arg = log_expr.args[0]
         # Log is undefined when argument <= 0
-        critical_points = solve_with_timeout(arg, var, sp.Interval(
+        critical_points = sp.solve_set(arg, var, sp.Interval(
             x_min, x_max, left_open=True, right_open=True))
+        # critical_points = solve_with_timeout(arg, var, sp.Interval(
+        #     x_min, x_max, left_open=True, right_open=True))
         # critical_points = solve(arg, var)
         for point in critical_points:
             if point.is_real:
@@ -412,8 +421,10 @@ def find_discontinuities_in_range(
             try:
                 # critical_points = sp.solve(base, var)
 
-                critical_points = solve_with_timeout(base, var, sp.Interval(
+                critical_points = sp.solve_set(base, var, sp.Interval(
                     x_min, x_max, left_open=True, right_open=True))
+                # critical_points = solve_with_timeout(base, var, sp.Interval(
+                #     x_min, x_max, left_open=True, right_open=True))
 
                 if isinstance(critical_points, sp.FiniteSet):
                     for point in critical_points:
