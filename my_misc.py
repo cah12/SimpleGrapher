@@ -587,41 +587,41 @@ def _mark_infinity_at_endpoints(expr, segment: np.ndarray) -> np.ndarray:
 
 
 # Example usage and testing
-if __name__ == "__main__":
-    # Example 1: Basic contour segments
-    seg1 = np.array([[0, 0], [1, 1], [2, 2], [3, 3]])
-    seg2 = np.array([[0, 5], [1, 6], [2, 7]])
+# if __name__ == "__main__":
+#     # Example 1: Basic contour segments
+#     seg1 = np.array([[0, 0], [1, 1], [2, 2], [3, 3]])
+#     seg2 = np.array([[0, 5], [1, 6], [2, 7]])
 
-    allsegs = [seg1, seg2]
-    sanitized = sanitize_contour_segments(allsegs)
+#     allsegs = [seg1, seg2]
+#     sanitized = sanitize_contour_segments(allsegs)
 
-    print("Sanitized segments:")
-    for i, seg in enumerate(sanitized):
-        print(f"Segment {i}:")
-        print(seg)
-        print()
+#     print("Sanitized segments:")
+#     for i, seg in enumerate(sanitized):
+#         print(f"Segment {i}:")
+#         print(seg)
+#         print()
 
-    # Example 2: Segment with discontinuity (asymptote)
-    seg_with_discontinuity = np.array(
-        [[0, 0], [1, 1], [1.001, 1e10], [2, -1e10], [3, -1], [4, -2]])
-    allsegs2 = [seg_with_discontinuity]
-    sanitized2 = sanitize_contour_segments(allsegs2)
+#     # Example 2: Segment with discontinuity (asymptote)
+#     seg_with_discontinuity = np.array(
+#         [[0, 0], [1, 1], [1.001, 1e10], [2, -1e10], [3, -1], [4, -2]])
+#     allsegs2 = [seg_with_discontinuity]
+#     sanitized2 = sanitize_contour_segments(allsegs2)
 
-    print("Sanitized segments with discontinuity:")
-    for i, seg in enumerate(sanitized2):
-        print(f"Segment {i}:")
-        print(seg)
-        print()
+#     print("Sanitized segments with discontinuity:")
+#     for i, seg in enumerate(sanitized2):
+#         print(f"Segment {i}:")
+#         print(seg)
+#         print()
 
-    # Example 3: Segment with NaN values
-    seg_with_nan = np.array([[0, 0], [1, np.nan], [2, 2], [3, 3]])
-    allsegs3 = [seg_with_nan]
-    sanitized3 = sanitize_contour_segments(allsegs3)
+#     # Example 3: Segment with NaN values
+#     seg_with_nan = np.array([[0, 0], [1, np.nan], [2, 2], [3, 3]])
+#     allsegs3 = [seg_with_nan]
+#     sanitized3 = sanitize_contour_segments(allsegs3)
 
-    print("Sanitized segments with NaN:")
-    for i, seg in enumerate(sanitized3):
-        print(f"Segment {i}:")
-        print(seg)
+#     print("Sanitized segments with NaN:")
+#     for i, seg in enumerate(sanitized3):
+#         print(f"Segment {i}:")
+#         print(seg)
 
 
 # def estimate_y_bounds(implicit_func, lower_x: float, upper_x: float,

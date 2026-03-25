@@ -1,8 +1,8 @@
-import numpy as np
-# from scipy.optimize import brentq, newton
-import warnings
-import sympy as sp
-from sympy import lambdify
+# import numpy as np
+# # from scipy.optimize import brentq, newton
+# import warnings
+# import sympy as sp
+# from sympy import lambdify
 # from scipy.optimize import fsolve, root, root_scalar
 
 

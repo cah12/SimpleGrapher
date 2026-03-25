@@ -11,10 +11,10 @@ from sympy import lambdify
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
 # from scipy.optimize import fsolve, root, root_scalar
 import numpy as np
-from sympy import symbols, solve, plot_implicit
+from sympy import symbols, solve
 import sympy as sp
 # from domain_finder import closer_boundary
-from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
+# from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
 from my_misc import has_infinite_discontinuity_in_xrange, sanitize_contour_segments
 import gc
 import re
@@ -556,6 +556,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
         # del mmap_xx  # Closes the file
         # del mmap_yy  # Closes the file
 
+        del cont_gen
         cont_gen = None
         gc.collect()
 
@@ -573,6 +574,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
                 # Remove NaN values
                 valid_mask = ~np.isnan(segment).any(axis=1)
                 if not np.any(valid_mask):
+                    valid_mask = None
                     segment = None  # Clear reference to segment to free memory
                     continue
                 segment = segment[valid_mask]
@@ -585,6 +587,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
             segment = sanitize_contour_segments(
                 expr, segment, x_min, x_max, has_discontinuity)
             if segment is None:
+                valid_mask = None
                 continue
             # if not large_range_span:
             #     max_y = np.max(segment[:, 1])
@@ -596,6 +599,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
                 segment.tobytes()).decode('utf-8'))
             # all_points.append(base64.b64encode(
             #     segment.astype(np.float32).tobytes()).decode('utf-8'))
+            valid_mask = None
             del segment
 
         del lines
@@ -613,7 +617,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
         # Clear the garbage list for future collections if needed
         # gc.garbage.clear()
 
-        # # Disable debugging
+        # # # Disable debugging
         # gc.set_debug(0)
 
         return all_points, has_discontinuity, None
@@ -623,15 +627,15 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
         return []
 
 
-def get_sanitized_branches(expr, x_min, x_max, has_discontinuity, allsegs):
-    for level_segments in allsegs:
-        for branch in level_segments:
-            branch = sanitize_contour_segments(
-                expr, branch, x_min, x_max, has_discontinuity)
-            yield branch.astype(np.float32)
-            del branch
-        del level_segments
-        gc.collect()
+# def get_sanitized_branches(expr, x_min, x_max, has_discontinuity, allsegs):
+#     for level_segments in allsegs:
+#         for branch in level_segments:
+#             branch = sanitize_contour_segments(
+#                 expr, branch, x_min, x_max, has_discontinuity)
+#             yield branch.astype(np.float32)
+#             del branch
+#         del level_segments
+#         gc.collect()
 
 
 # def generate_implicit_plot_points3(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
