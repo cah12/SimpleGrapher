@@ -51,6 +51,7 @@ function base64ToArrayBuffer(base64) {
 }
 
 async function numeric(
+  math_mode,
   exp,
   lower,
   upper,
@@ -74,6 +75,7 @@ async function numeric(
         var: indepVar,
         numOfPoints: numOfPoints,
         has_discontinuity: has_discontinuity,
+        math_mode: math_mode,
       } /* ,
       { responseType: "arraybuffer" }, */,
     );

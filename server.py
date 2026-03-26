@@ -873,6 +873,8 @@ def numeric():
     numOfPoints = data["numOfPoints"]
     has_discontinuity = data["has_discontinuity"]
 
+    set_mode(data["math_mode"])
+
     _exp = _exp.replace("abs", "Abs")
 
     numOfPoints = max(numOfPoints, 500)
