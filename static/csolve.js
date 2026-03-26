@@ -1,5 +1,5 @@
 // console.log("object");
-async function solve_for(exp, c) {
+async function solve_for(math_mode, exp, c) {
   let res = [];
 
   //uncomment the code below to test in the in the small UI
@@ -18,7 +18,11 @@ async function solve_for(exp, c) {
   } */
 
   try {
-    res = await axios.post("/csolve", { exp: exp, var: c });
+    res = await axios.post("/csolve", {
+      math_mode: math_mode,
+      exp: exp,
+      var: c,
+    });
   } catch (error) {
     console.error(error);
   }
@@ -148,9 +152,10 @@ async function turningPoints(exp, lower, upper, indepVar) {
   }
 }
 
-async function discontinuity(exp, lower, upper, indepVar) {
+async function discontinuity(mode, exp, lower, upper, indepVar) {
   try {
     res = await axios.post("/discontinuity", {
+      math_mode: mode,
       exp: exp,
       lower: lower,
       upper: upper,

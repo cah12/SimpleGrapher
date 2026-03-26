@@ -611,6 +611,8 @@ def csolve():
     exp = data["exp"]
     var = data["var"]
 
+    set_mode(data["math_mode"])
+
     exp = exp.replace("abs", "Abs")
     result = solve_for(exp, var)
 
@@ -649,6 +651,8 @@ def discontinuity():
     _var = data["var"]
     lower = data["lower"]
     upper = data["upper"]
+
+    set_mode(data["math_mode"])
 
     _exp = _exp.replace("abs", "Abs")
 
