@@ -31,41 +31,41 @@ custom_transformations = standard_transformations + (convert_xor,)
 # --- Memory Management Utility ---
 
 
-def release_memory_to_os(threshold_mb=5):
-    """
-    Releases memory back to the OS if the process memory usage exceeds the given threshold (in MB).
-    Works on most Unix and Windows systems (Python 3.8+ recommended for best effect).
-    """
-    try:
-        import psutil
-    except ImportError:
-        psutil = None
-    process = None
-    if psutil:
-        process = psutil.Process(os.getpid())
-        mem_mb = process.memory_info().rss / (1024 * 1024)
-        if mem_mb > threshold_mb:
-            gc.collect()
-            # On Linux, can use malloc_trim if available
-            try:
-                import ctypes
-                if hasattr(ctypes, 'CDLL') and hasattr(ctypes.CDLL(None), 'malloc_trim'):
-                    ctypes.CDLL(None).malloc_trim(0)
-            except Exception:
-                pass
-            # On Windows, empty working set
-            if os.name == 'nt':
-                try:
-                    import ctypes
-                    ctypes.windll.kernel32.SetProcessWorkingSetSize(-1, -1, -1)
-                except Exception:
-                    pass
-            return True
-        return False
-    else:
-        # Fallback: just run gc.collect if psutil not available
-        gc.collect()
-        return None
+# def release_memory_to_os(threshold_mb=5):
+#     """
+#     Releases memory back to the OS if the process memory usage exceeds the given threshold (in MB).
+#     Works on most Unix and Windows systems (Python 3.8+ recommended for best effect).
+#     """
+#     try:
+#         import psutil
+#     except ImportError:
+#         psutil = None
+#     process = None
+#     if psutil:
+#         process = psutil.Process(os.getpid())
+#         mem_mb = process.memory_info().rss / (1024 * 1024)
+#         if mem_mb > threshold_mb:
+#             gc.collect()
+#             # On Linux, can use malloc_trim if available
+#             try:
+#                 import ctypes
+#                 if hasattr(ctypes, 'CDLL') and hasattr(ctypes.CDLL(None), 'malloc_trim'):
+#                     ctypes.CDLL(None).malloc_trim(0)
+#             except Exception:
+#                 pass
+#             # On Windows, empty working set
+#             if os.name == 'nt':
+#                 try:
+#                     import ctypes
+#                     ctypes.windll.kernel32.SetProcessWorkingSetSize(-1, -1, -1)
+#                 except Exception:
+#                     pass
+#             return True
+#         return False
+#     else:
+#         # Fallback: just run gc.collect if psutil not available
+#         gc.collect()
+#         return None
 
 # Example usage in a Flask route:
 # app = Flask(__name__)
@@ -812,15 +812,18 @@ def discontinuity():
 
 #     return Response(stream_branches(), mimetype='application/json')
 
-# @app.after_request
-# def invoke_gc(response):
-#     gc.collect()
-#     return response
+@app.after_request
+def invoke_gc(response):
+    if "numeric" in request.url:
+        gc.collect()
+        print(request.url)
+    return response
 
 # @app.teardown_request
 # def teardown_request(exception):
 #     # This function is called even if an error occurs.
 #     gc.collect()
+
 
 def custom_serializer(obj):
     if isinstance(obj, bytes):
@@ -958,7 +961,7 @@ def numeric():
     # type_ = str(branches[0][0][0].dtype)
     type_ = "float32"
 
-    release_memory_to_os()
+    # release_memory_to_os()
 
     if has_discontinuity:
         return jsonify({"branches": _branches, 'numpy_dtype': type_, "discontinuities": [[0, "infinite"]], "large_range_span": large_range_span})

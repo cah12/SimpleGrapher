@@ -544,7 +544,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
         del Y
         del _x
         del _y
-        gc.collect()  # Force garbage collection
+        # gc.collect()  # Force garbage collection
 
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
         lines = cont_gen.lines(0)
@@ -558,7 +558,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
         del cont_gen
         cont_gen = None
-        gc.collect()
+        # gc.collect()
 
         # has_discontinuity = has_infinite_discontinuity_in_xrange(
         #     expr, x_min, x_max)
@@ -604,7 +604,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
         del lines
 
-        gc.collect()  # Force garbage collection
+        # gc.collect()  # Force garbage collection
 
         # Check gc.garbage for uncollectable objects
         # print(f"Uncollectable objects: {gc.garbage}")
