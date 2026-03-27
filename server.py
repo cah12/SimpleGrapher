@@ -816,7 +816,7 @@ def discontinuity():
 def invoke_gc(response):
     if "numeric" in request.url:
         gc.collect()
-        print(request.url)
+        # print(request.url)
     return response
 
 # @app.teardown_request
