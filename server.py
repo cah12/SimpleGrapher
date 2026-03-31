@@ -523,19 +523,19 @@ def unique_elements(input_list):
     return unique_list
 
 
-def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0):
-    for subtree in preorder_traversal(expression):
-        if subtree.func.__name__ == "Mul" or subtree.func.__name__ == "Pow" or subtree.func.__name__ == "log":
-            discontinuities = find_discontinuities_in_range(
-                subtree, x_min, x_max, var)
-            for disc in discontinuities:
-                disc_type = analyze_discontinuity_type(full_expr, disc, var)
-                if disc_type == 'unknown':
-                    continue
-                if isinstance(disc_type, list):
-                    detailed_results.append([disc, disc_type[0], disc_type[1]])
-                else:
-                    detailed_results.append([disc, disc_type])
+# def pre_order_traversal(expression, detailed_results, x_min, x_max, var, level=0):
+#     for subtree in preorder_traversal(expression):
+#         if subtree.func.__name__ == "Mul" or subtree.func.__name__ == "Pow" or subtree.func.__name__ == "log":
+#             discontinuities = find_discontinuities_in_range(
+#                 subtree, x_min, x_max, var)
+#             for disc in discontinuities:
+#                 disc_type = analyze_discontinuity_type(full_expr, disc, var)
+#                 if disc_type == 'unknown':
+#                     continue
+#                 if isinstance(disc_type, list):
+#                     detailed_results.append([disc, disc_type[0], disc_type[1]])
+#                 else:
+#                     detailed_results.append([disc, disc_type])
 
 
 def find_discontinuities_detailed(

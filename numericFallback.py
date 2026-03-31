@@ -1,77 +1,17 @@
 # %%fmt: off
 import base64
-import math
-# import tempfile
-
-# import matplotlib
-# matplotlib.use('Agg')
-# import matplotlib.pyplot as plt
 from custom import custom
 from sympy import lambdify
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
-# from scipy.optimize import fsolve, root, root_scalar
 import numpy as np
 from sympy import symbols, solve
 import sympy as sp
-# from domain_finder import closer_boundary
-# from degree_radian import sin_mode, cos_mode, tan_mode, cot_mode, sec_mode, csc_mode, asin_mode, acos_mode, atan_mode, acot_mode, asec_mode, acsc_mode, trig_substitutions
 from my_misc import has_infinite_discontinuity_in_xrange, sanitize_contour_segments
-import gc
 import re
-import os
-
 from contourpy import contour_generator
 
 # Enable saving of uncollectable objects
 # gc.set_debug(gc.DEBUG_SAVEALL)
-
-
-# def custom_sqrt(x):
-#     """
-#     Calculates sqrt(abs(x)) for non-negative x, and -sqrt(abs(x)) for negative x.
-#     """
-#     # Convert input to a NumPy array for element-wise operations if it isn't already one
-#     x = np.array(x)
-
-#     # Condition: elements less than 0
-#     is_negative = x < 0
-
-#     # Calculate the desired values for both cases
-#     # For all elements, calculate -sqrt(abs(x))
-#     negative_result = -np.sqrt(np.abs(x))
-#     # For positive elements, calculate sqrt(x) which is also sqrt(abs(x))
-#     positive_result = np.sqrt(x)
-
-#     # Use np.where to select from the two results based on the condition
-#     # If is_negative is True, use the value from negative_result
-#     # Otherwise, use the value from positive_result
-#     result = np.where(is_negative, negative_result, positive_result)
-#     return result
-
-
-# def custom_sqrt(x):
-#     """
-#     Calculates sqrt(abs(x)) for non-negative x, and -sqrt(abs(x)) for negative x.
-#     """
-#     # Convert input to a NumPy array for element-wise operations if it isn't already one
-#     x = np.array(x)
-#     # Condition: elements less than 0
-#     is_negative = x < 0
-
-#     # Calculate the desired values for both cases
-#     # For all elements, calculate -sqrt(abs(x))
-#     negative_result = -np.sqrt(np.abs(x))
-#     # For positive elements, calculate sqrt(x) which is also sqrt(abs(x))
-#     positive_result = np.sqrt(x)
-
-#     # Use np.where to select from the two results based on the condition
-#     # If is_negative is True, use the value from negative_result
-#     # Otherwise, use the value from positive_result
-#     result = np.where(is_negative, negative_result, positive_result)
-#     return result
-
-
-# np.sqrt = custom_sqrt
 
 
 # Define variables
@@ -123,49 +63,6 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
         y_max = y_guess if y_max is None else y_max
     x_vals = None
     return (y_min, y_max)
-
-
-# def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None, y_samples=400, match_tol=None, f_tol=1e-15):
-#     if (equation.has(TrigonometricFunction)) or ("_mode" in str(equation)):
-#         return (-300, 300)
-
-#     # Estimate y-range from symbolic solutions if possible
-#     x_vals = np.linspace(x_min, x_max, num_x)
-#     if y_min is None or y_max is None:
-#         try:
-#             y_sols = solve(equation, y)
-#         except Exception:
-#             y_sols = []
-
-#         if y_sols:
-#             y_vals_est = []
-#             for ys in y_sols:
-#                 try:
-#                     y_fun = lambdify(x, ys, modules=[custom, 'numpy'])
-#                     y_eval = y_fun(x_vals)
-#                     y_eval = np.asarray(y_eval)
-#                     valid = ~np.isnan(y_eval) & np.isreal(y_eval)
-#                     if np.any(valid):
-#                         y_vals_est.append(np.real(y_eval[valid]))
-#                 except Exception:
-#                     pass
-#             if y_vals_est:
-#                 all_est = np.hstack(y_vals_est)
-#                 est_min, est_max = float(
-#                     np.min(all_est)), float(np.max(all_est))
-#                 padding = max(1.0, 0.1 * (est_max - est_min))
-#                 if y_min is None:
-#                     y_min = est_min - padding
-#                 if y_max is None:
-#                     y_max = est_max + padding
-
-#     # Fallback heuristic if still not set
-#     if y_min is None or y_max is None:
-#         y_guess = max(1.0, abs(x_min), abs(x_max)) * 10.0
-#         y_min = -y_guess if y_min is None else y_min
-#         y_max = y_guess if y_max is None else y_max
-
-#     return (y_min, y_max)
 
 
 def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
@@ -319,36 +216,36 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
     return default_value*factor_y, default_value*factor_y, z_val, has_discontinuity
 
 
-def estimate_z_val(expr, x_min, x_max, y_min, y_max):
-    """
-    Estimate a reasonable z_val for an implicit function given the domain (x_min, x_max).
+# def estimate_z_val111(expr, x_min, x_max, y_min, y_max):
+#     """
+#     Estimate a reasonable z_val for an implicit function given the domain (x_min, x_max).
 
-    This function computes the maximum absolute value of the function over the domain and
-    returns 10% of that value as the estimated z_val. If the maximum absolute value is
-    less than 1e-100, then the function returns 1e-100.
+#     This function computes the maximum absolute value of the function over the domain and
+#     returns 10% of that value as the estimated z_val. If the maximum absolute value is
+#     less than 1e-100, then the function returns 1e-100.
 
-    Args:
-        expr (sympy expression): The implicit function to estimate z_val for.
-        x_min (float): The minimum x-value of the domain.
-        x_max (float): The maximum x-value of the domain.
+#     Args:
+#         expr (sympy expression): The implicit function to estimate z_val for.
+#         x_min (float): The minimum x-value of the domain.
+#         x_max (float): The maximum x-value of the domain.
 
-    Returns:
-        float: The estimated z_val value.
-    """
+#     Returns:
+#         float: The estimated z_val value.
+#     """
 
-    # Compute the maximum absolute value of the function over the domain
-    x = sp.Symbol('x')
-    f = sp.lambdify((x, y), expr, modules=['numpy'])
-    x_val = np.linspace(x_min, x_max, 500)
-    y_val = np.linspace(y_min, y_max, 500)
-    max_abs_val = np.max(np.abs(f(x_val, y_val)))
+#     # Compute the maximum absolute value of the function over the domain
+#     x = sp.Symbol('x')
+#     f = sp.lambdify((x, y), expr, modules=['numpy'])
+#     x_val = np.linspace(x_min, x_max, 500)
+#     y_val = np.linspace(y_min, y_max, 500)
+#     max_abs_val = np.max(np.abs(f(x_val, y_val)))
 
-    # If the maximum absolute value is less than 1e-100, return 1e-100
-    if max_abs_val < 1e-100:
-        return 1e-100
+#     # If the maximum absolute value is less than 1e-100, return 1e-100
+#     if max_abs_val < 1e-100:
+#         return 1e-100
 
-    # Otherwise, return 10% of the maximum absolute value as the estimated z_val
-    return max_abs_val * 0.08
+#     # Otherwise, return 10% of the maximum absolute value as the estimated z_val
+#     return max_abs_val * 0.08
 
 
 def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False, has_discontinuity=False, y_min=-10.0, y_max=10.0):
@@ -400,39 +297,6 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
     num_x = 500
     num_y = 500
-    # z_val = 8*20
-    # z_val = 8*200  # x^6
-
-    # z_val = np.maximum(z_val, estimate_z_val(expr, x_min, x_max, y_min, y_max))
-
-    # print("z_val", z_val, num_x, num_y)
-    # z_val = 2
-
-    # if has_discontinuity:
-    #     num_x = 1000
-
-    # num_x = 500
-    # num_y = 500
-
-    # 1. Configuration
-    # filename = 'mesh_data.dat'
-    # filename_x = 'x_mesh_data.dat'
-    # filename_y = 'y_mesh_data.dat'
-    # filename_xx = 'xx_mesh_data.dat'
-    # filename_yy = 'yy_mesh_data.dat'
-    # dtype = 'float64'
-    # # shape = (_y.shape[0], _x.shape[0])
-    # # Clean up previous run
-    # if os.path.exists(filename):
-    #     os.remove(filename)
-    # if os.path.exists(filename_x):
-    #     os.remove(filename_x)
-    # if os.path.exists(filename_y):
-    #     os.remove(filename_y)
-    # if os.path.exists(filename_xx):
-    #     os.remove(filename_xx)
-    # if os.path.exists(filename_yy):
-    #     os.remove(filename_yy)
 
     _x = np.linspace(x_min, x_max, num_x)
     if y_max > 1e16:
@@ -446,48 +310,6 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
     X, Y = np.meshgrid(_x, _y)
 
-    # shape_x = (num_x,)
-    # shape_y = (num_y,)
-    # shape = (num_y, num_x)
-
-    # 2. Create/Open the Memory Map
-    # 'w+' creates or overwrites; use 'r+' to open existing
-    # mmap_x = np.memmap(filename_x, dtype=dtype, mode='w+', shape=shape_x)
-    # # mmap_y = np.memmap(filename_y, dtype=dtype, mode='w+', shape=shape_y)
-
-    # mmap_x[:] = np.linspace(x_min, x_max, num_x)
-
-    # if y_max > 1e16:
-    #     f = 0.095
-    #     n1 = int(num_y*f)
-    #     n2 = int(num_y*(1-2*f))
-    #     n3 = int(num_y*f)
-    #     shape_c = (n1+n2+n3,)
-    #     mmap_y = np.memmap(filename_y, dtype=dtype, mode='w+', shape=shape_c)
-    #     mmap_y[0:n1] = np.linspace(y_min, -1e12, n1, endpoint=False)
-    #     mmap_y[n1:n1+n2:] = np.linspace(-1e12, 1e12,
-    #                                     n2, endpoint=False)
-    #     mmap_y[n1+n2:] = np.linspace(1e12, y_max, n3)
-    # else:
-    #     mmap_y = np.memmap(filename_y, dtype=dtype, mode='w+', shape=shape_y)
-    #     mmap_y[:] = np.linspace(y_min, y_max, num_y)
-
-    # mmap_y[:] = np.linspace(y_min, y_max, num_y)
-
-    # _y = np.linspace(y_min, y_max, num_y)
-    # _y = np.geomspace(y_min, y_max, num_y)
-    # _x = np.linspace(x_min, x_max, num_points)
-    # _y = np.linspace(y_min, y_max, num_points)
-
-    # 2. Create/Open the Memory Map
-    # 'w+' creates or overwrites; use 'r+' to open existing
-    # mmap_z = np.memmap(filename, dtype=dtype, mode='w+', shape=shape)
-
-    # mmap_xx = np.memmap(filename_xx, dtype=dtype, mode='w+', shape=shape)
-    # mmap_yy = np.memmap(filename_yy, dtype=dtype, mode='w+', shape=shape)
-
-    # mmap_xx[:], mmap_yy[:] = np.meshgrid(mmap_x, mmap_y)
-    # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
     f = lambdify((x, y), expr, modules=["numpy", custom])
     # z = z.astype(np.float32)
     z = f(X, Y)
@@ -544,7 +366,6 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
         del Y
         del _x
         del _y
-        # gc.collect()  # Force garbage collection
 
         # lines(level) returns a list of branches (each is an (N, 2) array of coordinates)
         lines = cont_gen.lines(0)
@@ -558,7 +379,6 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
         del cont_gen
         cont_gen = None
-        # gc.collect()
 
         # has_discontinuity = has_infinite_discontinuity_in_xrange(
         #     expr, x_min, x_max)
@@ -604,8 +424,6 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
 
         del lines
 
-        # gc.collect()  # Force garbage collection
-
         # Check gc.garbage for uncollectable objects
         # print(f"Uncollectable objects: {gc.garbage}")
 
@@ -625,149 +443,3 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     except Exception as e:
         print(f"Error generating implicit plot points: {e}")
         return []
-
-
-# def get_sanitized_branches(expr, x_min, x_max, has_discontinuity, allsegs):
-#     for level_segments in allsegs:
-#         for branch in level_segments:
-#             branch = sanitize_contour_segments(
-#                 expr, branch, x_min, x_max, has_discontinuity)
-#             yield branch.astype(np.float32)
-#             del branch
-#         del level_segments
-#         gc.collect()
-
-
-# def generate_implicit_plot_points3(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
-
-#     (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
-#     # (_y_min, _y_max) = (x_min, x_max)
-
-#     y_min = min(y_min, _y_min)
-#     y_max = max(y_max, _y_max)
-
-#     num_points = 1600
-#     _x = np.linspace(x_min, x_max,np.round(num_points*0.88).astype(int))
-#     _y = np.linspace(y_min, y_max, num_points)
-
-#     X, Y = np.meshgrid(_x, _y)
-#     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
-#     f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
-#     z = f(X, Y)
-#     z_val = 0.03*y_max
-#     # Convert the expression to a string
-#     expr_str = str(expr)
-#     if expr.has(TrigonometricFunction):
-#         z_val = np.maximum(z_val, 10)
-#     if ("_mode" in expr_str):
-#         z_val = np.maximum(z_val, 13)
-#     else:
-#         z_val = np.maximum(z_val, 15)
-#     # if abs(z_val) >= 1e100:
-#     # z_val = 10
-#     # z_val = np.percentile(z[~np.isnan(z)], 99)
-#     # z_val = np.nanmean(z)+3*np.nanstd(z)
-#     z_val = np.minimum(np.nanmax(z)*0.10, 45)
-#     # print(z_val)
-#     # z[np.abs(z) > z_val] = np.nan
-#     try:
-#         # Z = np.round(z, 2)  # Adjust precision as necessary
-#         # Replace inf with nan to avoid issues in contouring
-#         z[np.isinf(z)] = np.nan
-#         cs = plt.contour(X, Y, np.ma.masked_where(z>z_val,
-#             z), levels=[0])
-
-#         # 3. Write to temporary file
-#         line = 0
-#         has_discontinuity = has_infinite_discontinuity_in_xrange(
-#             expr, x_min, x_max)
-#         with tempfile.NamedTemporaryFile( mode='w+',  delete=False, suffix=".txt") as temp_file:
-#             for sanitized_branch in get_sanitized_branches(expr, x_min, x_max, has_discontinuity, cs.allsegs):
-#                 if sanitized_branch is None:
-#                     continue
-#                 # Convert segment to bytes and base64
-#                 encoded_branch = base64.b64encode(sanitized_branch.tobytes()).decode('utf-8')
-#                 temp_file.write(encoded_branch + "\n")
-#                 line += 1
-#             temp_file.flush() # Ensure all data is written to disk
-#             print(f"Branches written to: {temp_file.name} ({temp_file.tell()} bytes) ({line} lines)")
-#             temp_file.close()
-
-#         plt.clf()
-#         plt.cla()
-#         # gc.collect()
-#         # plt.close()
-#         # Mandatory cleanup
-
-#         plt.close('all')
-#         del cs
-#         gc.collect()
-#         return temp_file.name, has_discontinuity
-#     except Exception as e:
-#         print(f"Error generating implicit plot points: {e}")
-#         return []
-
-# def generate_implicit_plot_points4(expr, x_min=-10.0, x_max=10.0, has_discontinuity=False, y_min=-10.0, y_max=10.0):
-
-#     (_y_min, _y_max) = estimate_y_bounds2(expr, x_min, x_max)
-#     # (_y_min, _y_max) = (x_min, x_max)
-
-#     y_min = min(y_min, _y_min)
-#     y_max = max(y_max, _y_max)
-
-#     num_points = 1600
-#     _x = np.linspace(x_min, x_max,np.round(num_points*0.88).astype(int))
-#     _y = np.linspace(y_min, y_max, num_points)
-
-#     X, Y = np.meshgrid(_x, _y)
-#     # z = x**2 + y**2 - 1  # Example: circle equation x^2 + y^2 = 1
-#     f = sp.lambdify((x, y), expr, modules=[custom, 'numpy'])
-#     z = f(X, Y)
-#     z_val = 0.03*y_max
-#     # Convert the expression to a string
-#     expr_str = str(expr)
-#     if expr.has(TrigonometricFunction):
-#         z_val = np.maximum(z_val, 10)
-#     if ("_mode" in expr_str):
-#         z_val = np.maximum(z_val, 13)
-#     else:
-#         z_val = np.maximum(z_val, 15)
-#     # if abs(z_val) >= 1e100:
-#     # z_val = 10
-#     # z_val = np.percentile(z[~np.isnan(z)], 99)
-#     # z_val = np.nanmean(z)+3*np.nanstd(z)
-#     z_val = np.minimum(np.nanmax(z)*0.10, 45)
-#     # print(z_val)
-#     # z[np.abs(z) > z_val] = np.nan
-#     try:
-#         # Z = np.round(z, 2)  # Adjust precision as necessary
-#         # Replace inf with nan to avoid issues in contouring
-#         z[np.isinf(z)] = np.nan
-#         cs = plt.contour(X, Y, np.ma.masked_where(z>z_val,
-#             z), levels=[0])
-
-#         # 3. Write to temporary file
-#         line = 0
-#         has_discontinuity = has_infinite_discontinuity_in_xrange(
-#             expr, x_min, x_max)
-#         branches = []
-#         for sanitized_branch in get_sanitized_branches(expr, x_min, x_max, has_discontinuity, cs.allsegs):
-#             if sanitized_branch is None:
-#                 continue
-#             # Convert segment to bytes and base64
-#             branches.append( base64.b64encode(sanitized_branch.tobytes()).decode('utf-8') )
-#             line += 1
-
-#         plt.clf()
-#         plt.cla()
-#         # gc.collect()
-#         # plt.close()
-#         # Mandatory cleanup
-
-#         plt.close('all')
-#         del cs
-#         gc.collect()
-#         return branches, has_discontinuity
-#     except Exception as e:
-#         print(f"Error generating implicit plot points: {e}")
-#         return []
