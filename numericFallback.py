@@ -18,6 +18,122 @@ from contourpy import contour_generator
 x, y = symbols('x y')
 
 
+def has_cusp(expr, x_min=-10, x_max=10, y_min=-10, y_max=10):
+    try:
+        pt = sp.solve([expr, sp.diff(expr, x), sp.diff(expr, y)],
+                      [x, y], dict=True)
+        if isinstance(pt, list):
+            pt = [p for p in pt if x_min <= p[x] <=
+                  x_max and y_min <= p[y] <= y_max]
+        if len(pt) > 0:
+            _v = expr.subs(x, pt[0][x]).subs(y, pt[0][y])
+            if abs(_v) < 1e-12:
+                return [pt[0][x], pt[0][y]]
+        return []
+    except Exception:
+        return []
+
+
+def find_cusp_points(expr, x_min, x_max, y_min, y_max,
+                     num_grid=250, tolerance=1e-6, max_results=50):
+    """Return points (x, y) in the region that look like implicit curve cusps.
+
+    A cusp candidate is a point on F(x,y)=0 where both partial derivatives
+    vanish (Fx=0, Fy=0). The function attempts symbolic root finding first,
+    then falls back to a grid-based numeric approximation.
+
+    Args:
+        expr: sympy expression for F(x,y)=0, or string parseable by sympy.
+        x_min, x_max, y_min, y_max: search bounds for cusp points.
+        num_grid: grid size for fallback numerical scan.
+        tolerance: absolute tolerance for zero checks.
+        max_results: max points to return.
+
+    Returns:
+        list of (x,y) tuples (floats) where cusps were found.
+    """
+
+    # res = cusp(expr)
+
+    if isinstance(expr, str):
+        expr = sp.sympify(expr)
+
+    if not isinstance(expr, sp.Expr):
+        raise TypeError("expr must be a sympy expression or expression string")
+
+    fx = sp.diff(expr, x)
+    fy = sp.diff(expr, y)
+
+    candidates = []
+
+    # 1) Symbolic solve if available
+    try:
+        soln = sp.solve([expr, fx, fy], [x, y], dict=True)
+        for item in soln:
+            if x in item and y in item:
+                px = float(item[x])
+                py = float(item[y])
+                if x_min <= px <= x_max and y_min <= py <= y_max:
+                    candidates.append((px, py))
+    except Exception:
+        pass
+
+    # 2) Numeric fallback (grid + approx)
+    if len(candidates) < max_results:
+        f_fun = lambdify((x, y), expr, modules=[custom, 'numpy'])
+        fx_fun = lambdify((x, y), fx, modules=[custom, 'numpy'])
+        fy_fun = lambdify((x, y), fy, modules=[custom, 'numpy'])
+
+        xs = np.linspace(x_min, x_max, num_grid)
+        ys = np.linspace(y_min, y_max, num_grid)
+        X, Y = np.meshgrid(xs, ys, indexing='xy')
+
+        with np.errstate(all='ignore'):
+            F = f_fun(X, Y)
+            Fx = fx_fun(X, Y)
+            Fy = fy_fun(X, Y)
+
+        # lambdify may return scalar when derivative is constant, so broadcast to grid shape
+        if np.isscalar(F):
+            F = np.full(X.shape, F, dtype=float)
+        if np.isscalar(Fx):
+            Fx = np.full(X.shape, Fx, dtype=float)
+        if np.isscalar(Fy):
+            Fy = np.full(X.shape, Fy, dtype=float)
+
+        mask = np.isfinite(F) & np.isfinite(Fx) & np.isfinite(Fy)
+        if np.any(mask):
+            absF = np.abs(F[mask])
+            absFx = np.abs(Fx[mask])
+            absFy = np.abs(Fy[mask])
+
+            # heuristics to choose likely cusp region
+            f_th = max(tolerance, np.percentile(absF, 1) * 20)
+            fx_th = max(tolerance, np.percentile(absFx, 1) * 20)
+            fy_th = max(tolerance, np.percentile(absFy, 1) * 20)
+
+            cand_mask = (
+                np.abs(F) <= f_th
+            ) & (np.abs(Fx) <= fx_th) & (np.abs(Fy) <= fy_th)
+            cand_mask &= mask
+
+            indices = np.argwhere(cand_mask)
+            for i, j in indices:
+                px = float(xs[j])
+                py = float(ys[i])
+                if x_min <= px <= x_max and y_min <= py <= y_max:
+                    candidates.append((px, py))
+
+    # dedupe close candidates
+    uniq = []
+    for p in candidates:
+        if any(np.hypot(p[0] - q[0], p[1] - q[1]) < max(tolerance, 1e-5) for q in uniq):
+            continue
+        uniq.append(p)
+
+    return uniq[:max_results]
+
+
 def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None, y_samples=400, match_tol=None, f_tol=1e-15):
     # if (equation.has(TrigonometricFunction)) or ("_mode" in str(equation)):
     #     return (-300, 300)
@@ -261,6 +377,9 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # if autoScale:
     (y_min, y_max) = estimate_y_bounds2(expr, x_min, x_max)
 
+    # cusp = find_cusp_points(expr, x_min, x_max, y_min, y_max)
+    cusp = has_cusp(expr)
+
     # (_y_min, _y_max) = (x_min, x_max)
 
     # y_min = min(y_min, _y_min)
@@ -333,6 +452,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     # print(z_val)
     # z[np.abs(z) > z_val] = np.nan
     # large_range_span = False
+
     try:
         z[np.abs(z) > z_val] = np.nan
         # mmap_z[np.abs(mmap_z) > z_val] = np.nan
@@ -414,6 +534,36 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
             #     min_y = np.min(segment[:, 1])
                 # if np.abs(max_y - min_y) > 1e16:
                 #     large_range_span = True
+
+            # Extract x-coordinates (first column)
+            # x_arr = segment[:, 0]
+
+            # Find indices where sign changes (returns the index of the new sign)
+            if len(cusp) > 0:
+                # indices = np.where(np.diff(np.sign(x_arr)) != 0)[0] + 1
+                # 1. Calculate slopes between adjacent points
+                slopes = np.diff(segment[:, 1]) / np.diff(segment[:, 0])
+
+                # 2. Find where the sign of the slope changes
+                # np.sign returns -1, 0, or 1. diff() on this will be non-zero at changes.
+                indices = np.where(np.diff(np.sign(slopes)) != 0)[0]
+
+                index = None
+                if len(indices) > 0:
+                    index = indices[len(indices)-1]+1
+
+                if index is not None:
+                    # _x = cusp[0][0]
+                    # _y = cusp[0][1]
+                    _x = cusp[0]
+                    _y = cusp[1]
+                    # _v = expr.subs(x, _x).subs(y, _y)
+                    # if abs(_v) < 1e-12:
+                    # Example new point to insert
+                    new_point = np.array([_x, _y])
+
+                    # Insert at index 0 along the first axis (rows)
+                    segment = np.insert(segment, index, new_point, axis=0)
 
             all_points.append(base64.b64encode(
                 segment.tobytes()).decode('utf-8'))
