@@ -34,7 +34,7 @@ def unique_x(segment):
     return unique_rows
 
 
-def sanitize_contour_segments(expr, segment: np.ndarray,
+def sanitize_contour_segments(expr, _var, segment: np.ndarray,
                               x_min: float = -1e6, x_max: float = 1e6, has_discontinuity: bool = False, threshold_distance: float = 1e-6,
                               max_segment_length: float = 1e6) -> List[np.ndarray]:
     """
@@ -64,7 +64,7 @@ def sanitize_contour_segments(expr, segment: np.ndarray,
 
     if not has_discontinuity:
         has_discontinuity = has_infinite_discontinuity_in_xrange(
-            expr, x_min, x_max)
+            expr, _var, x_min, x_max)
 
     # if has_infinite_discontinuity_in_xrange(expr, x_min, x_max):
     #     has_discontinuity = True
@@ -289,7 +289,7 @@ def _is_asymptote_jump(point1: np.ndarray, point2: np.ndarray,
     return False
 
 
-def has_infinite_discontinuity_in_xrange(implicit_expr, x_min, x_max) -> bool:
+def has_infinite_discontinuity_in_xrange(implicit_expr, _var, x_min, x_max) -> bool:
     """
     Symbolically detect vertical/infinite discontinuities for f(x,y)=0
     between the x-values of `current_boundary` and `next_point`.
@@ -337,7 +337,8 @@ def has_infinite_discontinuity_in_xrange(implicit_expr, x_min, x_max) -> bool:
         except Exception:
             expr_sym = None
 
-    x, y = sp.symbols("x y")
+    y = sp.symbols("y")
+    x = sp.symbols(_var)
     if expr_sym is None:
         return False
 

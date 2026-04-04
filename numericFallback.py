@@ -19,7 +19,8 @@ from contourpy import contour_generator
 y = symbols('y')
 
 
-def has_cusp(expr, x_min=-10, x_max=10, y_min=-10, y_max=10):
+def has_cusp(expr, _var, x_min=-10, x_max=10, y_min=-10, y_max=10):
+    x = sp.Symbol(_var)
     if expr.has(TrigonometricFunction):
         return []
     try:
@@ -37,109 +38,111 @@ def has_cusp(expr, x_min=-10, x_max=10, y_min=-10, y_max=10):
         return []
 
 
-def find_cusp_points(expr, x_min, x_max, y_min, y_max,
-                     num_grid=250, tolerance=1e-6, max_results=50):
-    """Return points (x, y) in the region that look like implicit curve cusps.
+# def find_cusp_points(expr, x_min, x_max, y_min, y_max,
+#                      num_grid=250, tolerance=1e-6, max_results=50):
+#     """Return points (x, y) in the region that look like implicit curve cusps.
 
-    A cusp candidate is a point on F(x,y)=0 where both partial derivatives
-    vanish (Fx=0, Fy=0). The function attempts symbolic root finding first,
-    then falls back to a grid-based numeric approximation.
+#     A cusp candidate is a point on F(x,y)=0 where both partial derivatives
+#     vanish (Fx=0, Fy=0). The function attempts symbolic root finding first,
+#     then falls back to a grid-based numeric approximation.
 
-    Args:
-        expr: sympy expression for F(x,y)=0, or string parseable by sympy.
-        x_min, x_max, y_min, y_max: search bounds for cusp points.
-        num_grid: grid size for fallback numerical scan.
-        tolerance: absolute tolerance for zero checks.
-        max_results: max points to return.
+#     Args:
+#         expr: sympy expression for F(x,y)=0, or string parseable by sympy.
+#         x_min, x_max, y_min, y_max: search bounds for cusp points.
+#         num_grid: grid size for fallback numerical scan.
+#         tolerance: absolute tolerance for zero checks.
+#         max_results: max points to return.
 
-    Returns:
-        list of (x,y) tuples (floats) where cusps were found.
-    """
+#     Returns:
+#         list of (x,y) tuples (floats) where cusps were found.
+#     """
 
-    # res = cusp(expr)
+#     # res = cusp(expr)
 
-    if isinstance(expr, str):
-        expr = sp.sympify(expr)
+#     if isinstance(expr, str):
+#         expr = sp.sympify(expr)
 
-    if not isinstance(expr, sp.Expr):
-        raise TypeError("expr must be a sympy expression or expression string")
+#     if not isinstance(expr, sp.Expr):
+#         raise TypeError("expr must be a sympy expression or expression string")
 
-    fx = sp.diff(expr, x)
-    fy = sp.diff(expr, y)
+#     fx = sp.diff(expr, x)
+#     fy = sp.diff(expr, y)
 
-    candidates = []
+#     candidates = []
 
-    # 1) Symbolic solve if available
-    try:
-        soln = sp.solve([expr, fx, fy], [x, y], dict=True)
-        for item in soln:
-            if x in item and y in item:
-                px = float(item[x])
-                py = float(item[y])
-                if x_min <= px <= x_max and y_min <= py <= y_max:
-                    candidates.append((px, py))
-    except Exception:
-        pass
+#     # 1) Symbolic solve if available
+#     try:
+#         soln = sp.solve([expr, fx, fy], [x, y], dict=True)
+#         for item in soln:
+#             if x in item and y in item:
+#                 px = float(item[x])
+#                 py = float(item[y])
+#                 if x_min <= px <= x_max and y_min <= py <= y_max:
+#                     candidates.append((px, py))
+#     except Exception:
+#         pass
 
-    # 2) Numeric fallback (grid + approx)
-    if len(candidates) < max_results:
-        f_fun = lambdify((x, y), expr, modules=[custom, 'numpy'])
-        fx_fun = lambdify((x, y), fx, modules=[custom, 'numpy'])
-        fy_fun = lambdify((x, y), fy, modules=[custom, 'numpy'])
+#     # 2) Numeric fallback (grid + approx)
+#     if len(candidates) < max_results:
+#         f_fun = lambdify((x, y), expr, modules=[custom, 'numpy'])
+#         fx_fun = lambdify((x, y), fx, modules=[custom, 'numpy'])
+#         fy_fun = lambdify((x, y), fy, modules=[custom, 'numpy'])
 
-        xs = np.linspace(x_min, x_max, num_grid)
-        ys = np.linspace(y_min, y_max, num_grid)
-        X, Y = np.meshgrid(xs, ys, indexing='xy')
+#         xs = np.linspace(x_min, x_max, num_grid)
+#         ys = np.linspace(y_min, y_max, num_grid)
+#         X, Y = np.meshgrid(xs, ys, indexing='xy')
 
-        with np.errstate(all='ignore'):
-            F = f_fun(X, Y)
-            Fx = fx_fun(X, Y)
-            Fy = fy_fun(X, Y)
+#         with np.errstate(all='ignore'):
+#             F = f_fun(X, Y)
+#             Fx = fx_fun(X, Y)
+#             Fy = fy_fun(X, Y)
 
-        # lambdify may return scalar when derivative is constant, so broadcast to grid shape
-        if np.isscalar(F):
-            F = np.full(X.shape, F, dtype=float)
-        if np.isscalar(Fx):
-            Fx = np.full(X.shape, Fx, dtype=float)
-        if np.isscalar(Fy):
-            Fy = np.full(X.shape, Fy, dtype=float)
+#         # lambdify may return scalar when derivative is constant, so broadcast to grid shape
+#         if np.isscalar(F):
+#             F = np.full(X.shape, F, dtype=float)
+#         if np.isscalar(Fx):
+#             Fx = np.full(X.shape, Fx, dtype=float)
+#         if np.isscalar(Fy):
+#             Fy = np.full(X.shape, Fy, dtype=float)
 
-        mask = np.isfinite(F) & np.isfinite(Fx) & np.isfinite(Fy)
-        if np.any(mask):
-            absF = np.abs(F[mask])
-            absFx = np.abs(Fx[mask])
-            absFy = np.abs(Fy[mask])
+#         mask = np.isfinite(F) & np.isfinite(Fx) & np.isfinite(Fy)
+#         if np.any(mask):
+#             absF = np.abs(F[mask])
+#             absFx = np.abs(Fx[mask])
+#             absFy = np.abs(Fy[mask])
 
-            # heuristics to choose likely cusp region
-            f_th = max(tolerance, np.percentile(absF, 1) * 20)
-            fx_th = max(tolerance, np.percentile(absFx, 1) * 20)
-            fy_th = max(tolerance, np.percentile(absFy, 1) * 20)
+#             # heuristics to choose likely cusp region
+#             f_th = max(tolerance, np.percentile(absF, 1) * 20)
+#             fx_th = max(tolerance, np.percentile(absFx, 1) * 20)
+#             fy_th = max(tolerance, np.percentile(absFy, 1) * 20)
 
-            cand_mask = (
-                np.abs(F) <= f_th
-            ) & (np.abs(Fx) <= fx_th) & (np.abs(Fy) <= fy_th)
-            cand_mask &= mask
+#             cand_mask = (
+#                 np.abs(F) <= f_th
+#             ) & (np.abs(Fx) <= fx_th) & (np.abs(Fy) <= fy_th)
+#             cand_mask &= mask
 
-            indices = np.argwhere(cand_mask)
-            for i, j in indices:
-                px = float(xs[j])
-                py = float(ys[i])
-                if x_min <= px <= x_max and y_min <= py <= y_max:
-                    candidates.append((px, py))
+#             indices = np.argwhere(cand_mask)
+#             for i, j in indices:
+#                 px = float(xs[j])
+#                 py = float(ys[i])
+#                 if x_min <= px <= x_max and y_min <= py <= y_max:
+#                     candidates.append((px, py))
 
-    # dedupe close candidates
-    uniq = []
-    for p in candidates:
-        if any(np.hypot(p[0] - q[0], p[1] - q[1]) < max(tolerance, 1e-5) for q in uniq):
-            continue
-        uniq.append(p)
+#     # dedupe close candidates
+#     uniq = []
+#     for p in candidates:
+#         if any(np.hypot(p[0] - q[0], p[1] - q[1]) < max(tolerance, 1e-5) for q in uniq):
+#             continue
+#         uniq.append(p)
 
-    return uniq[:max_results]
+#     return uniq[:max_results]
 
 
-def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None, y_samples=400, match_tol=None, f_tol=1e-15):
+def estimate_y_bounds2(equation, _var, x_min, x_max, num_x=400, y_min=None, y_max=None, y_samples=400, match_tol=None, f_tol=1e-15):
     # if (equation.has(TrigonometricFunction)) or ("_mode" in str(equation)):
     #     return (-300, 300)
+
+    x = sp.Symbol(_var)
 
     # Estimate y-range from symbolic solutions if possible
     x_vals = np.linspace(x_min, x_max, num_x)
@@ -189,7 +192,7 @@ def grid_x_y_z_val(expr, _var, x_min, x_max, y_min, y_max):
 
     z_val = 8
     has_discontinuity = has_infinite_discontinuity_in_xrange(
-        expr, x_min, x_max)
+        expr, _var, x_min, x_max)
 
     num_x = 200
     density = 1000000
@@ -380,10 +383,10 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     # x_max = x_max + 1 * width
 
     # if autoScale:
-    (y_min, y_max) = estimate_y_bounds2(expr, x_min, x_max)
+    (y_min, y_max) = estimate_y_bounds2(expr, _var, x_min, x_max)
 
     # cusp = find_cusp_points(expr, x_min, x_max, y_min, y_max)
-    cusp = has_cusp(expr)
+    cusp = has_cusp(expr, _var, x_min, x_max, y_min, y_max)
 
     # (_y_min, _y_max) = (x_min, x_max)
 
@@ -421,6 +424,16 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
     num_x = 500
     num_y = 500
+
+    if has_discontinuity:
+        z_val = 3  # for 1/sin(x)
+
+    deg_poly_y = 1
+    if expr.is_polynomial(y):
+        deg_poly_y = min([sp.degree(expr, gen=y), 50])
+
+    num_x = int(num_points/deg_poly_y)
+    num_y = int(num_points*deg_poly_y)
 
     _x = np.linspace(x_min, x_max, num_x)
     if y_max > 1e16:
@@ -530,7 +543,7 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
             # all_points.append(segment.astype(np.float32))
             segment = sanitize_contour_segments(
-                expr, segment, x_min, x_max, has_discontinuity)
+                expr, _var, segment, x_min, x_max, has_discontinuity)
             if segment is None:
                 valid_mask = None
                 continue
