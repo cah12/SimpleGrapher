@@ -15,7 +15,8 @@ from contourpy import contour_generator
 
 
 # Define variables
-x, y = symbols('x y')
+# x, y = symbols('x y')
+y = symbols('y')
 
 
 def has_cusp(expr, x_min=-10, x_max=10, y_min=-10, y_max=10):
@@ -183,7 +184,9 @@ def estimate_y_bounds2(equation, x_min, x_max, num_x=400, y_min=None, y_max=None
     return (y_min, y_max)
 
 
-def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
+def grid_x_y_z_val(expr, _var, x_min, x_max, y_min, y_max):
+    x = sp.Symbol(_var)
+
     z_val = 8
     has_discontinuity = has_infinite_discontinuity_in_xrange(
         expr, x_min, x_max)
@@ -366,8 +369,8 @@ def grid_x_y_z_val(expr, x_min, x_max, y_min, y_max):
 #     return max_abs_val * 0.08
 
 
-def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False, has_discontinuity=False, y_min=-10.0, y_max=10.0):
-
+def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale=False, has_discontinuity=False, y_min=-10.0, y_max=10.0):
+    x = sp.Symbol(_var)
     # if "sqrt" in str(expr):
     # expr = str(expr).replace("sin", "np.sin")
     # expr = sp.sympify(expr)
@@ -414,7 +417,7 @@ def generate_implicit_plot_points(expr, x_min=-10.0, x_max=10.0, autoScale=False
     #     d = 1
 
     num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
-        expr, x_min, x_max, y_min, y_max)
+        expr, _var, x_min, x_max, y_min, y_max)
 
     num_x = 500
     num_y = 500

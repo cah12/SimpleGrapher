@@ -916,7 +916,7 @@ def numeric():
     #     y1 = -6
     #     y2 = 6
     _branches, has_discontinuity, large_range_span = generate_implicit_plot_points(
-        eq, lower, upper, autoScale, has_discontinuity, y1, y2)
+        eq, _var, lower, upper, autoScale, has_discontinuity, y1, y2)
 
     # infinite_discont = True
     # _branches = []
