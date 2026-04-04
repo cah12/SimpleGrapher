@@ -19,6 +19,8 @@ x, y = symbols('x y')
 
 
 def has_cusp(expr, x_min=-10, x_max=10, y_min=-10, y_max=10):
+    if expr.has(TrigonometricFunction):
+        return []
     try:
         pt = sp.solve([expr, sp.diff(expr, x), sp.diff(expr, y)],
                       [x, y], dict=True)
