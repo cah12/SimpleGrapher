@@ -387,6 +387,7 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
     # cusp = find_cusp_points(expr, x_min, x_max, y_min, y_max)
     cusp = has_cusp(expr, _var, x_min, x_max, y_min, y_max)
+    # cusp = []
 
     # (_y_min, _y_max) = (x_min, x_max)
 
@@ -410,7 +411,7 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     # d_p = sp.degree(expr, gen=y
 
     # if the power of y == 1
-    num_points = 800
+    num_points = 1000
     d = 4
 
     # d_p = sp.degree(expr, gen=y)
@@ -557,7 +558,7 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
             # x_arr = segment[:, 0]
 
             # Find indices where sign changes (returns the index of the new sign)
-            if len(cusp) > 0:
+            if len(cusp) == 2 and segment.ndim == 2 and segment.shape[1] >= 2:
                 # indices = np.where(np.diff(np.sign(x_arr)) != 0)[0] + 1
                 # 1. Calculate slopes between adjacent points
                 slopes = np.diff(segment[:, 1]) / np.diff(segment[:, 0])
@@ -567,21 +568,37 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
                 indices = np.where(np.diff(np.sign(slopes)) != 0)[0]
 
                 index = None
-                if len(indices) > 0:
-                    index = indices[len(indices)-1]+1
+                try:
+                    cusp_x = float(cusp[0])
+                    cusp_y = float(cusp[1])
+                except Exception:
+                    cusp_x = None
+                    cusp_y = None
 
-                if index is not None:
-                    # _x = cusp[0][0]
-                    # _y = cusp[0][1]
-                    _x = cusp[0]
-                    _y = cusp[1]
-                    # _v = expr.subs(x, _x).subs(y, _y)
-                    # if abs(_v) < 1e-12:
-                    # Example new point to insert
-                    new_point = np.array([_x, _y])
+                if cusp_x is not None and cusp_y is not None:
+                    cusp_index_in_segment = None
+                    h_val_min = np.inf
+                    for idx in indices:
+                        if idx < 0 or idx >= len(segment):
+                            continue
+                        # Check if the point is close to the cusp
+                        h_val = np.hypot(
+                            segment[idx, 0] - cusp_x, segment[idx, 1] - cusp_y)
+                        if h_val <= h_val_min:
+                            cusp_index_in_segment = idx+1
+                            h_val_min = h_val
+                        # if h_val < 0.1538326207567586:
+                        #     index = idx+1
+                        #     break
 
-                    # Insert at index 0 along the first axis (rows)
-                    segment = np.insert(segment, index, new_point, axis=0)
+                    if cusp_index_in_segment is not None:
+                        _x = cusp_x
+                        _y = cusp_y
+                        new_point = np.array([_x, _y])
+
+                        # Insert at cusp_index_in_segment 0 along the first axis (rows)
+                        segment = np.insert(
+                            segment, cusp_index_in_segment, new_point, axis=0)
 
             all_points.append(base64.b64encode(
                 segment.tobytes()).decode('utf-8'))
