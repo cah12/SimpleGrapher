@@ -432,9 +432,12 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     deg_poly_y = 1
     if expr.is_polynomial(y):
         deg_poly_y = min([sp.degree(expr, gen=y), 50])
+    deg_poly_x = 1
+    if expr.is_polynomial(x):
+        deg_poly_x = min([sp.degree(expr, gen=x), 50])
 
-    num_x = int(num_points/deg_poly_y)
-    num_y = int(num_points*deg_poly_y)
+    num_x = int(num_points/deg_poly_y*deg_poly_x)
+    num_y = int(num_points*deg_poly_y/deg_poly_x)
 
     _x = np.linspace(x_min, x_max, num_x)
     if y_max > 1e16:
