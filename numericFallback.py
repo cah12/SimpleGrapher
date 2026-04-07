@@ -554,8 +554,8 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
                 valid_mask = None
                 continue
 
-            _, idx = np.unique(segment, axis=0, return_index=True)
-            segment = segment[np.sort(idx)]
+            # _, idx = np.unique(segment, axis=0, return_index=True)
+            # segment = segment[np.sort(idx)]
 
             # if not large_range_span:
             #     max_y = np.max(segment[:, 1])
@@ -617,10 +617,15 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
                 closest_index = np.argmin(distances)
                 # Insert the new point into the segment at the position of the closest point
                 if closest_index == 0:
+                    # _, idx = np.unique(segment, axis=0, return_index=True)
+                    # segment = segment[np.sort(idx)]
+                    segment = np.delete(segment, len(segment)-1, axis=0)
+                    segment = np.delete(segment, 0, axis=0)
                     segment = np.insert(
                         segment, closest_index, new_point, axis=0)
                     segment = np.append(
-                        segment, new_point)
+                        segment, [new_point], axis=0)
+
                 else:
                     segment = np.insert(
                         segment, closest_index+1, new_point, axis=0)
