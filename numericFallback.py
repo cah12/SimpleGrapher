@@ -436,6 +436,8 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     if expr.is_polynomial(x):
         deg_poly_x = min([sp.degree(expr, gen=x), 50])
 
+    # num_x = int(num_points/deg_poly_y*deg_poly_x)
+    # num_y = int(num_points*deg_poly_y/deg_poly_x)
     num_x = int(num_points/deg_poly_y*deg_poly_x)
     num_y = int(num_points*deg_poly_y/deg_poly_x)
 
@@ -551,11 +553,15 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
             if segment is None:
                 valid_mask = None
                 continue
+
+            _, idx = np.unique(segment, axis=0, return_index=True)
+            segment = segment[np.sort(idx)]
+
             # if not large_range_span:
             #     max_y = np.max(segment[:, 1])
             #     min_y = np.min(segment[:, 1])
-                # if np.abs(max_y - min_y) > 1e16:
-                #     large_range_span = True
+            # if np.abs(max_y - min_y) > 1e16:
+            #     large_range_span = True
 
             # Extract x-coordinates (first column)
             # x_arr = segment[:, 0]
@@ -610,8 +616,14 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
                 # Find the index of the closest point in the segment to the new point
                 closest_index = np.argmin(distances)
                 # Insert the new point into the segment at the position of the closest point
-                segment = np.insert(
-                    segment, closest_index+1, new_point, axis=0)
+                if closest_index == 0:
+                    segment = np.insert(
+                        segment, closest_index, new_point, axis=0)
+                    segment = np.append(
+                        segment, new_point)
+                else:
+                    segment = np.insert(
+                        segment, closest_index+1, new_point, axis=0)
 
             all_points.append(base64.b64encode(
                 segment.tobytes()).decode('utf-8'))
