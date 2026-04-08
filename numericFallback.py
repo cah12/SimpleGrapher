@@ -426,9 +426,10 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
     try:
         # Replace inf with nan to avoid issues in contouring
-        z = np.where(np.isfinite(z), z, np.nan)
-        z = np.ma.masked_where(np.abs(z) > z_val, z)
-        # z[np.abs(z) > z_val] = np.nan
+        # z = np.where(np.isfinite(z), z, np.nan)
+        z[np.isinf(z)] = np.nan
+        # z = np.ma.masked_where(np.abs(z) > z_val, z)
+        z[np.abs(z) > z_val] = np.nan
         # mmap_z[np.abs(mmap_z) > z_val] = np.nan
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring
