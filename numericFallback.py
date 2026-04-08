@@ -374,51 +374,18 @@ def grid_x_y_z_val(expr, _var, x_min, x_max, y_min, y_max):
 
 def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale=False, has_discontinuity=False, y_min=-10.0, y_max=10.0):
     x = sp.Symbol(_var)
-    # if "sqrt" in str(expr):
-    # expr = str(expr).replace("sin", "np.sin")
-    # expr = sp.sympify(expr)
 
-    # width = x_max - x_min
-    # x_min = x_min - 1 * width
-    # x_max = x_max + 1 * width
-
-    # if autoScale:
     (y_min, y_max) = estimate_y_bounds2(expr, _var, x_min, x_max)
 
     # cusp = find_cusp_points(expr, x_min, x_max, y_min, y_max)
     cusp = has_cusp(expr, _var, x_min, x_max, y_min, y_max)
-    # cusp = []
-
-    # (_y_min, _y_max) = (x_min, x_max)
-
-    # y_min = min(y_min, _y_min)
-    # y_max = max(y_max, _y_max)
 
     _max = np.max([np.abs(y_min), np.abs(y_max)])
-
-    # if expr.has(TrigonometricFunction):
-    # _max = np.minimum(_max, 1e16)
 
     y_min = -_max
     y_max = _max
 
-    # y_min = -100
-    # y_max = 100
-
-    # print(y_min, y_max)
-
-    # if the power of y > 1
-    # d_p = sp.degree(expr, gen=y
-
-    # if the power of y == 1
     num_points = 1000
-    d = 4
-
-    # d_p = sp.degree(expr, gen=y)
-    # # if the power of y > 1
-    # if d_p > 1:
-    #     num_points = 2000
-    #     d = 1
 
     num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
         expr, _var, x_min, x_max, y_min, y_max)
@@ -456,33 +423,16 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     f = lambdify((x, y), expr, modules=["numpy", custom])
     # z = z.astype(np.float32)
     z = f(X, Y)
-    # mmap_z[:] = f(mmap_xx, mmap_yy)
-
-    # z = z.astype(np.float32)
-    # z_val = 0.03*y_max
-    # # Convert the expression to a string
-    # expr_str = str(expr)
-    # if expr.has(TrigonometricFunction):
-    #     z_val = np.maximum(z_val, 10)
-    # if ("_mode" in expr_str):
-    #     z_val = np.maximum(z_val, 13)
-    # else:
-    #     z_val = np.maximum(z_val, 15)
-    # # if abs(z_val) >= 1e100:
-    # # z_val = 10
-    # # z_val = np.percentile(z[~np.isnan(z)], 99)
-    # # z_val = np.nanmean(z)+3*np.nanstd(z)
-    # z_val = np.minimum(np.nanmax(z)*0.10, 45)
-    # print(z_val)
-    # z[np.abs(z) > z_val] = np.nan
-    # large_range_span = False
 
     try:
-        z[np.abs(z) > z_val] = np.nan
+        # Replace inf with nan to avoid issues in contouring
+        z = np.where(np.isfinite(z), z, np.nan)
+        z = np.ma.masked_where(np.abs(z) > z_val, z)
+        # z[np.abs(z) > z_val] = np.nan
         # mmap_z[np.abs(mmap_z) > z_val] = np.nan
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring
-        z[np.isinf(z)] = np.nan
+        # z[np.isinf(z)] = np.nan
         # CS = plt.contour(X, Y, np.ma.masked_where(z>z_val,
         #     z), levels=[0])
         # CS = plt.contour(X, Y, np.ma.masked_invalid(
