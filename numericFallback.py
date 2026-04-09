@@ -409,8 +409,8 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     # num_y = int(num_points*deg_poly_y/deg_poly_x)
 
     if len(cusp) > 0:
-        num_x = np.maximum(num_x, 1000)
-        num_y = np.maximum(num_y, 1000)
+        num_x = np.maximum(num_x, 500)
+        num_y = np.maximum(num_y, 500)
 
     # if len(cusp) > 0:
     #     n = int(num_x)
