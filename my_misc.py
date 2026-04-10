@@ -60,7 +60,7 @@ def sanitize_contour_segments(expr, _var, segment: np.ndarray,
         Each segment is either a numpy array of valid coordinates or contains "##" markers.
     """
 
-    sanitized = []
+    sanitized = np.array([])
 
     if not has_discontinuity:
         has_discontinuity = has_infinite_discontinuity_in_xrange(
