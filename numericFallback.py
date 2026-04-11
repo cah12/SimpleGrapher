@@ -377,14 +377,13 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
     (y_min, y_max) = estimate_y_bounds2(expr, _var, x_min, x_max)
 
-    # cusp = find_cusp_points(expr, x_min, x_max, y_min, y_max)
-    cusp = has_cusp(expr, _var, x_min, x_max, y_min, y_max)
-
     _max = np.max([np.abs(y_min), np.abs(y_max)])
 
     y_min = -_max
     y_max = _max
 
+    # cusp = find_cusp_points(expr, x_min, x_max, y_min, y_max)
+    cusp = has_cusp(expr, _var, x_min, x_max, y_min, y_max)
     num_points = 1000
 
     num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
@@ -393,8 +392,8 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     num_x = 500
     num_y = 500
 
-    if has_discontinuity:
-        z_val = 3  # for 1/sin(x)
+    # if has_discontinuity:
+    #     z_val = 3  # for 1/sin(x)
 
     deg_poly_y = 1
     if expr.is_polynomial(y):
@@ -411,6 +410,14 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     if len(cusp) > 0:
         num_x = np.maximum(num_x, 800)
         num_y = np.maximum(num_y, 800)
+
+    if has_discontinuity:
+        z_val = 1  # for 1/sin(x)
+        num_x = np.maximum(num_x, 1000)
+        num_y = np.maximum(num_y, 1000)
+        num_y = np.minimum(num_y, 1000)
+        if num_x < num_y:
+            num_x = num_y
 
     # if len(cusp) > 0:
     #     n = int(num_x)
