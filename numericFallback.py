@@ -392,9 +392,6 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     num_x = 500
     num_y = 500
 
-    # if has_discontinuity:
-    #     z_val = 3  # for 1/sin(x)
-
     deg_poly_y = 1
     if expr.is_polynomial(y):
         deg_poly_y = min([sp.degree(expr, gen=y), 50])
