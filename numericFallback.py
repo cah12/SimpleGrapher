@@ -415,7 +415,7 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
         z_val = 1  # for 1/sin(x)
         num_x = np.maximum(num_x, 1000)
         num_y = np.maximum(num_y, 1000)
-        num_y = np.minimum(num_y, 1000)
+        num_y = np.minimum(num_y, 1200)
         if num_x < num_y:
             num_x = num_y
 
