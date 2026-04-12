@@ -384,7 +384,7 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
     # cusp = find_cusp_points(expr, x_min, x_max, y_min, y_max)
     cusp = has_cusp(expr, _var, x_min, x_max, y_min, y_max)
-    num_points = 1000
+    num_points = 500
 
     num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
         expr, _var, x_min, x_max, y_min, y_max)
@@ -399,8 +399,18 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     if expr.is_polynomial(x):
         deg_poly_x = min([sp.degree(expr, gen=x), 50])
 
-    num_x = np.minimum(200, int(num_points/deg_poly_y))
-    num_y = np.maximum(2000, int(num_points*deg_poly_y))
+    num_x = int(num_points/deg_poly_y)
+    num_y = int(num_points*deg_poly_y)
+    if num_x < 200:
+        num_x = 200
+    if num_y < 200:
+        num_y = 200
+    if num_x > 2000:
+        num_x = 2000
+    if num_y > 2000:
+        num_y = 2000
+    # num_x = np.minimum(200, int(num_points/deg_poly_y))
+    # num_y = np.maximum(2000, int(num_points*deg_poly_y))
     # num_x = int(num_points/deg_poly_y*deg_poly_x)
     # num_y = int(num_points*deg_poly_y/deg_poly_x)
 
@@ -409,7 +419,9 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
         num_y = np.maximum(num_y, 800)
 
     if has_discontinuity:
-        z_val = 1  # for 1/sin(x)
+        z_val = deg_poly_y
+        z_val = np.maximum(z_val, 2)
+
         num_x = np.maximum(num_x, 1000)
         num_y = np.maximum(num_y, 1000)
         num_y = np.minimum(num_y, 1200)
@@ -600,6 +612,37 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
                 else:
                     segment = np.insert(
                         segment, closest_index+1, new_point, axis=0)
+
+            if not has_discontinuity:
+                maximum_y = np.max(segment[:, 1])
+                lmt = abs(maximum_y)*1e-2
+                start_point = segment[0]
+                start_point_y = start_point[1]
+                if abs(start_point_y) > 0 and abs(start_point_y) < lmt:
+                    expr_x = expr.subs(y, 0)
+                    try:
+                        x_sol = solve(expr_x, x)
+                        if x_sol:
+                            new_point = np.array([float(x_sol[0]), 0.0])
+                            segment = np.insert(
+                                segment, 0, new_point, axis=0)
+
+                    except Exception:
+                        pass
+
+                end_point = segment[-1]
+                end_point_y = end_point[1]
+                if abs(end_point_y) > 0 and abs(end_point_y) < lmt:
+                    expr_x = expr.subs(y, 0)
+                    try:
+                        x_sol = solve(expr_x, x)
+                        if x_sol:
+                            new_point = np.array([float(x_sol[0]), 0.0])
+                            segment = np.append(
+                                segment, [new_point], axis=0)
+
+                    except Exception:
+                        pass
 
             all_points.append(base64.b64encode(
                 segment.tobytes()).decode('utf-8'))
