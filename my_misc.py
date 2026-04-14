@@ -587,6 +587,90 @@ def _mark_infinity_at_endpoints(expr, segment: np.ndarray) -> np.ndarray:
     return segment
 
 
+def subdivide_cell(x0, x1, y0, y1, f, threshold, depth=0, max_depth=10):
+    """Subdivides a cell if it contains both high positive and high negative values."""
+    z_corners = np.array([
+        f(x0, y0), f(x1, y0),
+        f(x1, y1), f(x0, y1)
+    ])
+
+    max_z = np.max(z_corners)
+    min_z = np.min(z_corners)
+
+    # Check if cell spans high positive and high negative values and depth limit not reached
+    if max_z > threshold and min_z < -threshold and depth < max_depth:
+        # Subdivide into 4 sub-cells
+        mid_x = (x0 + x1) / 2
+        mid_y = (y0 + y1) / 2
+        sub_cells = [
+            (x0, mid_x, y0, mid_y),
+            (mid_x, x1, y0, mid_y),
+            (x0, mid_x, mid_y, y1),
+            (mid_x, x1, mid_y, y1)
+        ]
+        results = []
+        for sc in sub_cells:
+            results.extend(subdivide_cell(
+                sc[0], sc[1], sc[2], sc[3], f, threshold, depth + 1, max_depth))
+        return results
+    else:
+        # Return current cell corners
+        return [(x0, x1, y0, y1)]
+
+
+def generate_contoured_mesh(f, x_range, y_range, initial_grid_size, threshold, max_depth=3):
+    """Generates refined coordinates using adaptive subdivision."""
+    x_coords = np.linspace(x_range[0], x_range[1], initial_grid_size)
+    y_coords = np.linspace(y_range[0], y_range[1], initial_grid_size)
+
+    refined_cells = []
+    for i in range(len(x_coords)-1):
+        for j in range(len(y_coords)-1):
+            refined_cells.extend(subdivide_cell(
+                x_coords[i], x_coords[i+1],
+                y_coords[j], y_coords[j+1],
+                f, threshold, 0, max_depth
+            ))
+
+    # Extract unique x and y coordinates from refined cells
+    all_x = set()
+    all_y = set()
+    for cell in refined_cells:
+        all_x.add(cell[0])
+        all_x.add(cell[1])
+        all_y.add(cell[2])
+        all_y.add(cell[3])
+
+    refined_x_coords = np.array(sorted(list(all_x)))
+    refined_y_coords = np.array(sorted(list(all_y)))
+
+    return refined_x_coords, refined_y_coords
+
+# --- Example Usage ---
+# 1. Define a function with high gradients
+# def potential_field(x, y):
+#     return 10 * np.sin(3*x) * np.cos(3*y) - 5 * x
+
+# # 2. Parameters
+# x_range = [-2, 2]
+# y_range = [-2, 2]
+# initial_grid = 10
+# # Threshold for detecting high gradient
+# threshold = 4.0
+
+# # 3. Generate refined mesh
+# cells = generate_contoured_mesh(potential_field, x_range, y_range, initial_grid, threshold)
+
+# # 4. Plotting the mesh to show refinement
+# plt.figure(figsize=(8,8))
+# for c in cells:
+#     x0, x1, y0, y1 = c
+#     plt.plot([x0, x1, x1, x0, x0], [y0, y0, y1, y1, y0], 'b-', lw=0.5)
+
+# plt.title(f"Adaptive Subdivision Mesh (Threshold > {threshold})")
+# plt.show()
+
+
 # Example usage and testing
 # if __name__ == "__main__":
 #     # Example 1: Basic contour segments

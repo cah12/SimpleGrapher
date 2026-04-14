@@ -6,7 +6,7 @@ from sympy.functions.elementary.trigonometric import TrigonometricFunction
 import numpy as np
 from sympy import symbols, solve
 import sympy as sp
-from my_misc import has_infinite_discontinuity_in_xrange, sanitize_contour_segments
+from my_misc import has_infinite_discontinuity_in_xrange, sanitize_contour_segments, generate_contoured_mesh
 import re
 from contourpy import contour_generator
 
@@ -377,6 +377,10 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
     (y_min, y_max) = estimate_y_bounds2(expr, _var, x_min, x_max)
 
+    huge = False
+    if abs(y_max - y_min) > 1e16:
+        huge = True
+
     _max = np.max([np.abs(y_min), np.abs(y_max)])
 
     y_min = -_max
@@ -384,77 +388,41 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
     # cusp = find_cusp_points(expr, x_min, x_max, y_min, y_max)
     cusp = has_cusp(expr, _var, x_min, x_max, y_min, y_max)
-    num_points = 500
 
     num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
         expr, _var, x_min, x_max, y_min, y_max)
 
-    num_x = 500
-    num_y = 500
+    f = lambdify((x, y), expr, modules=["numpy", custom])
 
-    deg_poly_y = 1
-    if expr.is_polynomial(y):
-        deg_poly_y = min([sp.degree(expr, gen=y), 50])
-    deg_poly_x = 1
-    if expr.is_polynomial(x):
-        deg_poly_x = min([sp.degree(expr, gen=x), 50])
+    _x, _y = None, None
 
-    num_x = int(num_points/deg_poly_y)
-    num_y = int(num_points*deg_poly_y)
-    if num_x < 200:
-        num_x = 200
-    if num_y < 200:
-        num_y = 200
-    if num_x > 2000:
-        num_x = 2000
-    if num_y > 2000:
-        num_y = 2000
-    # num_x = np.minimum(200, int(num_points/deg_poly_y))
-    # num_y = np.maximum(2000, int(num_points*deg_poly_y))
-    # num_x = int(num_points/deg_poly_y*deg_poly_x)
-    # num_y = int(num_points*deg_poly_y/deg_poly_x)
-
-    if len(cusp) > 0:
-        num_x = np.maximum(num_x, 800)
-        num_y = np.maximum(num_y, 800)
-
-    if has_discontinuity:
-        z_val = deg_poly_y
-        z_val = np.maximum(z_val, 2)
-
-        num_x = np.maximum(num_x, 1000)
-        num_y = np.maximum(num_y, 1000)
-        num_y = np.minimum(num_y, 1200)
-        if num_x < num_y:
-            num_x = num_y
-
-    # if len(cusp) > 0:
-    #     n = int(num_x)
-    #     f = 0.095
-    #     x_cusp = float(cusp[0])
-    #     width = (x_max - x_min) / 20
-    #     _x = np.linspace(x_min, x_cusp-width, n, endpoint=False)
-    #     _x = np.append(_x, np.linspace(x_cusp-width, x_cusp +
-    #                    width, 2*n, endpoint=False))
-    #     _x = np.append(_x, np.linspace(x_cusp+width, x_max, n))
-    # else:
-    #     _x = np.linspace(x_min, x_max, num_x)
-
-    _x = np.linspace(x_min, x_max, num_x)
-    if y_max > 1e16:
-        f = 0.095
-        _y = np.linspace(y_min, -1e12, int(num_y*f), endpoint=False)
-        _y = np.append(_y, np.linspace(-1e12, 1e12,
-                       int(num_y*(1-2*f)), endpoint=False))
-        _y = np.append(_y, np.linspace(1e12, y_max, int(num_y*f)))
+    if not huge:
+        _x, _y = generate_contoured_mesh(
+            f, [x_min, x_max], [y_min, y_max], 200, 0.5)
     else:
-        _y = np.linspace(y_min, y_max, num_y)
+        num_x = 800
+        num_y = 800
+        _x = np.linspace(x_min, x_max, num_x)
+        _f = 0.095
+        _y = np.linspace(y_min, -1e12, int(num_y*_f), endpoint=False)
+        _y = np.append(_y, np.linspace(-1e12, 1e12,
+                                       int(num_y*(1-2*_f)), endpoint=False))
+        _y = np.append(_y, np.linspace(1e12, y_max, int(num_y*_f)))
 
     X, Y = np.meshgrid(_x, _y)
 
-    f = lambdify((x, y), expr, modules=["numpy", custom])
+    # f = lambdify((x, y), expr, modules=["numpy", custom])
     # z = z.astype(np.float32)
     z = f(X, Y)
+
+    # deg_poly_y = 1
+    # if expr.is_polynomial(y):
+    #     deg_poly_y = min([sp.degree(expr, gen=y), 50])
+
+    if has_discontinuity:
+        # z_val = deg_poly_y
+        z_val = 2
+        z_val = np.maximum(z_val, 2)
 
     try:
         # Replace inf with nan to avoid issues in contouring
