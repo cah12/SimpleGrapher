@@ -395,29 +395,32 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     f = lambdify((x, y), expr, modules=["numpy", custom])
 
     _x, _y = None, None
+    deg_poly_y = 1
+    if expr.is_polynomial(y):
+        deg_poly_y = min([sp.degree(expr, gen=y), 50])
 
-    if not huge:
-        _x, _y = generate_contoured_mesh(
-            f, [x_min, x_max], [y_min, y_max], 200, 0.5)
-    else:
-        num_x = 800
-        num_y = 800
+    num_x = 800
+    num_y = 800
+
+    if huge:
         _x = np.linspace(x_min, x_max, num_x)
         _f = 0.095
         _y = np.linspace(y_min, -1e12, int(num_y*_f), endpoint=False)
         _y = np.append(_y, np.linspace(-1e12, 1e12,
                                        int(num_y*(1-2*_f)), endpoint=False))
         _y = np.append(_y, np.linspace(1e12, y_max, int(num_y*_f)))
+    elif deg_poly_y > 3:
+        _x = np.linspace(x_min, x_max, num_x)
+        _y = np.linspace(y_min, y_max, num_y)
+    else:
+        _x, _y = generate_contoured_mesh(
+            f, [x_min, x_max], [y_min, y_max], 100, 0.5)
 
     X, Y = np.meshgrid(_x, _y)
 
     # f = lambdify((x, y), expr, modules=["numpy", custom])
     # z = z.astype(np.float32)
     z = f(X, Y)
-
-    # deg_poly_y = 1
-    # if expr.is_polynomial(y):
-    #     deg_poly_y = min([sp.degree(expr, gen=y), 50])
 
     if has_discontinuity:
         # z_val = deg_poly_y
