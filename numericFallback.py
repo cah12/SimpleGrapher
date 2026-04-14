@@ -433,7 +433,8 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
     if has_discontinuity:
         # z_val = float(2 * deg_poly_y)
-        z_val = float(2)
+        # z_val = float(2)
+        z_val = 2.0
         # z_val = np.maximum(z_val, 2)
 
     try:
