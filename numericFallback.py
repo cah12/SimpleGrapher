@@ -6,7 +6,7 @@ from sympy.functions.elementary.trigonometric import TrigonometricFunction
 import numpy as np
 from sympy import symbols, solve
 import sympy as sp
-from my_misc import has_infinite_discontinuity_in_xrange, sanitize_contour_segments, generate_contoured_mesh
+from my_misc import has_infinite_discontinuity_in_xrange, sanitize_contour_segments, generate_contoured_mesh, generate_contoured_mesh_fast
 import re
 from contourpy import contour_generator
 
@@ -391,6 +391,10 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
     num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
         expr, _var, x_min, x_max, y_min, y_max)
+    try:
+        z_val = float(z_val)
+    except Exception:
+        pass
 
     f = lambdify((x, y), expr, modules=["numpy", custom])
 
@@ -413,8 +417,13 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
         _x = np.linspace(x_min, x_max, num_x)
         _y = np.linspace(y_min, y_max, num_y)
     else:
-        _x, _y = generate_contoured_mesh(
-            f, [x_min, x_max], [y_min, y_max], 100, 0.5)
+        initial_sz = 140
+        try:
+            _x, _y = generate_contoured_mesh_fast(
+                f, [x_min, x_max], [y_min, y_max], initial_sz, 0.5)
+        except Exception:
+            _x, _y = generate_contoured_mesh(
+                f, [x_min, x_max], [y_min, y_max], initial_sz, 0.5)
 
     X, Y = np.meshgrid(_x, _y)
 
@@ -423,16 +432,18 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     z = f(X, Y)
 
     if has_discontinuity:
-        # z_val = deg_poly_y
-        z_val = 2
-        z_val = np.maximum(z_val, 2)
+        # z_val = float(2 * deg_poly_y)
+        z_val = float(2)
+        # z_val = np.maximum(z_val, 2)
 
     try:
-        # Replace inf with nan to avoid issues in contouring
-        # z = np.where(np.isfinite(z), z, np.nan)
+        # Ensure z is a numeric numpy array before masking values.
+        z = np.asarray(z, dtype=np.float64)
         z[np.isinf(z)] = np.nan
-        # z = np.ma.masked_where(np.abs(z) > z_val, z)
-        z[np.abs(z) > z_val] = np.nan
+        # Avoid invalid comparisons when z contains NaN values.
+        with np.errstate(invalid='ignore'):
+            mask = np.abs(z) > z_val
+        z[mask] = np.nan
         # mmap_z[np.abs(mmap_z) > z_val] = np.nan
         # Z = np.round(z, 2)  # Adjust precision as necessary
         # Replace inf with nan to avoid issues in contouring

@@ -589,6 +589,10 @@ def _mark_infinity_at_endpoints(expr, segment: np.ndarray) -> np.ndarray:
 
 def subdivide_cell(x0, x1, y0, y1, f, threshold, depth=0, max_depth=10):
     """Subdivides a cell if it contains both high positive and high negative values."""
+    # Stop if cell is too small to prevent excessive subdivision
+    if (x1 - x0) < 1e-6 or (y1 - y0) < 1e-6:
+        return [(x0, x1, y0, y1)]
+
     z_corners = np.array([
         f(x0, y0), f(x1, y0),
         f(x1, y1), f(x0, y1)
@@ -618,33 +622,196 @@ def subdivide_cell(x0, x1, y0, y1, f, threshold, depth=0, max_depth=10):
         return [(x0, x1, y0, y1)]
 
 
-def generate_contoured_mesh(f, x_range, y_range, initial_grid_size, threshold, max_depth=3):
+def _as_array(value, shape):
+    arr = np.asarray(value, dtype=float)
+    if arr.shape == ():
+        arr = np.full(shape, float(arr), dtype=float)
+    return arr
+
+
+def generate_contoured_mesh(f, x_range, y_range, initial_grid_size, threshold, max_depth=4):
     """Generates refined coordinates using adaptive subdivision."""
     x_coords = np.linspace(x_range[0], x_range[1], initial_grid_size)
     y_coords = np.linspace(y_range[0], y_range[1], initial_grid_size)
 
+    x0s, y0s = np.meshgrid(x_coords[:-1], y_coords[:-1], indexing="xy")
+    x1s, y1s = np.meshgrid(x_coords[1:], y_coords[1:], indexing="xy")
+    x0s = x0s.ravel()
+    y0s = y0s.ravel()
+    x1s = x1s.ravel()
+    y1s = y1s.ravel()
+    depths = np.zeros_like(x0s, dtype=np.int64)
+
     refined_cells = []
-    for i in range(len(x_coords)-1):
-        for j in range(len(y_coords)-1):
-            refined_cells.extend(subdivide_cell(
-                x_coords[i], x_coords[i+1],
-                y_coords[j], y_coords[j+1],
-                f, threshold, 0, max_depth
-            ))
+    min_cell_size = 1e-6
 
-    # Extract unique x and y coordinates from refined cells
-    all_x = set()
-    all_y = set()
-    for cell in refined_cells:
-        all_x.add(cell[0])
-        all_x.add(cell[1])
-        all_y.add(cell[2])
-        all_y.add(cell[3])
+    while x0s.size:
+        a = _as_array(f(x0s, y0s), x0s.shape)
+        b = _as_array(f(x1s, y0s), x0s.shape)
+        c = _as_array(f(x1s, y1s), x0s.shape)
+        d = _as_array(f(x0s, y1s), x0s.shape)
 
-    refined_x_coords = np.array(sorted(list(all_x)))
-    refined_y_coords = np.array(sorted(list(all_y)))
+        max_vals = np.maximum(np.maximum(a, b), np.maximum(c, d))
+        min_vals = np.minimum(np.minimum(a, b), np.minimum(c, d))
+
+        split_mask = (
+            (max_vals > threshold)
+            & (min_vals < -threshold)
+            & (depths < max_depth)
+            & ((x1s - x0s) >= min_cell_size)
+            & ((y1s - y0s) >= min_cell_size)
+        )
+
+        keep_mask = ~split_mask
+        if np.any(keep_mask):
+            kept = np.stack([x0s[keep_mask], x1s[keep_mask],
+                            y0s[keep_mask], y1s[keep_mask]], axis=1)
+            refined_cells.extend(map(tuple, kept.tolist()))
+
+        if not np.any(split_mask):
+            break
+
+        x0_split = x0s[split_mask]
+        x1_split = x1s[split_mask]
+        y0_split = y0s[split_mask]
+        y1_split = y1s[split_mask]
+        next_depths = depths[split_mask] + 1
+
+        mid_x = (x0_split + x1_split) / 2
+        mid_y = (y0_split + y1_split) / 2
+
+        n = x0_split.size
+        x0s = np.empty(4 * n, dtype=float)
+        x1s = np.empty(4 * n, dtype=float)
+        y0s = np.empty(4 * n, dtype=float)
+        y1s = np.empty(4 * n, dtype=float)
+        depths = np.empty(4 * n, dtype=np.int64)
+
+        x0s[0::4] = x0_split
+        x1s[0::4] = mid_x
+        y0s[0::4] = y0_split
+        y1s[0::4] = mid_y
+        depths[0::4] = next_depths
+
+        x0s[1::4] = mid_x
+        x1s[1::4] = x1_split
+        y0s[1::4] = y0_split
+        y1s[1::4] = mid_y
+        depths[1::4] = next_depths
+
+        x0s[2::4] = x0_split
+        x1s[2::4] = mid_x
+        y0s[2::4] = mid_y
+        y1s[2::4] = y1_split
+        depths[2::4] = next_depths
+
+        x0s[3::4] = mid_x
+        x1s[3::4] = x1_split
+        y0s[3::4] = mid_y
+        y1s[3::4] = y1_split
+        depths[3::4] = next_depths
+
+    if not refined_cells:
+        return np.array([]), np.array([])
+
+    refined_cells = np.array(refined_cells, dtype=float)
+    refined_x_coords = np.unique(refined_cells[:, [0, 1]])
+    refined_y_coords = np.unique(refined_cells[:, [2, 3]])
 
     return refined_x_coords, refined_y_coords
+
+
+def generate_contoured_mesh_fast(f, x_range, y_range, initial_grid_size, threshold, max_depth=4):
+    """Generates refined coordinates using a preallocated vectorized cell queue."""
+    x_coords = np.linspace(x_range[0], x_range[1], initial_grid_size)
+    y_coords = np.linspace(y_range[0], y_range[1], initial_grid_size)
+
+    n = initial_grid_size - 1
+    x0s = np.repeat(x_coords[:-1], n)
+    x1s = np.repeat(x_coords[1:], n)
+    y0s = np.tile(y_coords[:-1], n)
+    y1s = np.tile(y_coords[1:], n)
+    depths = np.zeros_like(x0s, dtype=np.int64)
+
+    refined_cells = []
+    min_cell_size = 1e-6
+
+    while x0s.size:
+        a = _as_array(f(x0s, y0s), x0s.shape)
+        b = _as_array(f(x1s, y0s), x0s.shape)
+        c = _as_array(f(x1s, y1s), x0s.shape)
+        d = _as_array(f(x0s, y1s), x0s.shape)
+
+        max_vals = np.maximum(np.maximum(a, b), np.maximum(c, d))
+        min_vals = np.minimum(np.minimum(a, b), np.minimum(c, d))
+
+        split_mask = (
+            (max_vals > threshold)
+            & (min_vals < -threshold)
+            & (depths < max_depth)
+            & ((x1s - x0s) >= min_cell_size)
+            & ((y1s - y0s) >= min_cell_size)
+        )
+
+        keep_mask = ~split_mask
+        if np.any(keep_mask):
+            refined_cells.append(np.stack([
+                x0s[keep_mask], x1s[keep_mask],
+                y0s[keep_mask], y1s[keep_mask]
+            ], axis=1))
+
+        if not np.any(split_mask):
+            break
+
+        x0_split = x0s[split_mask]
+        x1_split = x1s[split_mask]
+        y0_split = y0s[split_mask]
+        y1_split = y1s[split_mask]
+        next_depths = depths[split_mask] + 1
+
+        mid_x = (x0_split + x1_split) / 2
+        mid_y = (y0_split + y1_split) / 2
+        n_split = x0_split.size
+
+        x0s = np.empty(4 * n_split, dtype=float)
+        x1s = np.empty(4 * n_split, dtype=float)
+        y0s = np.empty(4 * n_split, dtype=float)
+        y1s = np.empty(4 * n_split, dtype=float)
+        depths = np.empty(4 * n_split, dtype=np.int64)
+
+        x0s[0::4] = x0_split
+        x1s[0::4] = mid_x
+        y0s[0::4] = y0_split
+        y1s[0::4] = mid_y
+        depths[0::4] = next_depths
+
+        x0s[1::4] = mid_x
+        x1s[1::4] = x1_split
+        y0s[1::4] = y0_split
+        y1s[1::4] = mid_y
+        depths[1::4] = next_depths
+
+        x0s[2::4] = x0_split
+        x1s[2::4] = mid_x
+        y0s[2::4] = mid_y
+        y1s[2::4] = y1_split
+        depths[2::4] = next_depths
+
+        x0s[3::4] = mid_x
+        x1s[3::4] = x1_split
+        y0s[3::4] = mid_y
+        y1s[3::4] = y1_split
+        depths[3::4] = next_depths
+
+    if not refined_cells:
+        return np.array([]), np.array([])
+
+    refined_cells = np.vstack(refined_cells)
+    refined_x_coords = np.unique(refined_cells[:, [0, 1]])
+    refined_y_coords = np.unique(refined_cells[:, [2, 3]])
+
+    return refined_x_coords, refined_y_coords
+
 
 # --- Example Usage ---
 # 1. Define a function with high gradients
