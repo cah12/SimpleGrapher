@@ -688,40 +688,41 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
                 else:
                     # segment = np.insert(
                     #     segment, closest_index+1, new_point, axis=0)
-                    # print(segment[closest_index, 1])
+
                     if abs(segment[closest_index, 1] - new_point[1]) > 2e-2:
+                        print(segment[closest_index, 1])
                         segment[closest_index] = new_point
 
-            if not has_discontinuity:
-                maximum_y = np.max(segment[:, 1])
-                lmt = abs(maximum_y)*1e-2
-                start_point = segment[0]
-                start_point_y = start_point[1]
-                if abs(start_point_y) > 0 and abs(start_point_y) < lmt:
-                    expr_x = expr.subs(y, 0)
-                    try:
-                        x_sol = solve(expr_x, x)
-                        if x_sol:
-                            new_point = np.array([float(x_sol[0]), 0.0])
-                            segment = np.insert(
-                                segment, 0, new_point, axis=0)
+            # if not has_discontinuity:
+            #     maximum_y = np.max(segment[:, 1])
+            #     lmt = abs(maximum_y)*1e-2
+            #     start_point = segment[0]
+            #     start_point_y = start_point[1]
+            #     if abs(start_point_y) > 0 and abs(start_point_y) < lmt:
+            #         expr_x = expr.subs(y, 0)
+            #         try:
+            #             x_sol = solve(expr_x, x)
+            #             if x_sol:
+            #                 new_point = np.array([float(x_sol[0]), 0.0])
+            #                 segment = np.insert(
+            #                     segment, 0, new_point, axis=0)
 
-                    except Exception:
-                        pass
+            #         except Exception:
+            #             pass
 
-                end_point = segment[-1]
-                end_point_y = end_point[1]
-                if abs(end_point_y) > 0 and abs(end_point_y) < lmt:
-                    expr_x = expr.subs(y, 0)
-                    try:
-                        x_sol = solve(expr_x, x)
-                        if x_sol:
-                            new_point = np.array([float(x_sol[0]), 0.0])
-                            segment = np.append(
-                                segment, [new_point], axis=0)
+            #     end_point = segment[-1]
+            #     end_point_y = end_point[1]
+            #     if abs(end_point_y) > 0 and abs(end_point_y) < lmt:
+            #         expr_x = expr.subs(y, 0)
+            #         try:
+            #             x_sol = solve(expr_x, x)
+            #             if x_sol:
+            #                 new_point = np.array([float(x_sol[0]), 0.0])
+            #                 segment = np.append(
+            #                     segment, [new_point], axis=0)
 
-                    except Exception:
-                        pass
+            #         except Exception:
+            #             pass
 
             all_points.append(base64.b64encode(
                 segment.tobytes()).decode('utf-8'))
