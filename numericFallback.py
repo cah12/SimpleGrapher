@@ -448,6 +448,23 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     if expr.is_polynomial(x):
         deg_poly_x = min([sp.degree(expr, gen=x), 50])
 
+    # Pattern for common trig functions
+    # pattern = r"\b(sin|cos|tan|asin|acos|atan|sin_mode|cos_mode|tan_mode|asin_mode|acos_mode|atan_mode)\b"
+
+    # # Replace all matched trig functions with '1'
+    # str_expr = re.sub(pattern, "1*", str(expr))
+    # str_expr = sp.sympify(str_expr)
+
+    # deg_poly_x = 1
+
+    # if str_expr.is_polynomial(x):
+    #     deg_poly_x = int(sp.degree(str_expr, x))
+
+    # deg_poly_y = 1
+
+    # if str_expr.is_polynomial(y):
+    #     deg_poly_y = int(sp.degree(str_expr, y))
+
     num_x = 1000
     num_y = 1000
 
@@ -478,6 +495,8 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     # f = lambdify((x, y), expr, modules=["numpy", custom])
     # z = z.astype(np.float32)
     z = f(X, Y)
+
+    # z_val = 0.5
 
     if has_discontinuity:
         # z_val = float(2 * deg_poly_y)
@@ -567,6 +586,31 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
             if segment is None:
                 valid_mask = None
                 continue
+
+            # segment = np.flipud(segment)
+
+            # threshold_distance = 1e-3 * (x_max - x_min)
+            # # 1. Extract X values and calculate differences between adjacent points
+            # # np.diff returns an array of shape (N-1,) where out[i] = arr[i+1] - arr[i]
+            # x_diffs = np.abs(np.diff(segment[:, 0]))
+
+            # # 2. Create a mask for points to keep
+            # # We keep the first point (always) and any point whose difference from the PREVIOUS point is <= threshold
+            # mask = np.concatenate(([True], x_diffs <= threshold_distance))
+
+            # # 3. Apply the mask to remove points
+            # segment = segment[mask]
+            # del mask
+            # del x_diffs
+
+            # seg1, seg2 = np.split(segment, [1], axis=0)
+            # print(len(seg1), len(seg2))
+
+            # x_0 = segment[0, 0]
+            # x_n = segment[-1, 0]
+            # x_n_1 = segment[-2, 0]
+            # if x_0 == x_n and abs(x_n_1 - x_0) > (x_max - x_min) / 20:
+            #     continue
 
             # _, idx = np.unique(segment, axis=0, return_index=True)
             # segment = segment[np.sort(idx)]
