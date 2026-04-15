@@ -643,7 +643,7 @@ def generate_contoured_mesh(f, x_range, y_range, initial_grid_size, threshold, m
     depths = np.zeros_like(x0s, dtype=np.int64)
 
     refined_cells = []
-    min_cell_size = 1e-6
+    min_cell_size = 1e-10
 
     while x0s.size:
         a = _as_array(f(x0s, y0s), x0s.shape)
@@ -734,7 +734,7 @@ def generate_contoured_mesh_fast(f, x_range, y_range, initial_grid_size, thresho
     depths = np.zeros_like(x0s, dtype=np.int64)
 
     refined_cells = []
-    min_cell_size = 1e-6
+    min_cell_size = 1e-10
 
     while x0s.size:
         a = _as_array(f(x0s, y0s), x0s.shape)
