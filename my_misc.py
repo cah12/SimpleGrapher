@@ -629,7 +629,7 @@ def _as_array(value, shape):
     return arr
 
 
-def generate_contoured_mesh(f, x_range, y_range, initial_grid_size, threshold, max_depth=4):
+def generate_contoured_mesh(f, x_range, y_range, initial_grid_size, threshold, max_depth=5):
     """Generates refined coordinates using adaptive subdivision."""
     x_coords = np.linspace(x_range[0], x_range[1], initial_grid_size)
     y_coords = np.linspace(y_range[0], y_range[1], initial_grid_size)
@@ -721,7 +721,7 @@ def generate_contoured_mesh(f, x_range, y_range, initial_grid_size, threshold, m
     return refined_x_coords, refined_y_coords
 
 
-def generate_contoured_mesh_fast(f, x_range, y_range, initial_grid_size, threshold, max_depth=4):
+def generate_contoured_mesh_fast(f, x_range, y_range, initial_grid_size, threshold, max_depth=5):
     """Generates refined coordinates using a preallocated vectorized cell queue."""
     x_coords = np.linspace(x_range[0], x_range[1], initial_grid_size)
     y_coords = np.linspace(y_range[0], y_range[1], initial_grid_size)
