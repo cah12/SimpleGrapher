@@ -453,10 +453,10 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
         initial_sz = 300
         try:
             _x, _y = generate_contoured_mesh_fast(
-                f, [x_min, x_max], [y_min, y_max], initial_sz, 0.05)
+                f, [x_min, x_max], [y_min, y_max], initial_sz, 1)
         except Exception:
             _x, _y = generate_contoured_mesh(
-                f, [x_min, x_max], [y_min, y_max], initial_sz, 0.05)
+                f, [x_min, x_max], [y_min, y_max], initial_sz, 1)
 
     X, Y = np.meshgrid(_x, _y)
 
@@ -555,7 +555,7 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
                     #     segment, closest_index+1, new_point, axis=0)
 
                     if abs(segment[closest_index, 1] - new_point[1]) > 2e-2:
-                        print(segment[closest_index, 1])
+                        # print(segment[closest_index, 1])
                         segment[closest_index] = new_point
 
             all_points.append(base64.b64encode(
