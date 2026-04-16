@@ -450,18 +450,23 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
         _x = np.linspace(x_min, x_max, int(poly_x_factor*num_x*0.125))
         _y = np.linspace(y_min, y_max, num_y*8)
     else:
-        initial_sz = 300
+        initial_sz = 25
         try:
             _x, _y = generate_contoured_mesh_fast(
-                f, [x_min, x_max], [y_min, y_max], initial_sz, 0.08)
+                f, [x_min, x_max], [y_min, y_max], initial_sz, 0.001)
         except Exception:
             _x, _y = generate_contoured_mesh(
-                f, [x_min, x_max], [y_min, y_max], initial_sz, 0.08)
+                f, [x_min, x_max], [y_min, y_max], initial_sz, 0.001)
 
     if len(_x) > 2500:
         _x = np.linspace(x_min, x_max, 2500)
     if len(_y) > 2500:
         _y = np.linspace(y_min, y_max, 2500)
+
+    if len(_x) < 400:
+        _x = np.linspace(x_min, x_max, 400)
+    if len(_y) < 400:
+        _y = np.linspace(y_min, y_max, 400)
 
     X, Y = np.meshgrid(_x, _y)
     del _x
