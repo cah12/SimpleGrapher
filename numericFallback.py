@@ -381,38 +381,6 @@ def grid_x_y_z_val(expr, _var, x_min, x_max, y_min, y_max):
     return default_value*factor_y, default_value*factor_y, z_val, has_discontinuity
 
 
-# def estimate_z_val111(expr, x_min, x_max, y_min, y_max):
-#     """
-#     Estimate a reasonable z_val for an implicit function given the domain (x_min, x_max).
-
-#     This function computes the maximum absolute value of the function over the domain and
-#     returns 10% of that value as the estimated z_val. If the maximum absolute value is
-#     less than 1e-100, then the function returns 1e-100.
-
-#     Args:
-#         expr (sympy expression): The implicit function to estimate z_val for.
-#         x_min (float): The minimum x-value of the domain.
-#         x_max (float): The maximum x-value of the domain.
-
-#     Returns:
-#         float: The estimated z_val value.
-#     """
-
-#     # Compute the maximum absolute value of the function over the domain
-#     x = sp.Symbol('x')
-#     f = sp.lambdify((x, y), expr, modules=['numpy'])
-#     x_val = np.linspace(x_min, x_max, 500)
-#     y_val = np.linspace(y_min, y_max, 500)
-#     max_abs_val = np.max(np.abs(f(x_val, y_val)))
-
-#     # If the maximum absolute value is less than 1e-100, return 1e-100
-#     if max_abs_val < 1e-100:
-#         return 1e-100
-
-#     # Otherwise, return 10% of the maximum absolute value as the estimated z_val
-#     return max_abs_val * 0.08
-
-
 def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale=False, has_discontinuity=False, y_min=-10.0, y_max=10.0):
     x = sp.Symbol(_var)
 
