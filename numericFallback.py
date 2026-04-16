@@ -492,8 +492,6 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
     X, Y = np.meshgrid(_x, _y)
 
-    # f = lambdify((x, y), expr, modules=["numpy", custom])
-    # z = z.astype(np.float32)
     z = f(X, Y)
 
     # z_val = 0.5
@@ -512,28 +510,7 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
         with np.errstate(invalid='ignore'):
             mask = np.abs(z) > z_val
         z[mask] = np.nan
-        # mmap_z[np.abs(mmap_z) > z_val] = np.nan
-        # Z = np.round(z, 2)  # Adjust precision as necessary
-        # Replace inf with nan to avoid issues in contouring
-        # z[np.isinf(z)] = np.nan
-        # CS = plt.contour(X, Y, np.ma.masked_where(z>z_val,
-        #     z), levels=[0])
-        # CS = plt.contour(X, Y, np.ma.masked_invalid(
-        #     z), levels=[0], colors='blue', alpha=0)
 
-        # z = adaptive_patch(f, z, 10, num_x, num_y, _x, _y)
-        # z = adaptive_patch(f, z, 4)
-
-        # z_masked = np.ma.masked_where(z < -z_val, z)
-
-        # z[np.abs(z) < 1e-4] = 0.0
-
-        # cont_gen = contour_generator(
-        #     X, Y, z, name="serial")
-
-        # 3. Populate with large data (example)
-        # In reality, you'd fill this from your data source
-        # mmap_z[:] = z
         cont_gen = contour_generator(
             X, Y, z, name="serial")
         # cont_gen = contour_generator(X, Y, z, quad_as_tri=True, corner_as_point=True, name="serial")
@@ -587,86 +564,6 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
                 valid_mask = None
                 continue
 
-            # segment = np.flipud(segment)
-
-            # threshold_distance = 1e-3 * (x_max - x_min)
-            # # 1. Extract X values and calculate differences between adjacent points
-            # # np.diff returns an array of shape (N-1,) where out[i] = arr[i+1] - arr[i]
-            # x_diffs = np.abs(np.diff(segment[:, 0]))
-
-            # # 2. Create a mask for points to keep
-            # # We keep the first point (always) and any point whose difference from the PREVIOUS point is <= threshold
-            # mask = np.concatenate(([True], x_diffs <= threshold_distance))
-
-            # # 3. Apply the mask to remove points
-            # segment = segment[mask]
-            # del mask
-            # del x_diffs
-
-            # seg1, seg2 = np.split(segment, [1], axis=0)
-            # print(len(seg1), len(seg2))
-
-            # x_0 = segment[0, 0]
-            # x_n = segment[-1, 0]
-            # x_n_1 = segment[-2, 0]
-            # if x_0 == x_n and abs(x_n_1 - x_0) > (x_max - x_min) / 20:
-            #     continue
-
-            # _, idx = np.unique(segment, axis=0, return_index=True)
-            # segment = segment[np.sort(idx)]
-
-            # if not large_range_span:
-            #     max_y = np.max(segment[:, 1])
-            #     min_y = np.min(segment[:, 1])
-            # if np.abs(max_y - min_y) > 1e16:
-            #     large_range_span = True
-
-            # Extract x-coordinates (first column)
-            # x_arr = segment[:, 0]
-
-            # Find indices where sign changes (returns the index of the new sign)
-            # if len(cusp) == 2 and segment.ndim == 2 and segment.shape[1] >= 2:
-            #     # indices = np.where(np.diff(np.sign(x_arr)) != 0)[0] + 1
-            #     # 1. Calculate slopes between adjacent points
-            #     slopes = np.diff(segment[:, 1]) / np.diff(segment[:, 0])
-
-            #     # 2. Find where the sign of the slope changes
-            #     # np.sign returns -1, 0, or 1. diff() on this will be non-zero at changes.
-            #     indices = np.where(np.diff(np.sign(slopes)) != 0)[0]
-
-            #     index = None
-            #     try:
-            #         cusp_x = float(cusp[0])
-            #         cusp_y = float(cusp[1])
-            #     except Exception:
-            #         cusp_x = None
-            #         cusp_y = None
-
-            #     if cusp_x is not None and cusp_y is not None:
-            #         cusp_index_in_segment = None
-            #         h_val_min = np.inf
-            #         for idx in indices:
-            #             if idx < 0 or idx >= len(segment):
-            #                 continue
-            #             # Check if the point is close to the cusp
-            #             h_val = np.hypot(
-            #                 segment[idx, 0] - cusp_x, segment[idx, 1] - cusp_y)
-            #             if h_val <= h_val_min:
-            #                 cusp_index_in_segment = idx+1
-            #                 h_val_min = h_val
-            #             # if h_val < 0.1538326207567586:
-            #             #     index = idx+1
-            #             #     break
-
-            #         if cusp_index_in_segment is not None:
-            #             _x = cusp_x
-            #             _y = cusp_y
-            #             new_point = np.array([_x, _y])
-
-            #             # Insert at cusp_index_in_segment 0 along the first axis (rows)
-            #             segment = np.insert(
-            #                 segment, cusp_index_in_segment, new_point, axis=0)
-
             # cusp = []
             for _cusp in cusp:
                 new_point = np.array([float(_cusp[0]), float(_cusp[1])])
@@ -692,37 +589,6 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
                     if abs(segment[closest_index, 1] - new_point[1]) > 2e-2:
                         print(segment[closest_index, 1])
                         segment[closest_index] = new_point
-
-            # if not has_discontinuity:
-            #     maximum_y = np.max(segment[:, 1])
-            #     lmt = abs(maximum_y)*1e-2
-            #     start_point = segment[0]
-            #     start_point_y = start_point[1]
-            #     if abs(start_point_y) > 0 and abs(start_point_y) < lmt:
-            #         expr_x = expr.subs(y, 0)
-            #         try:
-            #             x_sol = solve(expr_x, x)
-            #             if x_sol:
-            #                 new_point = np.array([float(x_sol[0]), 0.0])
-            #                 segment = np.insert(
-            #                     segment, 0, new_point, axis=0)
-
-            #         except Exception:
-            #             pass
-
-            #     end_point = segment[-1]
-            #     end_point_y = end_point[1]
-            #     if abs(end_point_y) > 0 and abs(end_point_y) < lmt:
-            #         expr_x = expr.subs(y, 0)
-            #         try:
-            #             x_sol = solve(expr_x, x)
-            #             if x_sol:
-            #                 new_point = np.array([float(x_sol[0]), 0.0])
-            #                 segment = np.append(
-            #                     segment, [new_point], axis=0)
-
-            #         except Exception:
-            #             pass
 
             all_points.append(base64.b64encode(
                 segment.tobytes()).decode('utf-8'))
