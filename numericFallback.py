@@ -1,7 +1,7 @@
 # %%fmt: off
 import base64
 from custom import custom
-from sympy import lambdify
+from sympy import factor, lambdify
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
 import numpy as np
 from sympy import symbols, solve
@@ -409,6 +409,15 @@ def grid_x_y_z_val(expr, _var, x_min, x_max, y_min, y_max):
 
 def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale=False, has_discontinuity=False, y_min=-10.0, y_max=10.0):
     x = sp.Symbol(_var)
+
+    # 2. Factor the expression to see the components
+    factored_expr = sp.factor(expr)  # Result: x*(x - y)
+
+    # Check if x is in the factors
+    has_x = x in factored_expr.args
+
+    if has_x:
+        expr = factored_expr/x
 
     (y_min, y_max) = estimate_y_bounds2(expr, _var, x_min, x_max)
 
