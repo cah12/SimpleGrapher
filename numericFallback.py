@@ -91,6 +91,11 @@ def find_cusp_points(expr, _var, x_min, x_max, y_min, y_max,
         try:
             f_at_y0 = expr.subs(y, 0)
             x_sols = sp.solveset(f_at_y0, x, sp.S.Reals)
+
+            # Prepare lambdified functions for derivative validation
+            fx_fun = lambdify((x, y), fx, modules=[custom, 'numpy'])
+            fy_fun = lambdify((x, y), fy, modules=[custom, 'numpy'])
+
             if isinstance(x_sols, sp.ImageSet):
                 lam = x_sols.lam
                 base = lam.expr
@@ -101,7 +106,14 @@ def find_cusp_points(expr, _var, x_min, x_max, y_min, y_max,
                     for k in range(k_min, k_max + 1):
                         px = float(k * math.pi)
                         if x_min <= px <= x_max:
-                            candidates.append((px, 0.0))
+                            # Verify this is actually a cusp: both derivatives must be close to zero
+                            try:
+                                fx_val = abs(float(fx_fun(px, 0.0)))
+                                fy_val = abs(float(fy_fun(px, 0.0)))
+                                if fx_val < tolerance and fy_val < tolerance:
+                                    candidates.append((px, 0.0))
+                            except:
+                                pass
             elif isinstance(x_sols, sp.Union) and len(x_sols.args) == 2 and all(isinstance(s, sp.ImageSet) for s in x_sols.args):
                 # Special case for expressions like sin(x)**2 = 0, which has Union of even and odd multiples
                 k_min = int(math.ceil(x_min / math.pi))
@@ -109,13 +121,27 @@ def find_cusp_points(expr, _var, x_min, x_max, y_min, y_max,
                 for k in range(k_min, k_max + 1):
                     px = float(k * sp.pi)
                     if x_min <= px <= x_max:
-                        candidates.append((px, 0.0))
+                        # Verify this is actually a cusp: both derivatives must be close to zero
+                        try:
+                            fx_val = abs(float(fx_fun(px, 0.0)))
+                            fy_val = abs(float(fy_fun(px, 0.0)))
+                            if fx_val < tolerance and fy_val < tolerance:
+                                candidates.append((px, 0.0))
+                        except:
+                            pass
             elif isinstance(x_sols, sp.FiniteSet):
                 for sol in x_sols:
                     if sol.is_real and sol.is_finite:
                         px = float(sol)
                         if x_min <= px <= x_max:
-                            candidates.append((px, 0.0))
+                            # Verify this is actually a cusp: both derivatives must be close to zero
+                            try:
+                                fx_val = abs(float(fx_fun(px, 0.0)))
+                                fy_val = abs(float(fy_fun(px, 0.0)))
+                                if fx_val < tolerance and fy_val < tolerance:
+                                    candidates.append((px, 0.0))
+                            except:
+                                pass
         except Exception:
             pass
 
@@ -575,9 +601,15 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
                 else:
                     # segment = np.insert(
                     #     segment, closest_index+1, new_point, axis=0)
+                    # space1 = abs(segment[closest_index, 0] -
+                    #              segment[closest_index-1, 0])
+                    # space2 = abs(
+                    #     segment[closest_index+1, 0] - segment[closest_index, 0])
+                    # if abs(space2 > 4*space1):
+                    #     continue
 
-                    if abs(segment[closest_index, 1] - new_point[1]) > 2e-2:
-                        # print(segment[closest_index, 1])
+                    if abs(segment[closest_index, 0] - new_point[0]) < 2e-6:
+                        # print(segment[closest_index, 0])
                         segment[closest_index] = new_point
 
             all_points.append(base64.b64encode(
