@@ -417,9 +417,34 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     has_x = x in factored_expr.args
 
     if has_x:
-        expr = factored_expr/x
+        for arg in factored_expr.args:
+            if arg.is_Number:
+                continue
+            elif arg == x:
+                continue
+            elif (arg.is_polynomial(y) and sp.degree(arg, gen=y) != 1) or (arg.is_polynomial(x) and sp.degree(arg, gen=x) != 1):
+                continue
+            else:
+                expr = factored_expr/x
+
+    has_1_divided_by_x = (1/x) in factored_expr.args
+
+    if has_1_divided_by_x:
+        for arg in factored_expr.args:
+            if arg.is_Number:
+                continue
+            elif arg == 1/x:
+                continue
+            elif (arg.is_polynomial(y) and sp.degree(arg, gen=y) != 1) or (arg.is_polynomial(x) and sp.degree(arg, gen=x) != 1):
+                continue
+            else:
+                expr = factored_expr*x
 
     (y_min, y_max) = estimate_y_bounds2(expr, _var, x_min, x_max)
+    if y_min == 0:
+        y_min = -10000
+    if y_max == 0:
+        y_max = 10000
 
     huge = False
     if abs(y_max - y_min) > 1e16:
@@ -435,6 +460,9 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
 
     num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
         expr, _var, x_min, x_max, y_min, y_max)
+    if has_discontinuity:
+        y_min = -500
+        y_max = 500
     try:
         z_val = float(z_val)
     except Exception:

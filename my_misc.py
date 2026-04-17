@@ -70,7 +70,8 @@ def sanitize_contour_segments(expr, _var, segment: np.ndarray,
     #     has_discontinuity = True
 
     # for segment in allsegs:
-    if segment is None or len(segment) < 30:
+    # if segment is None or len(segment) < 30:
+    if segment is None or len(segment) < 120:
         # print("segment too short", len(segment))
         segment = None
         return segment
@@ -714,7 +715,7 @@ def generate_contoured_mesh(f, x_range, y_range, initial_grid_size, threshold, m
     if not refined_cells:
         return np.array([]), np.array([])
 
-    refined_cells = np.array(refined_cells, dtype=float)
+    refined_cells = np.vstack(refined_cells)
     refined_x_coords = np.unique(refined_cells[:, [0, 1]])
     refined_y_coords = np.unique(refined_cells[:, [2, 3]])
 
