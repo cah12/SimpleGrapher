@@ -608,7 +608,7 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
                     # if abs(space2 > 4*space1):
                     #     continue
 
-                    if abs(segment[closest_index, 0] - new_point[0]) < 2e-6:
+                    if abs(segment[closest_index, 1] - new_point[1]) > 2e-6:
                         # print(segment[closest_index, 0])
                         segment[closest_index] = new_point
 
