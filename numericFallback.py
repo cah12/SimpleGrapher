@@ -487,8 +487,8 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     density = len(_x)*len(_y)
 
     if density > 3000*3000:
-        _x = np.linspace(x_min, x_max, 3000)
-        _y = np.linspace(y_min, y_max, 3000)
+        _x = np.linspace(x_min, x_max, 1600)
+        _y = np.linspace(y_min, y_max, 900)
 
     if density < 400*400:
         _x = np.linspace(x_min, x_max, 1600)
