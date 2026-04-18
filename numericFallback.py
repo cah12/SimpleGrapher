@@ -524,8 +524,8 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     density = len(_x)*len(_y)
 
     if density > 3000*3000:
-        _x = np.linspace(x_min, x_max, 2500)
-        _y = np.linspace(y_min, y_max, 2500)
+        _x = np.linspace(x_min, x_max, 1600)
+        _y = np.linspace(y_min, y_max, 1600)
 
     if density < 400*400:
         _x = np.linspace(x_min, x_max, 1600)
@@ -554,7 +554,10 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
         # z_val = float(2)
         z_val = 2
         if not (expr.has(TrigonometricFunction) or "_mode" in str(expr)):
-            z_val = 2.5
+            # if density > 3000*3000:
+            z_val = 8
+            if deg_poly_y > 1:
+                z_val = 2
         # z_val = np.maximum(z_val, 2)
 
     try:
