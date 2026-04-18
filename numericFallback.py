@@ -411,34 +411,34 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     x = sp.Symbol(_var)
 
     # 2. Factor the expression to see the components
-    factored_expr = sp.factor(expr)  # Result: x*(x - y)
+    # factored_expr = sp.factor(expr)  # Result: x*(x - y)
 
-    # Check if x is in the factors
-    has_x = x in factored_expr.args
+    # # Check if x is in the factors
+    # has_x = x in factored_expr.args
 
-    if has_x:
-        for arg in factored_expr.args:
-            if arg.is_Number:
-                continue
-            elif arg == x:
-                continue
-            elif (arg.is_polynomial(y) and sp.degree(arg, gen=y) != 1) or (arg.is_polynomial(x) and sp.degree(arg, gen=x) != 1):
-                continue
-            else:
-                expr = factored_expr/x
+    # if has_x:
+    #     for arg in factored_expr.args:
+    #         if arg.is_Number:
+    #             continue
+    #         elif arg == x:
+    #             continue
+    #         elif (arg.is_polynomial(y) and sp.degree(arg, gen=y) != 1) or (arg.is_polynomial(x) and sp.degree(arg, gen=x) != 1):
+    #             continue
+    #         else:
+    #             expr = factored_expr/x
 
-    has_1_divided_by_x = (1/x) in factored_expr.args
+    # has_1_divided_by_x = (1/x) in factored_expr.args
 
-    if has_1_divided_by_x:
-        for arg in factored_expr.args:
-            if arg.is_Number:
-                continue
-            elif arg == 1/x:
-                continue
-            elif (arg.is_polynomial(y) and sp.degree(arg, gen=y) != 1) or (arg.is_polynomial(x) and sp.degree(arg, gen=x) != 1):
-                continue
-            else:
-                expr = factored_expr*x
+    # if has_1_divided_by_x:
+    #     for arg in factored_expr.args:
+    #         if arg.is_Number:
+    #             continue
+    #         elif arg == 1/x:
+    #             continue
+    #         elif (arg.is_polynomial(y) and sp.degree(arg, gen=y) != 1) or (arg.is_polynomial(x) and sp.degree(arg, gen=x) != 1):
+    #             continue
+    #         else:
+    #             expr = factored_expr*x
 
     (y_min, y_max) = estimate_y_bounds2(expr, _var, x_min, x_max)
     if y_min == 0:
@@ -524,8 +524,8 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     density = len(_x)*len(_y)
 
     if density > 3000*3000:
-        _x = np.linspace(x_min, x_max, 1600)
-        _y = np.linspace(y_min, y_max, 900)
+        _x = np.linspace(x_min, x_max, 2500)
+        _y = np.linspace(y_min, y_max, 2500)
 
     if density < 400*400:
         _x = np.linspace(x_min, x_max, 1600)
@@ -552,7 +552,9 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     if has_discontinuity:
         # z_val = float(2 * deg_poly_y)
         # z_val = float(2)
-        z_val = 2.0
+        z_val = 2
+        if not (expr.has(TrigonometricFunction) or "_mode" in str(expr)):
+            z_val = 2.5
         # z_val = np.maximum(z_val, 2)
 
     try:
