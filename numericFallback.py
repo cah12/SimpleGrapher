@@ -1,5 +1,6 @@
 # %%fmt: off
 import base64
+# import time
 from custom import custom
 from sympy import factor, lambdify
 from sympy.functions.elementary.trigonometric import TrigonometricFunction
@@ -71,6 +72,14 @@ def find_cusp_points(expr, _var, x_min, x_max, y_min, y_max,
 
     fx = sp.diff(expr, x)
     fy = sp.diff(expr, y)
+
+    # Early exit if fy never zero (no cusps possible)
+    try:
+        fy_solutions = sp.solve(fy, y)
+        if isinstance(fy_solutions, (list, sp.FiniteSet)) and len(fy_solutions) == 0:
+            return []
+    except Exception:
+        pass
 
     candidates = []
 
@@ -455,8 +464,12 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     y_min = -_max
     y_max = _max
 
+    # start_time = time.perf_counter()
+
     cusp = find_cusp_points(expr, _var, x_min, x_max, y_min, y_max)
     # cusp = has_cusp(expr, _var, x_min, x_max, y_min, y_max)
+    # end_time = time.perf_counter()
+    # print(f"Time to find cusps: {end_time - start_time:.4f} seconds")
 
     num_x, num_y, z_val, has_discontinuity = grid_x_y_z_val(
         expr, _var, x_min, x_max, y_min, y_max)
@@ -471,30 +484,30 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     f = lambdify((x, y), expr, modules=["numpy", custom])
 
     _x, _y = None, None
-    deg_poly_y = 1
-    if expr.is_polynomial(y):
-        deg_poly_y = min([sp.degree(expr, gen=y), 50])
-
-    deg_poly_x = 1
-    if expr.is_polynomial(x):
-        deg_poly_x = min([sp.degree(expr, gen=x), 50])
-
-    # Pattern for common trig functions
-    # pattern = r"\b(sin|cos|tan|asin|acos|atan|sin_mode|cos_mode|tan_mode|asin_mode|acos_mode|atan_mode)\b"
-
-    # # Replace all matched trig functions with '1'
-    # str_expr = re.sub(pattern, "1*", str(expr))
-    # str_expr = sp.sympify(str_expr)
+    # deg_poly_y = 1
+    # if expr.is_polynomial(y):
+    #     deg_poly_y = min([sp.degree(expr, gen=y), 50])
 
     # deg_poly_x = 1
+    # if expr.is_polynomial(x):
+    #     deg_poly_x = min([sp.degree(expr, gen=x), 50])
 
-    # if str_expr.is_polynomial(x):
-    #     deg_poly_x = int(sp.degree(str_expr, x))
+    # Pattern for common trig functions
+    pattern = r"\b(sin|cos|tan|asin|acos|atan|sin_mode|cos_mode|tan_mode|asin_mode|acos_mode|atan_mode)\b"
 
-    # deg_poly_y = 1
+    # Replace all matched trig functions with '1'
+    str_expr = re.sub(pattern, "1*", str(expr))
+    str_expr = sp.sympify(str_expr)
 
-    # if str_expr.is_polynomial(y):
-    #     deg_poly_y = int(sp.degree(str_expr, y))
+    deg_poly_x = 1
+
+    if str_expr.is_polynomial(x):
+        deg_poly_x = int(sp.degree(str_expr, x))
+
+    deg_poly_y = 1
+
+    if str_expr.is_polynomial(y):
+        deg_poly_y = int(sp.degree(str_expr, y))
 
     num_x = 1000
     num_y = 1000
@@ -513,23 +526,27 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
         _x = np.linspace(x_min, x_max, int(poly_x_factor*num_x*0.125))
         _y = np.linspace(y_min, y_max, num_y*8)
     else:
-        initial_sz = 120
-        try:
-            _x, _y = generate_contoured_mesh_fast(
-                f, [x_min, x_max], [y_min, y_max], initial_sz, 0.2)
-        except Exception:
-            _x, _y = generate_contoured_mesh(
-                f, [x_min, x_max], [y_min, y_max], initial_sz, 0.2)
+        density = -1
+        initial_sz = 20
+        thrsh = 0.2
+        while density < 1000*1000:
+            try:
+                _x, _y = generate_contoured_mesh_fast(
+                    f, [x_min, x_max], [y_min, y_max], initial_sz, thrsh)
+            except Exception:
+                _x, _y = generate_contoured_mesh(
+                    f, [x_min, x_max], [y_min, y_max], initial_sz, thrsh)
+            density = len(_x)*len(_y)
+            initial_sz = initial_sz+initial_sz
+            thrsh /= 4
 
-    density = len(_x)*len(_y)
+        if density > 3000*3000 or deg_poly_x > 12 or deg_poly_y > 12:
+            _x = np.linspace(x_min, x_max, 1600)
+            _y = np.linspace(y_min, y_max, 1600)
 
-    if density > 3000*3000:
-        _x = np.linspace(x_min, x_max, 1600)
-        _y = np.linspace(y_min, y_max, 1600)
-
-    if density < 400*400:
-        _x = np.linspace(x_min, x_max, 1600)
-        _y = np.linspace(y_min, y_max, 900)
+    # if density < 400*400:
+    #     _x = np.linspace(x_min, x_max, 1600)
+    #     _y = np.linspace(y_min, y_max, 1600)
 
     # if len(_x) > 3000:
     #     _x = np.linspace(x_min, x_max, 3000)
@@ -550,15 +567,15 @@ def generate_implicit_plot_points(expr, _var, x_min=-10.0, x_max=10.0, autoScale
     # z_val = 0.5
 
     if has_discontinuity:
-        # z_val = float(2 * deg_poly_y)
-        # z_val = float(2)
-        z_val = 2
+        z_val = float(120)  # for 1/sin(x)=y, 1/sin(x)+x=y, tan(x)=y
+        # z_val = float(30)  # for
+
         if not (expr.has(TrigonometricFunction) or "_mode" in str(expr)):
             # if density > 3000*3000:
-            z_val = 8
+            z_val = float(8)
             if deg_poly_y > 1:
-                z_val = 2
-        # z_val = np.maximum(z_val, 2)
+                z_val = float(12)
+        z_val = np.maximum(z_val, 2)
 
     try:
         # Ensure z is a numeric numpy array before masking values.

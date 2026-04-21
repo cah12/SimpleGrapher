@@ -400,6 +400,87 @@ def has_infinite_discontinuity_in_xrange(implicit_expr, _var, x_min, x_max) -> b
     except Exception:
         pass
 
+    # Check for singularities: points where the expression becomes undefined
+    # or goes to infinity as x approaches certain values
+    try:
+        # Find poles by looking at the denominator after rationalization
+        if D != 1:  # If there's a denominator
+            poles = sp.solveset(D, x, domain=sp.S.Reals)
+            if isinstance(poles, sp.Set):
+                interval = sp.Interval(float(xmin), float(xmax))
+                inter_poles = poles.intersect(interval)
+                if not inter_poles.is_empty:
+                    return True
+            else:
+                for p in poles:
+                    try:
+                        pv = float(p.evalf())
+                        if xmin - 1e-12 <= pv <= xmax + 1e-12:
+                            return True
+                    except Exception:
+                        continue
+
+        # Check if expression has square roots, logs, etc. that might be undefined
+        # For expressions like sqrt(f(x)), check where f(x) < 0
+        # Find all sqrt functions (Pow with exp=1/2) recursively
+        def find_sqrt_funcs(expr):
+            sqrt_funcs = []
+            if isinstance(expr, sp.Pow) and expr.exp == sp.Rational(1, 2):
+                sqrt_funcs.append(expr)
+            for arg in expr.args:
+                sqrt_funcs.extend(find_sqrt_funcs(arg))
+            return sqrt_funcs
+
+        sqrt_funcs = find_sqrt_funcs(expr_sym)
+        for sqrt_func in sqrt_funcs:
+            # For sqrt functions, check where the argument becomes negative
+            arg = sqrt_func.base  # The base is the argument of sqrt
+            try:
+                # Solve arg < 0
+                neg_region = sp.solveset(arg < 0, x, domain=sp.S.Reals)
+                if isinstance(neg_region, sp.Set):
+                    interval = sp.Interval(float(xmin), float(xmax))
+                    inter_neg = neg_region.intersect(interval)
+                    if not inter_neg.is_empty:
+                        return True
+                else:
+                    for sol in neg_region:
+                        try:
+                            sv = float(sol.evalf())
+                            if xmin - 1e-12 <= sv <= xmax + 1e-12:
+                                return True
+                        except Exception:
+                            continue
+            except Exception:
+                pass
+
+        # Check for log functions
+        log_funcs = [atom for atom in expr_sym.atoms(
+            sp.Function) if isinstance(atom, sp.log)]
+        for log_func in log_funcs:
+            # For log functions, check where the argument <= 0
+            arg = log_func.args[0]
+            try:
+                non_pos_region = sp.solveset(
+                    sp.Or(arg <= 0), x, domain=sp.S.Reals)
+                if isinstance(non_pos_region, sp.Set):
+                    interval = sp.Interval(float(xmin), float(xmax))
+                    inter_nonpos = non_pos_region.intersect(interval)
+                    if not inter_nonpos.is_empty:
+                        return True
+                else:
+                    for sol in non_pos_region:
+                        try:
+                            sv = float(sol.evalf())
+                            if xmin - 1e-12 <= sv <= xmax + 1e-12:
+                                return True
+                        except Exception:
+                            continue
+            except Exception:
+                pass
+    except Exception:
+        pass
+
     return False
 
 # def _mark_infinity_points(segment: np.ndarray) -> np.ndarray:
